@@ -3,16 +3,16 @@
 :- use_module(library(mcintyre)).
 
 /* if min > max
-   or min == 0
-   or step <= 0
-   or min empty
-   or max empty
-   or step empty
-   or min not integer
-   or max not integer
-   or step not integer:
-        fail
-*/
+ * or min == 0
+ * or step <= 0
+ * or min empty
+ * or max empty
+ * or step empty
+ * or min not integer
+ * or max not integer
+ * or step not integer:
+ *       fail
+ */
 main :-
     current_prolog_flag(argv, Argv),
     [Min_a|T] = Argv,
@@ -35,19 +35,16 @@ main :-
 main :-
     halt(1).
 
+/* for i = $min, i < $max, i += step:
+ *      samples = i
+ *      time_mh = measure_mh(samples)
+ *      time_gibbs = measure_gibbs(samples)
+ *      print(samples, time_mh, time_gibbs)
+ */
 loop(Curr,Max,_):-
     Curr>Max,
     !.
 
-/*
- * ./poc.pl $min $max $step
- *
- * for i = $min, i < $max, i += step:
- *       samples = i
- *       time_mh = measure_mh(samples)
- *       time_gibbs = measure_gibbs(samples)
- *       print(samples, time_mh, time_gibbs)
- */
 loop(Curr, Max, Step):-
     Samples is Curr,
     measure_mh_arithm(Time_mh,Samples),
