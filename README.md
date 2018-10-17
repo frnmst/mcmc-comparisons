@@ -23,7 +23,7 @@ For built-in help, use ?- help(Topic). or ?- apropos(Word).
 
 - Execute the `run.sh` script.
 
-    help: ./run.sh min max samples
+      help: ./run.sh min max samples
 
 ## License
 
