@@ -1,4 +1,5 @@
 # mcmc-comparisons
+
 comparision of various MCMC algorithms in SWI Prolog
 
 ## Instructions
@@ -19,6 +20,10 @@ For built-in help, use ?- help(Topic). or ?- apropos(Word).
 
 ?- pack_install(cplint).
 ```
+
+- Execute the `run.sh` script.
+
+    help: ./run.sh min max samples
 
 ## License
 
