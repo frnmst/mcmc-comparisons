@@ -1,6 +1,7 @@
 # mcmc-comparisons
 
-comparision of various MCMC algorithms in SWI Prolog
+comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) 
+algorithms in SWI Prolog
 
 ## Instructions
 
