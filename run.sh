@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 swipl -s poc ${1} ${2} ${3}
 if [ $? -ne 0 ]; then
