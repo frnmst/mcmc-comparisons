@@ -21,6 +21,10 @@ For built-in help, use ?- help(Topic). or ?- apropos(Word).
 ?- pack_install(cplint).
 ```
 
+- Clone the repository with the swish git submodule:
+
+      git clone --recurse-submodules https://github.com/frnmst/mcmc-comparisons.git
+
 - Execute the `run.sh` script.
 
       help: ./run.sh min max samples
