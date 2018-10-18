@@ -28,8 +28,9 @@ main :-
     Step > 0,
     Min =< Max,
     format('Called with: Min=~q, Max=~q, Step=~q\n', [Min, Max, Step]),
-    format('# samples\tmhs_time\tgbs_time\n'),
-    loop(Min,Max,Step),
+    format('performing arithm.pl tests in ms\n'),
+    [swish/examples/inference/arithm],
+    loop_arithm(Min,Max,Step),
     halt.
 
 main :-
@@ -41,26 +42,42 @@ main :-
  *      time_gibbs = measure_gibbs(samples)
  *      print(samples, time_mh, time_gibbs)
  */
-loop(Curr,Max,_):-
+loop_arithm(Curr,Max,_):-
     Curr>Max,
     !.
 
-loop(Curr, Max, Step):-
+/* format: samples\tmhs_time\tgbs_time\n' */
+loop_arithm(Curr, Max, Step):-
     Samples is Curr,
-    measure_mh_arithm(Time_mh,Samples),
-    measure_gibbs_arithm(Time_gibbs,Samples),
-    format('~q\t~q\t~q\n', [Samples, Time_mh, Time_gibbs]),
+    measure_mh_arithm_sample(Time_mh_sample,Samples),
+    measure_gibbs_arithm_sample(Time_gibbs_sample,Samples),
+    /* write to arithm_mh_sample.csv */
+    /* write to arithm_gibbs_sample.csv */
+    format('~q\t~q\t~q\n', [Samples, Time_mh_sample, Time_gibbs_sample]),
+    measure_mh_arithm_sample_arg(Time_mh_sample_arg,Samples),
+    measure_gibbs_arithm_sample_arg(Time_gibbs_sample_arg,Samples),
+    /* write to arithm_mh_sample_arg.csv */
+    /* write to arithm_gibbs_sample_arg.csv */
+    format('~q\t~q\t~q\n', [Samples, Time_mh_sample_arg, Time_gibbs_sample_arg]),
     N is Curr+Step,
-    loop(N,Max,Step).
+    loop_arithm(N,Max,Step).
 
-measure_mh_arithm(Time, Samples):-
-    [swish/examples/inference/arithm],
+measure_mh_arithm_sample(Time, Samples):-
     statistics(walltime, [_|[_]]),
     mc_mh_sample(eval(2,4),eval(1,3),Samples,_,[mix(100),lag(3),successes(_),failures(_)]),
     statistics(walltime, [_|[Time]]).
 
-measure_gibbs_arithm(Time, Samples):-
-    [swish/examples/inference/arithm],
+measure_gibbs_arithm_sample(Time, Samples):-
     statistics(walltime, [_|[_]]),
     mc_gibbs_sample(eval(2,4),eval(1,3),Samples,_,[mix(100),lag(3),successes(_),failures(_)]),
+    statistics(walltime, [_|[Time]]).
+
+measure_mh_arithm_sample_arg(Time, Samples):-
+    statistics(walltime, [_|[_]]),
+    mc_mh_sample_arg(eval(2,_),(eval(0,2),eval(1,3)),Samples,_,_,[mix(100),lag(3)]),
+    statistics(walltime, [_|[Time]]).
+
+measure_gibbs_arithm_sample_arg(Time, Samples):-
+    statistics(walltime, [_|[_]]),
+    mc_gibbs_sample_arg(eval(2,_),(eval(0,2),eval(1,3)),Samples,_,_,[mix(100),lag(3)]),
     statistics(walltime, [_|[Time]]).
