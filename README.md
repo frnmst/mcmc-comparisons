@@ -3,6 +3,11 @@
 comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) 
 algorithms in SWI Prolog
 
+## Algorithms
+
+- [Metropolis-Hastings](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm)
+- [Gibbs sampling](https://en.wikipedia.org/wiki/Gibbs_sampling)
+
 ## Instructions
 
 - Install the latest version of [SWI prolog](http://www.swi-prolog.org/).
@@ -30,4 +35,4 @@ algorithms in SWI Prolog
 
 ## License
 
-Two clause BSD
+See the `LICENSE` file.
