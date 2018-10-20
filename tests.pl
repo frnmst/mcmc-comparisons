@@ -31,6 +31,16 @@
 :- initialization(main).
 :- use_module(library(mcintyre)).
 
+main :-
+    current_prolog_flag(argv, Argv),
+    parse_cli_args(Argv,Min,Max,Step),
+    format('Called with: Min=~q, Max=~q, Step=~q\n', [Min, Max, Step]),
+    tests(Min,Max,Step),
+    halt.
+
+main :-
+    halt(1).
+
 /* if min > max
  * or min == 0
  * or step <= 0
@@ -42,9 +52,7 @@
  * or step not integer:
  *       fail
  */
-main :-
-    /* Get and parse the CLI arguments. */
-    current_prolog_flag(argv, Argv),
+parse_cli_args(Argv,Min,Max,Step):-
     [Min_a|T] = Argv,
     [Max_a|U] = T,
     [Step_a|_] = U,
@@ -56,21 +64,14 @@ main :-
     integer(Step),
     Min > 0,
     Step > 0,
-    Min =< Max,
-    format('Called with: Min=~q, Max=~q, Step=~q\n', [Min, Max, Step]),
+    Min =< Max.
+
+tests(Min,Max,Step):-
     format('performing arithm.pl on arithm_sample.csv\n'),
     [swish/examples/inference/arithm],
     open('arithm_sample.csv',write,Out_a),
     loop_arithm_sample(Min,Max,Step,Out_a),
-    close(Out_a),
-    format('performing arithm.pl on arithm_sample_arg.csv\n'),
-    open('arithm_sample_arg.csv',write,Out_b),
-    loop_arithm_sample_arg(Min,Max,Step,Out_b),
-    close(Out_b),
-    halt.
-
-main :-
-    halt(1).
+    close(Out_a).
 
 /* for i = $min, i < $max, i += step:
  *      samples = i
