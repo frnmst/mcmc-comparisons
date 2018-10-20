@@ -33,6 +33,13 @@ algorithms in SWI Prolog
 
       help: ./run.sh min max samples
 
+## CSV file format
+
+The results of each test will be logged to a corresponding CSV file with the 
+following format:
+
+    run number,samples,mh time, gibbs time
+
 ## License
 
 See the `LICENSE` file.

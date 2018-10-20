@@ -29,7 +29,13 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-swipl -s tests ${1} ${2} ${3}
+OUTPUTS="arithm_sample.csv"
+
+for o in $OUTPUTS; do
+    rm -rf "$o"
+done
+
+swipl -s tests ${1} ${2} ${3} ${4}
 if [ $? -ne 0 ]; then
-    printf "%s\n" "help: "${0}" min max samples"
+    printf "%s\n" "help: "${0}" min max samples runs"
 fi
