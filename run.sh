@@ -31,8 +31,8 @@
 
 OUTPUTS="arithm_sample.csv"
 
-for o in $OUTPUTS; do
-    rm -rf "$o"
+for output in $OUTPUTS; do
+    rm -rf "${output}"
 done
 
 swipl -s tests ${1} ${2} ${3} ${4}
