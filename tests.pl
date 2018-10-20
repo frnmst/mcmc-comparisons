@@ -84,7 +84,6 @@ loop_arithm_sample(Curr,Max,_,_,_):-
     Curr>Max,
     !.
 
-/* format: samples\tmhs_time\tgbs_time\n' */
 loop_arithm_sample(Curr, Max, Step, Runs, Out):-
     Samples is Curr,
     measure_arithm_mh_sample(Time_mh,Samples),
