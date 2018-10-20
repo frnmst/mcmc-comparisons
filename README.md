@@ -36,9 +36,11 @@ algorithms in SWI Prolog
 ## CSV file format
 
 The results of each test will be logged to a corresponding CSV file with the 
-following format:
+following line format:
 
-    run number,samples,mh time, gibbs time
+    run_number,current_samples,mh_time,gibbs_time
+
+Each line ends with a line feed character (ASCII code 10).
 
 ## License
 
