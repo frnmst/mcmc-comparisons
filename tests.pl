@@ -86,10 +86,10 @@ loop_arithm_sample(Curr,Max,_,_,_):-
 
 loop_arithm_sample(Curr, Max, Step, Runs, Out):-
     Samples is Curr,
-    measure_arithm_mh_sample(Time_mh,Samples),
-    measure_arithm_gibbs_sample(Time_gibbs,Samples),
+    measure_arithm_mh_sample(Time_mh,Samples,P_mh),
+    measure_arithm_gibbs_sample(Time_gibbs,Samples,P_gibbs),
     format('run ~q, sample ~q of ~q\n', [Runs, Samples, Max]),
-    format(Out, '~q,~q,~q,~q\n', [Runs, Samples, Time_mh, Time_gibbs]),
+    format(Out, '~q,~q,~q,~q,~q,~q\n', [Runs, Samples, Time_mh, P_mh, Time_gibbs, P_gibbs]),
     flush_output(Out),
     flush_output,
     N is Curr+Step,
@@ -99,12 +99,12 @@ loop_arithm_sample_arg(Curr,Max,_,_):-
     Curr>Max,
     !.
 
-measure_arithm_mh_sample(Time, Samples):-
+measure_arithm_mh_sample(Time, Samples, Prob):-
     statistics(walltime, [_|[_]]),
-    mc_mh_sample(eval(2,4),eval(1,3),Samples,_,[mix(100),lag(3),successes(_),failures(_)]),
+    mc_mh_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100),lag(3),successes(_),failures(_)]),
     statistics(walltime, [_|[Time]]).
 
-measure_arithm_gibbs_sample(Time, Samples):-
+measure_arithm_gibbs_sample(Time, Samples, Prob):-
     statistics(walltime, [_|[_]]),
-    mc_gibbs_sample(eval(2,4),eval(1,3),Samples,_,[mix(100),lag(3),successes(_),failures(_)]),
+    mc_gibbs_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100),lag(3),successes(_),failures(_)]),
     statistics(walltime, [_|[Time]]).

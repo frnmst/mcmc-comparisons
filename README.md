@@ -38,9 +38,11 @@ algorithms in SWI Prolog
 The results of each test will be logged to a corresponding CSV file with the 
 following line format:
 
-    run_number,current_samples,mh_time,gibbs_time
+    run_number,current_samples,mh_time,mh_probability,gibbs_time,gibbs_probability
 
 Each line ends with a line feed character (ASCII code 10).
+
+Times are computed in milliseconds.
 
 ## License
 
