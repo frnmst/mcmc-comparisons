@@ -42,7 +42,7 @@ following line format:
 
 Each line ends with a line feed character (ASCII code 10).
 
-Times are computed in milliseconds.
+Running times are computed in milliseconds.
 
 ## License
 
