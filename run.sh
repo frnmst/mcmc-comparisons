@@ -36,6 +36,9 @@ for output in $OUTPUTS; do
 done
 
 swipl -s tests ${1} ${2} ${3} ${4}
-if [ $? -ne 0 ]; then
+if [ $? -eq 0 ]; then
+    MPLBACKEND=Agg ./plot_comparison.py
+else
     printf "%s\n" "help: "${0}" min max samples runs"
 fi
+

@@ -25,6 +25,9 @@ algorithms in SWI Prolog
 
       ?- pack_install(cplint).
 
+- Install Python 3 and [Matplotlib](https://matplotlib.org/) which are useful
+  to plot the data.
+
 - Clone the repository with the swish git submodule:
 
       $ git clone --recurse-submodules https://github.com/frnmst/mcmc-comparisons.git
