@@ -35,28 +35,18 @@ import numpy as np
 import csv
 
 
-def plot_comparison(x1,x2,y1,y2,legend=['set a', 'set b'],title='Comparison',xlabel='x',ylabel='y'):
+def plot_comparison(data,x_id,y1_id,y2_id,legend=['set a', 'set b'],title='Comparison',x_label='x',y_label='y'):
     """ Plot two set of values for direct comparison."""
+    x1 = x2 = data[x_id]
+    y1 = data[y1_id]
+    y2 = data[y2_id]
     plt.plot(x1,y1,markersize=2.5,linestyle='-', marker='o')
     plt.plot(x2,y2,markersize=2.5,linestyle='-', marker='o')
     plt.title(title)
     plt.legend(legend)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
     plt.savefig('plot.png')
-
-def plot_data_comparison(data,x_id,y1_id,y2_id,legend,title,x_label,y_label):
-    x1 = x2 = data[x_id]
-    y1 = data[y1_id]
-    y2 = data[y2_id]
-    plot_comparison(x1,
-                    x2,
-                    y1,
-                    y2,
-                    legend,
-                    title,
-                    x_label,
-                    y_label)
 
 
 class Comparison():
@@ -96,6 +86,7 @@ class Comparison():
         gibbs_matrix = np.matrix(self.data['gibbs_time'])
         gibbs_matrix = gibbs_matrix.reshape(total_runs, sample_iterations)
 
+        # Compute the average for each sample iteration.
         for sample_it in range(0, sample_iterations):
             mh_sum = 0
             gibbs_sum = 0
@@ -112,14 +103,14 @@ class Comparison():
         self.data['samples']=sorted(list(set(self.data['samples'])))
 
     def arithm_sample_mh_vs_gibbs(self):
-        plot_data_comparison(self.data,
-                             'samples',
-                             'mh_time',
-                             'gibbs_time',
-                             ['mh', 'gibbs'],
-                             'arith sample mh vs gibbs avg',
-                             'samples',
-                             'running time (ms)')
+        plot_comparison(self.data,
+                        'samples',
+                        'mh_time',
+                        'gibbs_time',
+                        ['mh', 'gibbs'],
+                        'arith sample mh vs gibbs avg',
+                        'samples',
+                        'running time (ms)')
 
     def arithm_sample_mh_vs_gibbs_avg(self):
         self.compute_avg_run_time()
@@ -127,7 +118,7 @@ class Comparison():
 
 
 def main():
-    # Necessary to save the plot to a file.
+    # Necessary to save the plot to a file instead of displaying it directly.
     matplotlib.use('Agg')
     speeds = Comparison('arithm_sample.csv',',')
     speeds.arithm_sample_mh_vs_gibbs_avg()
