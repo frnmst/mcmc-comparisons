@@ -30,15 +30,31 @@
 #
 
 OUTPUTS="arithm_sample.csv"
+declare -a job_id
 
 for output in $OUTPUTS; do
     rm -rf "${output}"
 done
 
-swipl -s tests ${1} ${2} ${3} ${4}
-if [ $? -eq 0 ]; then
-    MPLBACKEND=Agg ./plot_comparison.py
-else
+if [ -z "${4}" ]; then
     printf "%s\n" "help: "${0}" min max samples runs"
+    exit 1
 fi
+
+for i in $(seq 1 ${4}); do
+    swipl -s tests ${1} ${2} ${3} ${i} &
+    job_id=("${job_id[@]}" $!)
+done
+wait ${job_id[@]}
+
+# FIXME: Move this stuff to python.
+for output in $OUTPUTS; do
+    # Sort lines by sample id and run number so that we maintain the correct
+    # imput for the python script.
+    cat "${output}" | tr ',' ' ' | sort -g -s -k 1 | tr ' ' ',' > "${output}".baak
+    mv "${output}" "${output}".bak
+    mv "${output}".baak "${output}"
+done
+
+MPLBACKEND=Agg ./plot_comparison.py
 

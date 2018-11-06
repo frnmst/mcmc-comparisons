@@ -67,18 +67,12 @@ parse_cli_args(Argv,Min,Max,Step, Runs):-
  *          time_gibbs = measure_gibbs(samples)
  *          print(samples, time_mh, time_gibbs)
  */
-tests(_,_,_,Runs):-
-    Runs=<0,
-    !.
-
 tests(Min,Max,Step,Runs):-
     format('performing arithm.pl on arithm_sample.csv\n'),
     [swish/examples/inference/arithm],
     open('arithm_sample.csv',append,Out_a),
     loop_arithm_sample(Min,Max,Step,Runs,Out_a),
-    close(Out_a),
-    N is Runs-1,
-    tests(Min,Max,Step,N).
+    close(Out_a).
 
 loop_arithm_sample(Curr,Max,_,_,_):-
     Curr>Max,
