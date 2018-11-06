@@ -34,7 +34,7 @@ algorithms in SWI Prolog
 
 - Execute the `run.sh` script.
 
-      help: ./run.sh min max samples
+      help: ./run.sh min max samples runs
 
 ## CSV file format
 
