@@ -28,6 +28,8 @@ algorithms in SWI Prolog
 - Install Python 3 and [Matplotlib](https://matplotlib.org/) which are useful
   to plot the data.
 
+- Install [GNU Parallel](http://www.gnu.org/software/parallel/)
+
 - Clone the repository with the swish git submodule:
 
       $ git clone --recurse-submodules https://github.com/frnmst/mcmc-comparisons.git
