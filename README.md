@@ -36,7 +36,7 @@ algorithms in SWI Prolog
 
 - Execute the `run.sh` script, for example like this:
 
-    ./run.sh -p 1 10001 1000 4
+      ./run.sh -p 1 10001 1000 4
 
 ### Sequential version
 
