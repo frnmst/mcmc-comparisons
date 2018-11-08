@@ -34,7 +34,9 @@ algorithms in SWI Prolog
 
       $ git clone --recurse-submodules https://github.com/frnmst/mcmc-comparisons.git
 
-- Execute the `run.sh` script.
+- Execute the `run.sh` script, for example like this:
+
+    ./run.sh -p 1 10001 1000 4
 
 ### Sequential version
 

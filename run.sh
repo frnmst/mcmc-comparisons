@@ -30,15 +30,28 @@
 #
 
 OUTPUTS="arithm_sample.csv"
+BINARIES="swipl parallel python3"
+
+help()
+{
+    printf "%s\n" "help: "${0}" -p min max samples runs"
+    printf "%s\n" "      "${0}" min max samples runs"
+}
 
 for output in $OUTPUTS; do
     rm -rf "${output}"
 done
 
+which $BINARIES || exit 1
+if [ -z "${1}" ]; then
+    help
+    exit 1
+fi
+
 if [ "${1}" = "-p" ]; then
     # Parallel tests.
     if [ -z "${5}" ]; then
-        printf "%s\n" "help: "${0}" -p min max samples runs"
+        help
         exit 1
     fi
 
@@ -56,11 +69,11 @@ if [ "${1}" = "-p" ]; then
 
 else
     # Sequential tests.
-    if [ -z "${4}" ]; then exit 1
-        printf "%s\n" "help: "${0}" min max samples runs"
+    if [ -z "${4}" ]; then
+        help
         exit 1
     fi
-        swipl -s tests ${1} ${2} ${3} ${4} 0
+    swipl -s tests ${1} ${2} ${3} ${4} 0
 fi
 
 # FIXME: Move this stuff to python.
