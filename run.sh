@@ -36,16 +36,26 @@ for output in $OUTPUTS; do
     rm -rf "${output}"
 done
 
-if [ -z "${4}" ]; then
-    printf "%s\n" "help: "${0}" min max samples runs"
-    exit 1
+if [ "${1}" = "-p" ]; then
+    echo in
+    # Parallel tests.
+    if [ -z "${5}" ]; then
+        printf "%s\n" "help: "${0}" -p min max samples runs"
+        exit 1
+    fi
+    for i in $(seq 1 ${5}); do
+        swipl -s tests ${2} ${3} ${4} ${i} 1 &
+        job_id=("${job_id[@]}" $!)
+    done
+    wait ${job_id[@]}
+else
+    # Sequential tests.
+    if [ -z "${4}" ]; then exit 1
+        printf "%s\n" "help: "${0}" min max samples runs"
+        exit 1
+    fi
+        swipl -s tests ${1} ${2} ${3} ${4} 0
 fi
-
-for i in $(seq 1 ${4}); do
-    swipl -s tests ${1} ${2} ${3} ${i} &
-    job_id=("${job_id[@]}" $!)
-done
-wait ${job_id[@]}
 
 # FIXME: Move this stuff to python.
 for output in $OUTPUTS; do

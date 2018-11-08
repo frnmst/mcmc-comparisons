@@ -34,7 +34,16 @@ algorithms in SWI Prolog
 
 - Execute the `run.sh` script.
 
-      help: ./run.sh min max samples
+### Sequential version
+
+    ./run.sh min max samples runs
+
+### Parallel version
+
+    ./run.sh -p min max samples threads
+
+where `threads` correspond to the number of concurrent `runs`. This will speed 
+up multiple runs but it will use more memory.
 
 ## CSV file format
 

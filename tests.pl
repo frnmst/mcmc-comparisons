@@ -33,31 +33,50 @@
 
 main :-
     current_prolog_flag(argv, Argv),
-    parse_cli_args(Argv,Min,Max,Step,Runs),
-    format('Called with: Min=~q, Max=~q, Step=~q, Runs=~q\n', [Min, Max, Step, Runs]),
-    tests(Min,Max,Step,Runs),
+    parse_cli_args(Argv,Min,Max,Step,Runs,Parallel),
+    format('Called with: Min=~q, Max=~q, Step=~q, Runs=~q, Parallel=~q\n', [Min, Max, Step, Runs, Parallel]),
+    sequential_or_parallel_tests(Min,Max,Step,Runs,Parallel),
     halt.
 
 main :-
     halt(1).
 
+/* Select sequential or parallel (single) test runs. */
+sequential_or_parallel_tests(Min,Max,Step,Runs,Parallel):-
+    Parallel == 1,
+    !,
+    tests_single(Min,Max,Step,Runs).
+
+sequential_or_parallel_tests(Min,Max,Step,Runs,_):-
+    tests_sequential(Min,Max,Step,Runs).
+
 /* Check that all the Argv values are integers with some conditions. */
-parse_cli_args(Argv,Min,Max,Step, Runs):-
+is_parallel(Parallel):-
+    Parallel == 1.
+
+is_parallel(Parallel):-
+    Parallel == 0.
+
+parse_cli_args(Argv,Min,Max,Step,Runs,Parallel):-
     [Min_a|T] = Argv,
     [Max_a|U] = T,
     [Step_a|V] = U,
-    [Runs_a|_] = V,
+    [Runs_a|W] = V,
+    [Parallel_a|_] = W,
     atom_number(Min_a, Min),
     atom_number(Max_a, Max),
     atom_number(Step_a, Step),
     atom_number(Runs_a, Runs),
+    atom_number(Parallel_a, Parallel),
     integer(Min),
     integer(Max),
     integer(Step),
     integer(Runs),
+    integer(Parallel),
     Min > 0,
     Step > 0,
     Runs > 0,
+    is_parallel(Parallel),
     Min =< Max.
 
 /* for j = 0, j < $runs, j++:
@@ -67,12 +86,21 @@ parse_cli_args(Argv,Min,Max,Step, Runs):-
  *          time_gibbs = measure_gibbs(samples)
  *          print(samples, time_mh, time_gibbs)
  */
-tests(Min,Max,Step,Runs):-
+tests_single(Min,Max,Step,Run_label):-
     format('performing arithm.pl on arithm_sample.csv\n'),
     [swish/examples/inference/arithm],
     open('arithm_sample.csv',append,Out_a),
-    loop_arithm_sample(Min,Max,Step,Runs,Out_a),
+    loop_arithm_sample(Min,Max,Step,Run_label,Out_a),
     close(Out_a).
+
+tests_sequential(_,_,_,Runs):-
+    Runs=<0,
+    !.
+
+tests_sequential(Min,Max,Step,Runs):-
+    tests_single(Min,Max,Step,Runs),
+    N is Runs-1,
+    tests_sequential(Min,Max,Step,N).
 
 loop_arithm_sample(Curr,Max,_,_,_):-
     Curr>Max,
