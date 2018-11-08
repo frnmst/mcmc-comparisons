@@ -42,7 +42,7 @@ algorithms in SWI Prolog
 
     ./run.sh -p min max samples threads
 
-where `threads` correspond to the number of concurrent `runs`. This will speed 
+where `threads` corresponds to the number of concurrent `runs`. This will speed 
 up multiple runs but it will use more memory.
 
 ## CSV file format
