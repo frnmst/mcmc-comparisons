@@ -36,30 +36,32 @@ algorithms in SWI Prolog
 
 ## Running
 
-- Go to the source directory
-
-      $ cd src
-
 ### Run locally
+
+- Go to the local directory
+
+      $ cd src/local
 
 - Execute the `run.sh` script, for example like this:
 
-      ./run.sh -p 1 10001 1000 4
+      $ ./run.sh -p 1 10001 1000 4
 
 #### Sequential version
 
-    ./run.sh min max samples runs
+    $ ./run.sh min max samples runs
 
 #### Parallel version
 
-    ./run.sh -p min max samples threads
+    $ ./run.sh -p min max samples threads
 
 where `threads` corresponds to the number of concurrent `runs`. This will speed 
 up multiple runs but it will use more memory.
 
 ### Run on a SLURM queue
 
-    sbatch run_slurm.sh
+- Go to the slurm directory and run the shell file
+
+      $ cd src/slurm && sbatch run_slurm.sh
 
 ## CSV file format
 
