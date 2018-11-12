@@ -3,11 +3,6 @@
 comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) 
 algorithms in SWI Prolog
 
-## Algorithms
-
-- [Metropolis-Hastings](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm)
-- [Gibbs sampling](https://en.wikipedia.org/wiki/Gibbs_sampling)
-
 ## Installation
 
 - Install the latest version of [SWI prolog](http://www.swi-prolog.org/).
@@ -63,6 +58,10 @@ up multiple runs but it will use more memory.
 
       $ cd src/slurm && sbatch run_slurm.sh
 
+- You may also run the test interactively:
+
+      $  cd src/slurm && ./run_slurm.sh
+
 ## CSV file format
 
 The results of each test will be logged to a corresponding CSV file with the 
@@ -73,6 +72,20 @@ following line format:
 Each line ends with a line feed character (ASCII code 10).
 
 Running times are computed in milliseconds.
+
+## References
+
+- [Metropolis-Hastings](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm)
+- [Gibbs sampling](https://en.wikipedia.org/wiki/Gibbs_sampling)
+
+### SLURM
+
+- [SLURM](https://slurm.schedmd.com/)
+- [SLURM serial jobs](https://www.chpc.utah.edu/documentation/software/serial-jobs.php)
+- [SLURM Multi Program Usage](https://www.tchpc.tcd.ie/node/167)
+- [SLURM configurator tool](https://slurm.schedmd.com/configurator.html)
+- [The Slurm job scheduler](http://www.arc.ox.ac.uk/content/slurm-job-scheduler)
+- [Slurm - Arch Wiki](https://wiki.archlinux.org/index.php/Slurm)
 
 ## License
 

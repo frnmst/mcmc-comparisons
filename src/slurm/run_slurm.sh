@@ -38,4 +38,10 @@
 #SBATCH -o slurm.%N.%j.out # STDOUT
 #SBATCH -e slurm.%N.%j.err # STDERR
 
+OUTPUTS="arithm_sample.csv"
+
+for output in $OUTPUTS; do
+    rm -rf "${output}"
+done
+
 srun --multi-prog run_slurm.conf
