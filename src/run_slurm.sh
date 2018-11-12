@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# run.sh
+# run_slurm.sh
 #
 # BSD 2-Clause License
 #
@@ -28,62 +28,14 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+#
 
-OUTPUTS="arithm_sample.csv"
-BINARIES="swipl parallel python3"
+#SBATCH -N 1 # number of nodes
+#SBATCH -p normal
+#SBATCH --ntasks=4 # cores
+#SBATCH --cpus-per-task=1
+#SBATCH --mem 4gb # memory pool for all cores
+#SBATCH -o slurm.%N.%j.out # STDOUT
+#SBATCH -e slurm.%N.%j.err # STDERR
 
-help()
-{
-    printf "%s\n" "help: "${0}" -p min max samples runs"
-    printf "%s\n" "      "${0}" min max samples runs"
-}
-
-for output in $OUTPUTS; do
-    rm -rf "${output}"
-done
-
-which $BINARIES || exit 1
-if [ -z "${1}" ]; then
-    help
-    exit 1
-fi
-
-if [ "${1}" = "-p" ]; then
-    # Parallel tests.
-    if [ -z "${5}" ]; then
-        help
-        exit 1
-    fi
-
-    # Background processes.
-    #
-    # declare -a job_id
-    # for i in $(seq 1 ${5}); do
-    #    swipl -s tests ${2} ${3} ${4} ${i} 1 &
-    #    job_id=("${job_id[@]}" $!)
-    # done
-    # wait ${job_id[@]}
-
-    # GNU Parallel.
-    seq 1 ${5} | parallel --lb swipl -s tests ${2} ${3} ${4} {} 1
-
-else
-    # Sequential tests.
-    if [ -z "${4}" ]; then
-        help
-        exit 1
-    fi
-    swipl -s tests ${1} ${2} ${3} ${4} 0
-fi
-
-# FIXME: Move this stuff to python.
-for output in $OUTPUTS; do
-    # Sort lines by sample id and run number so that we maintain the correct
-    # imput for the python script.
-    cat "${output}" | tr ',' ' ' | sort -g -s -k 1 | tr ' ' ',' > "${output}".baak
-    mv "${output}" "${output}".bak
-    mv "${output}".baak "${output}"
-done
-
-MPLBACKEND=Agg ./plot_comparison.py
-
+srun --multi-prog run_slurm.conf

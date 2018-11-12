@@ -8,7 +8,7 @@ algorithms in SWI Prolog
 - [Metropolis-Hastings](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm)
 - [Gibbs sampling](https://en.wikipedia.org/wiki/Gibbs_sampling)
 
-## Instructions
+## Installation
 
 - Install the latest version of [SWI prolog](http://www.swi-prolog.org/).
 - Install the [Cplint library](https://github.com/friguzzi/cplint) and all the 
@@ -34,20 +34,32 @@ algorithms in SWI Prolog
 
       $ git clone --recurse-submodules https://github.com/frnmst/mcmc-comparisons.git
 
+## Running
+
+- Go to the source directory
+
+      $ cd src
+
+### Run locally
+
 - Execute the `run.sh` script, for example like this:
 
       ./run.sh -p 1 10001 1000 4
 
-### Sequential version
+#### Sequential version
 
     ./run.sh min max samples runs
 
-### Parallel version
+#### Parallel version
 
     ./run.sh -p min max samples threads
 
 where `threads` corresponds to the number of concurrent `runs`. This will speed 
 up multiple runs but it will use more memory.
+
+### Run on a SLURM queue
+
+    sbatch run_slurm.sh
 
 ## CSV file format
 
