@@ -3,6 +3,28 @@
 comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) 
 algorithms in SWI Prolog
 
+## Table of contents
+
+[](TOC)
+
+- [mcmc-comparisons](#mcmc-comparisons)
+    - [Table of contents](#table-of-contents)
+    - [Installation](#installation)
+    - [Running](#running)
+        - [Run locally](#run-locally)
+            - [Sequential version](#sequential-version)
+            - [Parallel version](#parallel-version)
+        - [Run on a SLURM queue](#run-on-a-slurm-queue)
+    - [CSV file format](#csv-file-format)
+    - [Notes on running the tests is parallel](#notes-on-running-the-tests-is-parallel)
+        - [Output files](#output-files)
+        - [An alternative to GNU Parallel](#an-alternative-to-gnu-parallel)
+    - [References](#references)
+        - [SLURM](#slurm)
+    - [License](#license)
+
+[](TOC)
+
 ## Installation
 
 - Install the latest version of [SWI prolog](http://www.swi-prolog.org/).
@@ -54,11 +76,13 @@ up multiple runs but it will use more memory.
 
 ### Run on a SLURM queue
 
+The purpose of using SLURM is to run the tests in parallel.
+
 - Go to the slurm directory and run the shell file
 
       $ cd src/slurm && sbatch run_slurm.sh
 
-- You may also run the test interactively:
+- You may also run the test interactively
 
       $  cd src/slurm && ./run_slurm.sh
 
@@ -72,6 +96,39 @@ following line format:
 Each line ends with a line feed character (ASCII code 10).
 
 Running times are computed in milliseconds.
+
+## Notes on running the tests is parallel
+
+### Output files
+
+When running the tests in parallel the result of each iteration is written on 
+the same output file thus producing an unsorted output. To fix this you may run
+the following shell commands
+
+```shell
+for output in $OUTPUTS; do
+    # Sort lines by run number and and keep sample id in place so that we maintain the correct
+    # input for the python script.
+    cat "${output}" | tr ',' ' ' | sort -g -s -k 1 | tr ' ' ',' > "${output}".baak
+    mv "${output}" "${output}".bak
+    mv "${output}".baak "${output}"
+done
+```
+
+The `plot_comparison.py` script sorts the data internally.
+
+### An alternative to GNU Parallel
+
+Use background processes.
+
+```shell
+declare -a job_id
+for i in $(seq 1 ${5}); do
+    swipl -s tests ${2} ${3} ${4} ${i} 1 &
+    job_id=("${job_id[@]}" $!)
+done
+wait ${job_id[@]}
+```
 
 ## References
 

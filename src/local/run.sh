@@ -31,7 +31,8 @@
 
 OUTPUTS="arithm_sample.csv"
 BINARIES="swipl parallel python3"
-TESTS_DIRECTORY="./prolog"
+TESTS_DIRECTORY="../prolog"
+PLOT_DIRECTORY="../plot"
 
 help()
 {
@@ -55,19 +56,8 @@ if [ "${1}" = "-p" ]; then
         help
         exit 1
     fi
-
-    # Background processes.
-    #
-    # declare -a job_id
-    # for i in $(seq 1 ${5}); do
-    #    swipl -s tests ${2} ${3} ${4} ${i} 1 &
-    #    job_id=("${job_id[@]}" $!)
-    # done
-    # wait ${job_id[@]}
-
     # GNU Parallel.
     seq 1 ${5} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests ${2} ${3} ${4} {} 1
-
 else
     # Sequential tests.
     if [ -z "${4}" ]; then
@@ -77,14 +67,6 @@ else
     swipl -s "${TESTS_DIRECTORY}"/tests ${1} ${2} ${3} ${4} 0
 fi
 
-# FIXME: Move this stuff to python.
-for output in $OUTPUTS; do
-    # Sort lines by sample id and run number so that we maintain the correct
-    # imput for the python script.
-    cat "${output}" | tr ',' ' ' | sort -g -s -k 1 | tr ' ' ',' > "${output}".baak
-    mv "${output}" "${output}".bak
-    mv "${output}".baak "${output}"
-done
-
-MPLBACKEND=Agg ./plot_comparison.py
-
+# Plot.
+export MPLBACKEND=Agg
+python3 "${PLOT_DIRECTORY}"/plot_comparison.py

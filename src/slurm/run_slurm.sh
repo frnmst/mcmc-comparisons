@@ -39,9 +39,15 @@
 #SBATCH -e slurm.%N.%j.err # STDERR
 
 OUTPUTS="arithm_sample.csv"
+PLOT_DIRECTORY="../plot"
 
 for output in $OUTPUTS; do
     rm -rf "${output}"
 done
 
 srun --multi-prog run_slurm.conf
+
+# Plot.
+export MPLBACKEND=Agg
+python3 "${PLOT_DIRECTORY}"/plot_comparison.py
+

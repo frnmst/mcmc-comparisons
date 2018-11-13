@@ -88,7 +88,7 @@ parse_cli_args(Argv,Min,Max,Step,Runs,Parallel):-
  */
 tests_single(Min,Max,Step,Run_label):-
     format('performing arithm.pl on arithm_sample.csv\n'),
-    [prolog/swish/examples/inference/arithm],
+    ['../prolog/swish/examples/inference/arithm'],
     open('arithm_sample.csv',append,Out_a),
     loop_arithm_sample(Min,Max,Step,Run_label,Out_a),
     close(Out_a).

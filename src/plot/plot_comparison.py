@@ -64,6 +64,10 @@ class Comparison():
             # Skip the first line
             # next(f)
             data = csv.reader(f, delimiter=delimiter)
+            # Sort lines by run number and and keep sample id in place so that we maintain the correct
+            # input for the other functions.
+            data = sorted(data, key=lambda d: d[0])
+
             for row in data:
                 self.data['run_number'].append(int(row[0]))
                 self.data['samples'].append(int(row[1]))
