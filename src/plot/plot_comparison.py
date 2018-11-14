@@ -122,8 +122,6 @@ class Comparison():
         self.data['mh_time_stddev']=mh_times_stddev
         self.data['gibbs_time_stddev']=gibbs_times_stddev
 
-        print(self.data['mh_time_stddev'])
-
     def arithm_sample_mh_vs_gibbs(self):
         plot_comparison(self.data,
                         'samples',
