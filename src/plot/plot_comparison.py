@@ -35,13 +35,19 @@ import numpy as np
 import csv
 
 
-def plot_comparison(data,x_id,y1_id,y2_id,legend=['set a', 'set b'],title='Comparison',x_label='x',y_label='y'):
+def plot_comparison(data,x_id,y1_id,y2_id,
+                    y1_std_dev,
+                    y2_std_dev,
+                    legend=['set a', 'set b'],
+                    title='Comparison',x_label='x',y_label='y'):
     """ Plot two set of values for direct comparison."""
     x1 = x2 = data[x_id]
     y1 = data[y1_id]
     y2 = data[y2_id]
-    plt.plot(x1,y1,markersize=2.5,linestyle='-', marker='o')
-    plt.plot(x2,y2,markersize=2.5,linestyle='-', marker='o')
+    y1_std_dev = data[y1_std_dev]
+    y2_std_dev = data[y2_std_dev]
+    plt.errorbar(x1,y1,yerr=y1_std_dev,markersize=2.5,linestyle='-',marker='o', capsize=2.5)
+    plt.errorbar(x2,y2,yerr=y2_std_dev,markersize=2.5,linestyle='-',marker='o', capsize=2.5)
     plt.title(title)
     plt.legend(legend)
     plt.xlabel(x_label)
@@ -58,6 +64,7 @@ class Comparison():
                       'mh_probability': [],
                       'gibbs_time': [],
                       'gibbs_probability': [],
+                      'std_dev': [],
                     }
 
         with open(filename, 'r') as f:
@@ -67,7 +74,6 @@ class Comparison():
             # Sort lines by run number and and keep sample id in place so that we maintain the correct
             # input for the other functions.
             data = sorted(data, key=lambda d: d[0])
-
             for row in data:
                 self.data['run_number'].append(int(row[0]))
                 self.data['samples'].append(int(row[1]))
@@ -81,6 +87,8 @@ class Comparison():
         sample_iterations = len(set(self.data['samples']))
         mh_times = list()
         gibbs_times = list()
+        mh_times_stddev = list()
+        gibbs_times_stddev = list()
 
         # Transform the original data into a matrix with:
         #   rows = current run
@@ -90,27 +98,39 @@ class Comparison():
         gibbs_matrix = np.matrix(self.data['gibbs_time'])
         gibbs_matrix = gibbs_matrix.reshape(total_runs, sample_iterations)
 
-        # Compute the average for each sample iteration.
         for sample_it in range(0, sample_iterations):
             mh_sum = 0
             gibbs_sum = 0
+            mh_times_stddev_buf = list()
+            gibbs_times_stddev_buf = list()
+            # Compute average and stddev of the running times for each sample.
             for run in range(0,total_runs):
                 mh_sum += mh_matrix.item(run,sample_it)
                 gibbs_sum += gibbs_matrix.item(run,sample_it)
+                mh_times_stddev_buf.append(mh_matrix.item(run,sample_it))
+                gibbs_times_stddev_buf.append(gibbs_matrix.item(run,sample_it))
             mh_times.append(mh_sum/total_runs)
             gibbs_times.append(gibbs_sum/total_runs)
+            mh_times_stddev.append(np.std(mh_times_stddev_buf))
+            gibbs_times_stddev.append(np.std(gibbs_times_stddev_buf))
 
-        # Override the original data sets.
+        # Overwrite the original data sets.
         self.data['mh_time']=mh_times
         self.data['gibbs_time']=gibbs_times
         self.data['run_number']=sorted(list(set(self.data['run_number'])))
         self.data['samples']=sorted(list(set(self.data['samples'])))
+        self.data['mh_time_stddev']=mh_times_stddev
+        self.data['gibbs_time_stddev']=gibbs_times_stddev
+
+        print(self.data['mh_time_stddev'])
 
     def arithm_sample_mh_vs_gibbs(self):
         plot_comparison(self.data,
                         'samples',
                         'mh_time',
                         'gibbs_time',
+                        'mh_time_stddev',
+                        'gibbs_time_stddev',
                         ['mh', 'gibbs'],
                         'arith sample mh vs gibbs avg',
                         'samples',

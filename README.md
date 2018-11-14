@@ -16,6 +16,7 @@ algorithms in SWI Prolog
             - [Parallel version](#parallel-version)
         - [Run on a SLURM queue](#run-on-a-slurm-queue)
     - [CSV file format](#csv-file-format)
+    - [Plot](#plot)
     - [Notes on running the tests is parallel](#notes-on-running-the-tests-is-parallel)
         - [Output files](#output-files)
         - [An alternative to GNU Parallel](#an-alternative-to-gnu-parallel)
@@ -42,8 +43,9 @@ algorithms in SWI Prolog
 
       ?- pack_install(cplint).
 
-- Install Python 3 and [Matplotlib](https://matplotlib.org/) which are useful
-  to plot the data.
+- Install [Python 3](http://www.python.org/), 
+  [Matplotlib](https://matplotlib.org/) and
+  [NumPy](http://www.numpy.org/).
 
 - Install [GNU Parallel](http://www.gnu.org/software/parallel/)
 
@@ -96,6 +98,15 @@ following line format:
 Each line ends with a line feed character (ASCII code 10).
 
 Running times are computed in milliseconds.
+
+## Plot
+
+The tools useful to plot the results are Python 3 and Matplotlib.
+
+The plot script is in `./src/plot/plot_comparison.py`. This script reads
+a CSV file and plots the average running times of multiple runs for each 
+sample. The standard deviation of the running times for each sample is plotted 
+as error bars.
 
 ## Notes on running the tests is parallel
 
