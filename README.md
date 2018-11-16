@@ -69,6 +69,17 @@ algorithms in SWI Prolog
 
     $ ./run.sh min max samples runs
 
+Which is equivalent to the following pseudocode
+
+```
+for j = 0, j < $runs, j++:
+    for i = $min, i < $max, i += $step:
+        samples = i
+        time_mh = measure_mh(samples)
+        time_gibbs = measure_gibbs(samples)
+        print(samples, time_mh, time_gibbs)
+```
+
 #### Parallel version
 
     $ ./run.sh -p min max samples threads

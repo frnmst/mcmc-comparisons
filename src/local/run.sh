@@ -57,7 +57,7 @@ if [ "${1}" = "-p" ]; then
         exit 1
     fi
     # GNU Parallel.
-    seq 1 ${5} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests ${2} ${3} ${4} {} 1
+    seq 1 ${5} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests test33 ${2} ${3} ${4} {} 1
 else
     # Sequential tests.
     if [ -z "${4}" ]; then
@@ -69,4 +69,4 @@ fi
 
 # Plot.
 export MPLBACKEND=Agg
-python3 "${PLOT_DIRECTORY}"/plot_comparison.py
+#python3 "${PLOT_DIRECTORY}"/plot_comparison.py
