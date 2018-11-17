@@ -58,7 +58,8 @@ select_test(Test_name,Min,Max,Step,Runs,Parallel):-
       -> tests_single_test33(Min,Max,Step,Runs)
     ).
 
-/*select_test(Test_name,Min,Max,Step,Runs,_):-
+/* FIXME
+select_test(Test_name,Min,Max,Step,Runs,_):-
     tests_sequential_arithm(Min,Max,Step,Runs).
 */
 

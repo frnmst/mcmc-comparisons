@@ -1,6 +1,13 @@
 :- use_module(library(mcintyre)).
 :- mc.
 :- begin_lpad.
+
+/* WARNING: NO LICENSE EXISTS FOR THIS FILE.
+ *
+ * SEE http://www3.cs.stonybrook.edu/~anampally/
+ *     http://www3.cs.stonybrook.edu/~anampally/amcmc.tar.gz
+ */
+
 % dim(3,3)
 % query([(2  ','  2)],[t])
 % evidence([(1  ','  2),(2  ','  3)],[t,t])
