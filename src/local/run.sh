@@ -109,7 +109,7 @@ main()
 
     if [ "${graph}" = 'true' ]; then
         export MPLBACKEND=Agg
-        python3 "${PLOT_DIRECTORY}"/plot_comparison.py
+        python3 "${PLOT_DIRECTORY}"/plot_comparison.py ""${test_name}".csv"
         printf "%s\n" "check the resulting plot"
     fi
 }

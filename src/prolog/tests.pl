@@ -48,8 +48,8 @@ main :-
 select_test(Test_name,Min,Max,Step,Runs,Parallel):-
     Parallel == 1,
     !,
-    atom_string("arithm",S),
-    atom_string("test33",T),
+    atom_string("arithm_sample",S),
+    atom_string("test33_sample",T),
     ( S = Test_name
       -> tests_single_arithm(Min,Max,Step,Runs)
       ;  1 = 1

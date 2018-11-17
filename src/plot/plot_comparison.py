@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 import matplotlib.axes as axes
 import numpy as np
 import csv
-
+import sys
 
 def plot_comparison(data,x_id,y1_id,y2_id,
                     y1_std_dev,
@@ -140,9 +140,10 @@ class Comparison():
 
 
 def main():
-    # Necessary to save the plot to a file instead of displaying it directly.
+    # This is necessary to save the plot to a file instead of displaying it directly.
     matplotlib.use('Agg')
-    speeds = Comparison('arithm_sample.csv',',')
+    # Get the file name from argv
+    speeds = Comparison(sys.argv[1],',')
     speeds.arithm_sample_mh_vs_gibbs_avg()
 
 if __name__ == '__main__':
