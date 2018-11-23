@@ -7,4 +7,4 @@ TESTS_DIRECTORY="../prolog"
 # the prolog program. The run label is infact also the number of total
 # iterations in tests.pl (if we use the iterative version) so it cannot be
 # less than 1.
-swipl -s "${TESTS_DIRECTORY}"/tests 1 10000 1000 $(($1+1)) 1
+swipl -s "${TESTS_DIRECTORY}"/tests 1000 10000 1000 $(($1+1)) 1

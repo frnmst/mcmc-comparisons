@@ -58,10 +58,16 @@ select_test(Test_name,Min,Max,Step,Runs,Parallel):-
       -> tests_single_test33(Min,Max,Step,Runs)
     ).
 
-/* FIXME
 select_test(Test_name,Min,Max,Step,Runs,_):-
-    tests_sequential_arithm(Min,Max,Step,Runs).
-*/
+    atom_string("arithm_sample",S),
+    atom_string("test33_sample",T),
+    ( S = Test_name
+      -> tests_sequential_arithm(Min,Max,Step,Runs)
+      ;  1 = 1
+    ),
+    ( T = Test_name
+      -> tests_sequential_test33(Min,Max,Step,Runs)
+    ).
 
 /* Check that all the Argv values are integers with some conditions. */
 is_parallel(Parallel):-
@@ -148,6 +154,15 @@ tests_single_test33(Min,Max,Step,Run_label):-
     open('test33_sample.csv',append,Out_a),
     loop_test33_sample(Min,Max,Step,Run_label,Out_a),
     close(Out_a).
+
+tests_sequential_test33(_,_,_,Runs):-
+    Runs=<0,
+    !.
+
+tests_sequential_test33(Min,Max,Step,Runs):-
+    tests_single_test33(Min,Max,Step,Runs),
+    N is Runs-1,
+    tests_sequential_test33(Min,Max,Step,N).
 
 loop_test33_sample(Curr,Max,_,_,_):-
     Curr>Max,
