@@ -1,0 +1,198 @@
+#!/bin/bash
+#
+# fbopt version 0.2
+#
+# Written in 2018 by Franco Masotti/frnmst <franco.masotti@student.unife.it>
+#
+# To the extent possible under law, the author(s) have dedicated all 
+# copyright and related and neighboring rights to this software to the public 
+# domain worldwide. This software is distributed without any warranty.
+#
+# You should have received a copy of the CC0 Public Domain Dedication along 
+# with this software. If not, see 
+# <http://creativecommons.org/publicdomain/zero/1.0/>. 
+#
+#
+# See also https://frnmst.gitlab.io/notes/my-bash-option-parsing-template.html
+#
+
+show_help()
+{
+    cat <<-EOF
+Usage: run.sh [OPTIONS]
+Run MCMC tests
+
+Options:
+    -g, --graph                 run the plot script
+    -h, --help                  print this help
+    -l, --list-tests            list the available tests
+    -m, --min                   starting number of samples
+    -M, --max                   ending number of samples
+    -p, --parallel              execute tests on separate computing threads.
+                                If this option is enabled the number of threads
+                                is determined by the '--threads' option. If
+                                this option is disabled, the runs are executed
+                                consecutively
+    --print-flags               print the enabled options. This can also
+                                be used to print the default options
+    -r, --runs, --threads       the number of runs or computing threads. See
+                                the '--parallel' option for more information
+    -s, --steps                 the number of samples between consecutive
+                                iterations
+    -t, --test-name             the name of the test
+
+Exit status:
+ 0  if OK,
+ 1  if an error occurred.
+
+This software is released under the BSD 2-Clause license
+Copyright (c) 2018, Franco Masotti
+EOF
+}
+
+# A function that prints the variable name and value of all
+# the flags enabled by the user. This is useful to check that
+# all the flags are correct, as kind of a dry run.
+show_flags()
+{
+    local flags="${*}"
+
+    for flag in ${flags}; do
+            printf "%s='%s'\n" "${flag}" "${!flag}"
+    done
+}
+
+getopt_error()
+{
+    local program_name="${0}"
+
+    printf "%s\n" "Try '"${program_name}" --help' for more information"
+} 1>&2 2>&-
+
+main()
+{
+    # Create a new array from the reference of the input one.
+    # See https://stackoverflow.com/questions/1063347/passing-arrays-as-parameters-in-bash
+    # See some comments below.
+    declare -a argc=("${!1}")
+
+    # Set the options. flag_f has an optional argument.
+    local getopt_short_options='lm:M:s:r:ght:p'
+    local getopt_long_options='list-tests,min:,max:,step:,runs:,help,parallel,test-name:,threads:,graph,print-flags'
+
+    # Set the default values for the flags.
+    local graph='false'
+    local list_tests='false'
+    local min='1000'
+    local max='10000'
+    local step='1000'
+    local runs='4'
+    local test_name='arithm_sample'
+    local parallel='false'
+
+    local program_name="${0}"
+    opts="$(getopt \
+        --name "${program_name}" \
+        --shell bash \
+        --options "${getopt_short_options}" \
+        --longoptions "${getopt_long_options}" \
+        -- \
+        "${argc[@]}")"
+    getopt_retval=${?}
+    # Check that getopt works and that some kind of argument
+    # is passed to the script. This is "quotation hell".
+    a="'"${argc[@]}"'"
+    { [ ${getopt_retval} -ne 0 ] || [ -z "${a}" ]; } && getopt_error && return 1
+    eval set -- "${opts}"
+
+    # Option parsing.
+    while [ "${1}" != '--' ]; do
+        case "${1}" in
+
+            -l | --list-tests )         list_tests='true' ;;
+
+            -g | --graph )              graph='true' ;;
+
+            -h | --help )               help='true' ;;
+
+            -m | --min )                min="${2}";
+                                        shift 1 ;;
+
+            -M | --max )                max="${2}";
+                                        shift 1 ;;
+
+            -p | --parallel )           parallel='true' ;;
+
+            --print-flags )             print_flags='true' ;;
+
+            -r | --runs | --threads )   runs="${2}";
+                                        shift 1 ;;
+
+            -s | --step )               step="${2}";
+                                        shift 1 ;;
+
+            -t | --test-name )          test_name="${2}";
+                                        shift 1 ;;
+
+        esac
+        # Iterate through all arguments.
+        shift 1
+    done
+
+    shift 1
+    # Everything else after '--' is an argument.
+    argc="${*}"
+
+    # Check that the flags that must be non empty are actually not empty.
+    # A user might infact circumvent getopt's mechanisms like this
+    # ./program -flag ''
+    # This can also be done inside the option parser loop but to avoid nestings
+    # I prefer it done here.
+    { [ -z "${min}" ] \
+        || [ -z "${max}" ] \
+        || [ -z "${step}" ] \
+        || [ -z "${runs}" ] \
+        || [ -z "${test_name}" ]; } \
+        && getopt_error && return 1
+    [ "${print_flags}" = 'true' ] \
+        && show_flags \
+            'graph' \
+            'list_tests' \
+            'min' \
+            'max' \
+            'step' \
+            'runs' \
+            'test_name' \
+            'parallel' \
+        && return 0
+    [ "${help}" = 'true' ] && show_help && return 0
+
+    # From now on you should call a function or an external program
+    # using the values of the flag variables.
+    [ "${list_tests}" = 'true' ] && list_available_tests && return 0
+    if [ "${parallel}" = 'true' ]; then
+        seq 1 ${runs} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
+    else
+        swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
+    fi
+    if [ "${graph}" = 'true' ]; then
+        export MPLBACKEND=Agg
+        python3 "${PLOT_DIRECTORY}"/plot_comparison.py ""${test_name}".csv"
+        printf "%s\n" "check the resulting plot"
+    fi
+}
+
+# Test dependencies and versions.
+# getopt must return 4 to be fully compatible. See getopt's manual.
+which bash getopt 1>/dev/null 2>/dev/null && { getopt -T; [ $? -eq 4 ]; }
+
+# Get and pass argc to the main function.
+# All this work with an array must be done to preserve
+# quotations for arguments that have whitespaces.
+# See https://lists.debian.org/debian-user/2007/12/msg01244.html
+declare -a opts=()
+for opt in "${@}"; do
+    opts=("${opts[@]}" "${opt}")
+done
+main 'opts[@]'
+

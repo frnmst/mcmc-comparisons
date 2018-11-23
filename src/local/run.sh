@@ -29,90 +29,29 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-OUTPUTS="arithm_sample.csv test33_sample.csv"
-BINARIES="swipl parallel python3"
-TESTS_DIRECTORY="../prolog"
-PLOT_DIRECTORY="../plot"
-
-help()
-{
-    printf "%s\n" "help: "${0}" -p -n test_name -s \"min max samples runs\""
-}
+OUTPUTS='arithm_sample.csv test33_sample.csv'
+BINARIES='swipl parallel python3'
+TESTS_DIRECTORY='../prolog'
+PLOT_DIRECTORY='../plot'
+TEST_NAMES='arithm_sample test33_sample'
 
 remove_result_files()
 {
-    for output in $OUTPUTS; do
+    for output in ${OUTPUTS}; do
         rm -rf "${output}"
     done
 }
 
 check_binaries()
 {
-    which $BINARIES || exit 1
-}
+    which ${BINARIES} || exit 1
+} 1>/dev/null
 
-main()
+list_available_tests()
 {
-    local argc="${1}"
-    local getopt_options='n:phg'
-    local getopt_long_options="min:,max:,step:,runs:,"
-    local graph='false'
-    local test_name=''
-    local help='false'
-    local parallel='false'
-
-    check_binaries
-    remove_result_files
-
-    opts="$(getopt --options "${getopt_options}" --longoptions "${getopt_long_options}" -- ${argc})"
-    eval set -- "$opts"
-
-    while true; do
-        case "${1}" in
-            --min ) min="${2}";
-                    shift 1 ;;
-            --max ) max="${2}";
-                    shift 1 ;;
-            --step ) step="${2}";
-                    shift 1 ;;
-            --runs ) runs="${2}";
-                    shift 1 ;;
-            -g ) graph='true' ;;
-            -h ) help='true' ;;
-            -n ) test_name="${2}";
-                 shift 1 ;;
-            -p ) parallel='true' ;;
-            -- ) break ;;
-        esac
-        shift 1
-    done
-
-    if [ "${help}" = 'true' ]; then
-        help
-        exit 0
-    fi
-
-    if [ -z "${test_name}" ] \
-        || [ -z "${min}" ] \
-        || [ -z "${max}" ] \
-        || [ -z "${step}" ] \
-        || [ -z "${runs}" ]; then
-        help
-        exit 1
-    fi
-
-    if [ "${parallel}" = 'true' ]; then
-        seq 1 ${runs} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
-    else
-        swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
-    fi
-
-    if [ "${graph}" = 'true' ]; then
-        export MPLBACKEND=Agg
-        python3 "${PLOT_DIRECTORY}"/plot_comparison.py ""${test_name}".csv"
-        printf "%s\n" "check the resulting plot"
-    fi
+    printf "%s\n" "${TEST_NAMES}"
 }
 
-main "$*"
-
+check_binaries
+remove_result_files
+. ./fbopt
