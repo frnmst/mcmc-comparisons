@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# fbopt version 0.2
+# fbopt version 0.3
 #
 # Written in 2018 by Franco Masotti/frnmst <franco.masotti@student.unife.it>
 #
@@ -22,24 +22,31 @@ show_help()
 Usage: run.sh [OPTIONS]
 Run MCMC tests
 
+Mandatory arguments to long options are mandatory for short options too.
 Options:
-    -g, --graph                 run the plot script
-    -h, --help                  print this help
-    -l, --list-tests            list the available tests
-    -m, --min                   starting number of samples
-    -M, --max                   ending number of samples
-    -p, --parallel              execute tests on separate computing threads.
-                                If this option is enabled the number of threads
-                                is determined by the '--threads' option. If
-                                this option is disabled, the runs are executed
-                                consecutively
-    --print-flags               print the enabled options. This can also
-                                be used to print the default options
-    -r, --runs, --threads       the number of runs or computing threads. See
-                                the '--parallel' option for more information
-    -s, --steps                 the number of samples between consecutive
-                                iterations
-    -t, --test-name             the name of the test
+    -g, --graph                         run the plot script
+    -h, --help                          print this help
+    -l, --list-tests-names              list the available tests
+    -m, --min=MIN                       starting number of samples
+    -M, --max=MAX                       ending number of samples
+    -p, --parallel                      execute tests on separate computing
+                                        threads. If this option is enabled the
+                                        number of threads is determined by the
+                                        '--threads' option. If this option is
+                                        disabled, the runs are executed
+                                        consecutively.
+    --single-run-with-label=LABEL       run a single test with the specified
+                                        run label. This option excludes
+                                        both the '--parallel' option and the
+                                        '--runs' option
+    --print-flags                       print the enabled options. This can also
+                                        be used to print the default options
+    -r, --runs=RUNS, --threads=RUNS     the number of runs or computing threads.
+                                        See the '--parallel' option for more
+                                        information
+    -s, --steps=STEPS                   the number of samples between
+                                        consecutive iterations
+    -t, --test-name=NAME                the name of the test
 
 Exit status:
  0  if OK,
@@ -78,17 +85,18 @@ main()
 
     # Set the options. flag_f has an optional argument.
     local getopt_short_options='lm:M:s:r:ght:p'
-    local getopt_long_options='list-tests,min:,max:,step:,runs:,help,parallel,test-name:,threads:,graph,print-flags'
+    local getopt_long_options='list-test-names,min:,max:,step:,runs:,help,parallel::,single-run-with-label:,test-name:,threads:,graph,print-flags'
 
     # Set the default values for the flags.
-    local graph='false'
-    local list_tests='false'
-    local min='1000'
-    local max='10000'
-    local step='1000'
-    local runs='4'
-    local test_name='arithm_sample'
+    local graph="${GRAPH}"
+    local list_test_names='false'
+    local min="${MIN}"
+    local max="${MAX}"
+    local step="${STEP}"
+    local runs="${RUNS}"
+    local test_name="${TEST_NAME}"
     local parallel='false'
+    local label='-1'
 
     local program_name="${0}"
     opts="$(getopt \
@@ -109,7 +117,7 @@ main()
     while [ "${1}" != '--' ]; do
         case "${1}" in
 
-            -l | --list-tests )         list_tests='true' ;;
+            -l | --list-test-names )    list_test_names='true' ;;
 
             -g | --graph )              graph='true' ;;
 
@@ -126,6 +134,9 @@ main()
             --print-flags )             print_flags='true' ;;
 
             -r | --runs | --threads )   runs="${2}";
+                                        shift 1 ;;
+
+            --single-run-with-label )   label="${2}";
                                         shift 1 ;;
 
             -s | --step )               step="${2}";
@@ -152,12 +163,14 @@ main()
         || [ -z "${max}" ] \
         || [ -z "${step}" ] \
         || [ -z "${runs}" ] \
+        || [ -z "${label}" ] \
         || [ -z "${test_name}" ]; } \
         && getopt_error && return 1
     [ "${print_flags}" = 'true' ] \
         && show_flags \
             'graph' \
-            'list_tests' \
+            'label' \
+            'list_test_names' \
             'min' \
             'max' \
             'step' \
@@ -169,11 +182,18 @@ main()
 
     # From now on you should call a function or an external program
     # using the values of the flag variables.
-    [ "${list_tests}" = 'true' ] && list_available_tests && return 0
-    if [ "${parallel}" = 'true' ]; then
+    [ "${parallel}" = 'true' ] \
+        && [ "${label}" != '-1' ] \
+        && getopt_error \
+        && return 1
+    [ "${list_test_names}" = 'true' ] && list_available_tests && return 0
+
+    if [ "${label}" = '-1' ] && [ "${parallel}" = 'false' ]; then
+            swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
+    elif [ "${parallel}" = 'true' ]; then
         seq 1 ${runs} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
-    else
-        swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
+    elif [ "${label}" != '-1' ]; then
+        swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${label} 1
     fi
     if [ "${graph}" = 'true' ]; then
         export MPLBACKEND=Agg
@@ -184,7 +204,7 @@ main()
 
 # Test dependencies and versions.
 # getopt must return 4 to be fully compatible. See getopt's manual.
-which bash getopt 1>/dev/null 2>/dev/null && { getopt -T; [ $? -eq 4 ]; }
+which bash getopt 1>/dev/null 2>/dev/null && { getopt -T; [ ${?} -eq 4 ]; }
 
 # Get and pass argc to the main function.
 # All this work with an array must be done to preserve

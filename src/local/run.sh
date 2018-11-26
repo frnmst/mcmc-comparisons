@@ -29,29 +29,6 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-OUTPUTS='arithm_sample.csv test33_sample.csv'
-BINARIES='swipl parallel python3'
-TESTS_DIRECTORY='../prolog'
-PLOT_DIRECTORY='../plot'
-TEST_NAMES='arithm_sample test33_sample'
-
-remove_result_files()
-{
-    for output in ${OUTPUTS}; do
-        rm -rf "${output}"
-    done
-}
-
-check_binaries()
-{
-    which ${BINARIES} || exit 1
-} 1>/dev/null
-
-list_available_tests()
-{
-    printf "%s\n" "${TEST_NAMES}"
-}
-
-check_binaries
-remove_result_files
-. ./fbopt
+. ../includes/variables.sh
+. ../includes/shared.sh
+. ../includes/fbopt

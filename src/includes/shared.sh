@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# frontend.sh
+# shared.sh
 #
 # BSD 2-Clause License
 #
@@ -29,16 +29,22 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-. ../includes/variables.sh
-. ../includes/shared.sh
-# Increase the run label by one. If run_label == task_number we get an error
-# for the first task, since a value of 0 would be passed to
-# the prolog program. The run label is infact also the number of total
-# iterations in tests.pl (if we use the iterative version) so it cannot be
-# less than 1.
-. ../includes/fbopt \
-    --test-name arithm_sample \
-    --min 1000 \
-    --max 100000 \
-    --step 1000 \
-    --single-run-with-label=$((${1}+1))
+remove_result_files()
+{
+    for output in ${OUTPUTS}; do
+        rm -rf "${output}"
+    done
+}
+
+check_binaries()
+{
+    which ${BINARIES} || exit 1
+} 1>/dev/null
+
+list_available_tests()
+{
+    printf "%s\n" "${LIST_OF_TEST_NAMES}"
+}
+
+check_binaries
+remove_result_files

@@ -70,24 +70,31 @@ algorithms in SWI Prolog
 Usage: run.sh [OPTIONS]
 Run MCMC tests
 
+Mandatory arguments to long options are mandatory for short options too.
 Options:
-    -g, --graph                 run the plot script
-    -h, --help                  print this help
-    -l, --list-tests            list the available tests
-    -m, --min                   starting number of samples
-    -M, --max                   ending number of samples
-    -p, --parallel              execute tests on separate computing threads.
-                                If this option is enabled the number of threads 
-                                is determined by the '--threads' option. If 
-                                this option is disabled, the runs are executed
-                                consecutively
-    --print-flags               print the enabled options. This can also
-                                be used to print the default options
-    -r, --runs, --threads       the number of runs or computing threads. See
-                                the '--parallel' option for more information
-    -s, --steps                 the number of samples between consecutive 
-                                iterations
-    -t, --test-name             the name of the test
+    -g, --graph                         run the plot script
+    -h, --help                          print this help
+    -l, --list-tests-names              list the available tests
+    -m, --min=MIN                       starting number of samples
+    -M, --max=MAX                       ending number of samples
+    -p, --parallel                      execute tests on separate computing
+                                        threads. If this option is enabled the
+                                        number of threads is determined by the
+                                        '--threads' option. If this option is
+                                        disabled, the runs are executed
+                                        consecutively.
+    --single-run-with-label=LABEL       run a single test with the specified
+                                        run label. This option excludes
+                                        both the '--parallel' option and the
+                                        '--runs' option
+    --print-flags                       print the enabled options. This can also
+                                        be used to print the default options
+    -r, --runs=RUNS, --threads=RUNS     the number of runs or computing threads.
+                                        See the '--parallel' option for more
+                                        information
+    -s, --steps=STEPS                   the number of samples between
+                                        consecutive iterations
+    -t, --test-name=NAME                the name of the test
 
 Exit status:
  0  if OK,

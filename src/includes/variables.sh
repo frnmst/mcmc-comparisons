@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# frontend.sh
+# variables.sh
 #
 # BSD 2-Clause License
 #
@@ -29,16 +29,16 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-. ../includes/variables.sh
-. ../includes/shared.sh
-# Increase the run label by one. If run_label == task_number we get an error
-# for the first task, since a value of 0 would be passed to
-# the prolog program. The run label is infact also the number of total
-# iterations in tests.pl (if we use the iterative version) so it cannot be
-# less than 1.
-. ../includes/fbopt \
-    --test-name arithm_sample \
-    --min 1000 \
-    --max 100000 \
-    --step 1000 \
-    --single-run-with-label=$((${1}+1))
+OUTPUTS='arithm_sample.csv test33_sample.csv'
+BINARIES='swipl parallel python3'
+TESTS_DIRECTORY='../prolog'
+PLOT_DIRECTORY='../plot'
+LIST_OF_TEST_NAMES='arithm_sample test33_sample'
+
+# Assign default values for the flags.
+GRAPH='false'
+MIN='1000'
+MAX='10000'
+STEP='1000'
+RUNS='4'
+TEST_NAME='arithm_sample'
