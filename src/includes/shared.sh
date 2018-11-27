@@ -46,5 +46,14 @@ list_available_tests()
     printf "%s\n" "${LIST_OF_TEST_NAMES}"
 }
 
+plot_comparison()
+{
+    local test_name="${1}"
+
+    export MPLBACKEND=Agg
+    python3 "${PLOT_DIRECTORY}"/plot_comparison.py ""${test_name}".csv"
+    printf "%s\n" "check the resulting plot"
+}
+
 check_binaries
 remove_result_files

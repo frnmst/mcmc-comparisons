@@ -24,7 +24,8 @@ Run MCMC tests
 
 Mandatory arguments to long options are mandatory for short options too.
 Options:
-    -g, --graph                         run the plot script
+    -g, --graph                         run the plot script after the tests
+    --graph-only                        run the plot script only
     -h, --help                          print this help
     -l, --list-tests-names              list the available tests
     -m, --min=MIN                       starting number of samples
@@ -85,10 +86,11 @@ main()
 
     # Set the options. flag_f has an optional argument.
     local getopt_short_options='lm:M:s:r:ght:p'
-    local getopt_long_options='list-test-names,min:,max:,step:,runs:,help,parallel::,single-run-with-label:,test-name:,threads:,graph,print-flags'
+    local getopt_long_options='list-test-names,min:,max:,step:,runs:,help,parallel::,single-run-with-label:,test-name:,threads:,graph,graph-only,print-flags'
 
     # Set the default values for the flags.
     local graph="${GRAPH}"
+    local graph_only="${GRAPH_ONLY}"
     local list_test_names='false'
     local min="${MIN}"
     local max="${MAX}"
@@ -120,6 +122,8 @@ main()
             -l | --list-test-names )    list_test_names='true' ;;
 
             -g | --graph )              graph='true' ;;
+
+            --graph-only )              graph_only='true' ;;
 
             -h | --help )               help='true' ;;
 
@@ -169,6 +173,7 @@ main()
     [ "${print_flags}" = 'true' ] \
         && show_flags \
             'graph' \
+            'graph_only' \
             'label' \
             'list_test_names' \
             'min' \
@@ -187,7 +192,7 @@ main()
         && getopt_error \
         && return 1
     [ "${list_test_names}" = 'true' ] && list_available_tests && return 0
-
+    [ "${graph_only}" = 'true' ] && { plot_comparison "${test_name}"; return ${?}; }
     if [ "${label}" = '-1' ] && [ "${parallel}" = 'false' ]; then
             swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
     elif [ "${parallel}" = 'true' ]; then
@@ -195,11 +200,7 @@ main()
     elif [ "${label}" != '-1' ]; then
         swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${label} 1
     fi
-    if [ "${graph}" = 'true' ]; then
-        export MPLBACKEND=Agg
-        python3 "${PLOT_DIRECTORY}"/plot_comparison.py ""${test_name}".csv"
-        printf "%s\n" "check the resulting plot"
-    fi
+    [ "${graph}" = 'true' ] && plot_comparison "${test_name}"
 }
 
 # Test dependencies and versions.
