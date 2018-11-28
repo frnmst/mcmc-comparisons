@@ -29,7 +29,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-remove_result_files()
+remove_csv_files()
 {
     for output in ${OUTPUTS}; do
         rm -rf "${output}"
@@ -51,9 +51,6 @@ plot_comparison()
     local test_name="${1}"
 
     export MPLBACKEND=Agg
-    python3 "${PLOT_DIRECTORY}"/plot_comparison.py ""${test_name}".csv"
-    printf "%s\n" "check the resulting plot"
+    python3 "${PLOT_DIRECTORY}"/plot_comparison.py ""${test_name}".csv" \
+        && printf "%s\n" "check the resulting plot"
 }
-
-check_binaries
-remove_result_files

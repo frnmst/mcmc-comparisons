@@ -45,6 +45,16 @@ Options:
     -r, --runs=RUNS, --threads=RUNS     the number of runs or computing threads.
                                         See the '--parallel' option for more
                                         information
+    --no-remove-csv-files               avoid removing all csv files before
+                                        running a test. This option defaults
+                                        to false in all cases except when run
+                                        with the '--graph-only' option. In that
+                                        case the value of this option is
+                                        fixed to true and cannot be changed.
+                                        Set this option if you want to keep old
+                                        results and appending new ones to the
+                                        same file. Normally, you should not set
+                                        this option
     -s, --steps=STEPS                   the number of samples between
                                         consecutive iterations
     -t, --test-name=NAME                the name of the test
@@ -86,11 +96,11 @@ main()
 
     # Set the options. flag_f has an optional argument.
     local getopt_short_options='lm:M:s:r:ght:p'
-    local getopt_long_options='list-test-names,min:,max:,step:,runs:,help,parallel::,single-run-with-label:,test-name:,threads:,graph,graph-only,print-flags'
+    local getopt_long_options='list-test-names,min:,max:,step:,runs:,help,parallel::,single-run-with-label:,test-name:,threads:,graph,graph-only,no-remove-csv-files,print-flags'
 
     # Set the default values for the flags.
-    local graph="${GRAPH}"
-    local graph_only="${GRAPH_ONLY}"
+    local graph='false'
+    local graph_only='false'
     local list_test_names='false'
     local min="${MIN}"
     local max="${MAX}"
@@ -99,6 +109,7 @@ main()
     local test_name="${TEST_NAME}"
     local parallel='false'
     local label='-1'
+    local no_remove_csv_files='false'
 
     local program_name="${0}"
     opts="$(getopt \
@@ -132,6 +143,8 @@ main()
 
             -M | --max )                max="${2}";
                                         shift 1 ;;
+
+            --no-remove-csv-files )     no_remove_csv_files='true' ;;
 
             -p | --parallel )           parallel='true' ;;
 
@@ -182,11 +195,15 @@ main()
             'runs' \
             'test_name' \
             'parallel' \
+            'no_remove_csv_files' \
         && return 0
     [ "${help}" = 'true' ] && show_help && return 0
 
     # From now on you should call a function or an external program
     # using the values of the flag variables.
+    check_binaries
+    [ "${graph_only}" = 'true' ] && no_remove_csv_files='true'
+    [ "${no_remove_csv_files}" = 'false' ] && remove_csv_files
     [ "${parallel}" = 'true' ] \
         && [ "${label}" != '-1' ] \
         && getopt_error \

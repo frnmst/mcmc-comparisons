@@ -36,8 +36,6 @@ PLOT_DIRECTORY='../plot'
 LIST_OF_TEST_NAMES='arithm_sample test33_sample'
 
 # Assign default values for the flags.
-GRAPH='false'
-GRAPH_ONLY='false'
 MIN='1000'
 MAX='10000'
 STEP='1000'

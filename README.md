@@ -72,7 +72,8 @@ Run MCMC tests
 
 Mandatory arguments to long options are mandatory for short options too.
 Options:
-    -g, --graph                         run the plot script
+    -g, --graph                         run the plot script after the tests
+    --graph-only                        run the plot script only
     -h, --help                          print this help
     -l, --list-tests-names              list the available tests
     -m, --min=MIN                       starting number of samples
@@ -92,6 +93,16 @@ Options:
     -r, --runs=RUNS, --threads=RUNS     the number of runs or computing threads.
                                         See the '--parallel' option for more
                                         information
+    --no-remove-csv-files               avoid removing all csv files before
+                                        running a test. This option defaults
+                                        to false in all cases except when run
+                                        with the '--graph-only' option. In that
+                                        case the value of this option is
+                                        fixed to true and cannot be changed.
+                                        Set this option if you want to keep old
+                                        results and appending new ones to the
+                                        same file. Normally, you should not set
+                                        this option
     -s, --steps=STEPS                   the number of samples between
                                         consecutive iterations
     -t, --test-name=NAME                the name of the test
@@ -195,6 +206,11 @@ wait ${job_id[@]}
 - [SLURM configurator tool](https://slurm.schedmd.com/configurator.html)
 - [The Slurm job scheduler](http://www.arc.ox.ac.uk/content/slurm-job-scheduler)
 - [Slurm - Arch Wiki](https://wiki.archlinux.org/index.php/Slurm)
+
+#### Configuration file
+
+A configuration file for SLURM is available at `./src/slurm/slurm.conf`. This 
+is the configuration file I use for my setup.
 
 ## License
 
