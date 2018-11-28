@@ -16,11 +16,12 @@ algorithms in SWI Prolog
         - [Run on a SLURM queue](#run-on-a-slurm-queue)
     - [CSV file format](#csv-file-format)
     - [Plot](#plot)
-    - [Notes on running the tests is parallel](#notes-on-running-the-tests-is-parallel)
+    - [Notes on running the tests in parallel](#notes-on-running-the-tests-in-parallel)
         - [Output files](#output-files)
         - [An alternative to GNU Parallel](#an-alternative-to-gnu-parallel)
     - [References](#references)
         - [SLURM](#slurm)
+            - [Configuration file](#configuration-file)
     - [License](#license)
 
 [](TOC)
@@ -195,8 +196,11 @@ wait ${job_id[@]}
 
 ## References
 
+### Algorithms
+
 - [Metropolis-Hastings](https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm)
 - [Gibbs sampling](https://en.wikipedia.org/wiki/Gibbs_sampling)
+- [Adaptive MCMC](http://arxiv.org/abs/1403.6036)
 
 ### SLURM
 

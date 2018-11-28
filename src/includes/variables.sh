@@ -29,11 +29,11 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-OUTPUTS='arithm_sample.csv test33_sample.csv'
+OUTPUTS='arithm_sample.csv test33_sample.csv test66_sample.csv'
 BINARIES='swipl parallel python3'
 TESTS_DIRECTORY='../prolog'
 PLOT_DIRECTORY='../plot'
-LIST_OF_TEST_NAMES='arithm_sample test33_sample'
+LIST_OF_TEST_NAMES='arithm_sample test33_sample test66_sample'
 
 # Assign default values for the flags.
 MIN='1000'

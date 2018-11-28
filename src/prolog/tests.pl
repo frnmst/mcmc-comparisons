@@ -48,25 +48,35 @@ main :-
 select_test(Test_name,Min,Max,Step,Runs,Parallel):-
     Parallel == 1,
     !,
-    atom_string("arithm_sample",S),
-    atom_string("test33_sample",T),
-    ( S = Test_name
+    atom_string("arithm_sample",A),
+    atom_string("test33_sample",B),
+    atom_string("test66_sample",C),
+    ( A = Test_name
       -> tests_single_arithm(Min,Max,Step,Runs)
-      ;  1 = 1
+      ; 1 = 1
     ),
-    ( T = Test_name
+    ( B = Test_name
       -> tests_single_test33(Min,Max,Step,Runs)
+      ; 1 = 1
+    ),
+    ( C = Test_name
+      -> tests_single_test66(Min,Max,Step,Runs)
     ).
 
 select_test(Test_name,Min,Max,Step,Runs,_):-
-    atom_string("arithm_sample",S),
-    atom_string("test33_sample",T),
-    ( S = Test_name
+    atom_string("arithm_sample",A),
+    atom_string("test33_sample",B),
+    atom_string("test66_sample",C),
+    ( A = Test_name
       -> tests_sequential_arithm(Min,Max,Step,Runs)
-      ;  1 = 1
+      ; 1 = 1
     ),
-    ( T = Test_name
+    ( B = Test_name
       -> tests_sequential_test33(Min,Max,Step,Runs)
+      ; 1 = 1
+    ),
+    ( C = Test_name
+      -> tests_sequential_test66(Min,Max,Step,Runs)
     ).
 
 /* Check that all the Argv values are integers with some conditions. */
@@ -185,6 +195,50 @@ measure_test33_mh_sample(Time, Samples, Prob):-
     statistics(walltime, [_|[Time]]).
 
 measure_test33_gibbs_sample(Time, Samples, Prob):-
+    statistics(walltime, [_|[_]]),
+    mc_gibbs_sample(t(query),t(evidence),Samples,Prob,[]),
+    statistics(walltime, [_|[Time]]).
+
+/* test66 */
+
+tests_single_test66(Min,Max,Step,Run_label):-
+    format('performing test66.pl on test66_sample.csv\n'),
+    ['../prolog/amcmc/test66'],
+    open('test66_sample.csv',append,Out_a),
+    loop_test66_sample(Min,Max,Step,Run_label,Out_a),
+    close(Out_a).
+
+tests_sequential_test66(_,_,_,Runs):-
+    Runs=<0,
+    !.
+
+tests_sequential_test66(Min,Max,Step,Runs):-
+    tests_single_test66(Min,Max,Step,Runs),
+    N is Runs-1,
+    tests_sequential_test66(Min,Max,Step,N).
+
+loop_test66_sample(Curr,Max,_,_,_):-
+    Curr>Max,
+    !.
+
+loop_test66_sample(Curr, Max, Step, Runs, Out):-
+    Samples is Curr,
+    measure_test66_mh_sample(Time_mh,Samples,P_mh),
+    measure_test66_gibbs_sample(Time_gibbs,Samples,P_gibbs),
+    format('run ~q, sample ~q of ~q\n', [Runs, Samples, Max]),
+    format(Out, '~q,~q,~q,~q,~q,~q\n', [Runs, Samples, Time_mh, P_mh, Time_gibbs, P_gibbs]),
+    flush_output(Out),
+    flush_output,
+    N is Curr+Step,
+    loop_test66_sample(N,Max,Step,Runs,Out).
+
+measure_test66_mh_sample(Time, Samples, Prob):-
+    statistics(walltime, [_|[_]]),
+    mc_mh_sample(t(query),t(evidence),Samples,Prob,[]),
+    format('here\n'),
+    statistics(walltime, [_|[Time]]).
+
+measure_test66_gibbs_sample(Time, Samples, Prob):-
     statistics(walltime, [_|[_]]),
     mc_gibbs_sample(t(query),t(evidence),Samples,Prob,[]),
     statistics(walltime, [_|[Time]]).
