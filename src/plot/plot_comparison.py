@@ -44,7 +44,8 @@ def plot_two_data_sets(data,
                     legend=['set a', 'set b'],
                     title='Comparison',
                     x_label='x',
-                    y_label='y'):
+                    y_label='y',
+                    plot_file='plot.png'):
     """ Plot two set of values for direct comparison."""
     assert isinstance(data, dict)
 
@@ -59,7 +60,7 @@ def plot_two_data_sets(data,
     plt.legend(legend)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
-    plt.savefig('plot.png')
+    plt.savefig(plot_file)
 
 
 def compute_avg_and_stddev_two_data_sets(data,key_a,key_b,rows_name,cols_name):
@@ -108,9 +109,9 @@ class MhVsGibbs():
         self.data = { 'run_number': [],
                       'samples': [],
                       'mh_time': [],
-                      'mh_probability': [],
+                      'mh_prob': [],
                       'gibbs_time': [],
-                      'gibbs_probability': [],
+                      'gibbs_prob': [],
                     }
 
         with open(filename, 'r') as f:
@@ -122,12 +123,13 @@ class MhVsGibbs():
                 self.data['run_number'].append(int(row[0]))
                 self.data['samples'].append(int(row[1]))
                 self.data['mh_time'].append(int(row[2]))
-                self.data['mh_probability'].append(float(row[3]))
+                self.data['mh_prob'].append(float(row[3]))
                 self.data['gibbs_time'].append(int(row[4]))
-                self.data['gibbs_probability'].append(float(row[5]))
+                self.data['gibbs_prob'].append(float(row[5]))
 
-    def plot_mh_vs_gibbs(self, plot_title):
+    def plot_mh_vs_gibbs_times(self, plot_title,plot_file):
         assert isinstance(plot_title,str)
+        assert isinstance(plot_file,str)
         plot_two_data_sets(self.data,
                         'samples',
                         'mh_time',
@@ -137,9 +139,25 @@ class MhVsGibbs():
                         ['mh', 'gibbs'],
                         plot_title,
                         'samples',
-                        'running time (ms)')
+                        'running time (ms)',
+                        plot_file)
 
-    def overwrite_data_set(self,mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev):
+    def plot_mh_vs_gibbs_prob(self, plot_title,plot_file):
+        assert isinstance(plot_title,str)
+        assert isinstance(plot_file,str)
+        plot_two_data_sets(self.data,
+                        'samples',
+                        'mh_prob',
+                        'gibbs_prob',
+                        'mh_prob_stddev',
+                        'gibbs_prob_stddev',
+                        ['mh', 'gibbs'],
+                        plot_title,
+                        'samples',
+                        'probability [0,1]',
+                        plot_file)
+
+    def overwrite_avg_data_set(self,mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev):
         self.data['mh_time']=mh_times_avg
         self.data['gibbs_time']=gibbs_times_avg
         self.data['run_number']=sorted(list(set(self.data['run_number'])))
@@ -147,39 +165,54 @@ class MhVsGibbs():
         self.data['mh_time_stddev']=mh_times_stddev
         self.data['gibbs_time_stddev']=gibbs_times_stddev
 
-    def mh_vs_gibbs_avg(self):
+    def overwrite_prob_data_set(self,mh_probs_avg,gibbs_probs_avg,mh_probs_stddev,gibbs_probs_stddev):
+        self.data['mh_prob']=mh_probs_avg
+        self.data['gibbs_prob']=gibbs_probs_avg
+        self.data['run_number']=sorted(list(set(self.data['run_number'])))
+        self.data['samples']=sorted(list(set(self.data['samples'])))
+        self.data['mh_prob_stddev']=mh_probs_stddev
+        self.data['gibbs_prob_stddev']=gibbs_probs_stddev
+
+    def mh_vs_gibbs_times_avg(self):
         mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev = compute_avg_and_stddev_two_data_sets(self.data,'mh_time','gibbs_time','run_number','samples')
-        self.overwrite_data_set(mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev)
+        self.overwrite_avg_data_set(mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev)
+
+    def mh_vs_gibbs_prob_avg(self):
+        mh_probs_avg,gibbs_probs_avg,mh_probs_stddev,gibbs_probs_stddev = compute_avg_and_stddev_two_data_sets(self.data,'mh_prob','gibbs_prob','run_number','samples')
+        self.overwrite_prob_data_set(mh_probs_avg,gibbs_probs_avg,mh_probs_stddev,gibbs_probs_stddev)
 
 
 class ArithmSampleMhVsGibbs(MhVsGibbs):
     def arithm_sample_mh_vs_gibbs(self):
-        self.plot_mh_vs_gibbs('arithm_sample mh vs gibbs avg')
+        self.plot_mh_vs_gibbs_times('arithm_sample mh vs gibbs avg',
+                              'plot_arithm_sample_mh_vs_gibbs.png')
 
     def arithm_sample_mh_vs_gibbs_avg(self):
-        self.mh_vs_gibbs_avg()
+        self.mh_vs_gibbs_times_avg()
         self.arithm_sample_mh_vs_gibbs()
 
 
 class Test33SampleMhVsGibbs(MhVsGibbs):
     def test33_sample_mh_vs_gibbs(self):
-        self.plot_mh_vs_gibbs('test33_sample mh vs gibbs avg')
+#        self.plot_mh_vs_gibbs_times('test33_sample mh vs gibbs times avg',
+#                              'plot_test33_sample_mh_vs_gibbs_times.png')
+        self.plot_mh_vs_gibbs_prob('test33_sample mh vs gibbs prob avg',
+                              'plot_test33_sample_mh_vs_gibbs_prob.png')
 
     def test33_sample_mh_vs_gibbs_avg(self):
-        self.mh_vs_gibbs_avg()
+        self.mh_vs_gibbs_times_avg()
+        self.mh_vs_gibbs_prob_avg()
         self.test33_sample_mh_vs_gibbs()
 
 
 class Test66SampleMhVsGibbs(MhVsGibbs):
     def test66_sample_mh_vs_gibbs(self):
-        self.plot_mh_vs_gibbs('test66_sample mh vs gibbs avg')
+        self.plot_mh_vs_gibbs_times('test66_sample mh vs gibbs avg',
+                              'plot_test66_sample_mh_vs_gibbs.png')
 
     def test66_sample_mh_vs_gibbs_avg(self):
-        self.mh_vs_gibbs_avg()
+        self.mh_vs_gibbs_times_avg()
         self.test66_sample_mh_vs_gibbs()
-
-
-# Prob avg && stddev TODO
 
 
 def main():
@@ -187,14 +220,15 @@ def main():
     matplotlib.use('Agg')
     # Get the file name from argv. This decides the type of plot.
     file_name=sys.argv[1]
+    delimiter=','
     if file_name == 'arithm_sample.csv':
-        speeds = ArithmSampleMhVsGibbs(file_name,',')
+        speeds = ArithmSampleMhVsGibbs(file_name,delimiter)
         speeds.arithm_sample_mh_vs_gibbs_avg()
     elif file_name == 'test33_sample.csv':
-        speeds = Test33SampleMhVsGibbs(file_name,',')
+        speeds = Test33SampleMhVsGibbs(file_name,delimiter)
         speeds.test33_sample_mh_vs_gibbs_avg()
     elif file_name == 'test66_sample.csv':
-        speeds = Test66SampleMhVsGibbs(file_name,',')
+        speeds = Test66SampleMhVsGibbs(file_name,delimiter)
         speeds.test66_sample_mh_vs_gibbs_avg()
 
 if __name__ == '__main__':
