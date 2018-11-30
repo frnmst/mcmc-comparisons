@@ -42,7 +42,9 @@ def plot_two_data_sets(data,
                     y1_stddev,
                     y2_stddev,
                     legend=['set a', 'set b'],
-                    title='Comparison',x_label='x',y_label='y'):
+                    title='Comparison',
+                    x_label='x',
+                    y_label='y'):
     """ Plot two set of values for direct comparison."""
     assert isinstance(data, dict)
 
@@ -100,7 +102,7 @@ def compute_avg_and_stddev_two_data_sets(data,key_a,key_b,rows_name,cols_name):
     return avg_a, avg_b, stddev_a, stddev_b
 
 
-class MhVsGibbsComparison():
+class MhVsGibbs():
     def __init__(self, filename, delimiter=','):
         """ Load the file contents in a dictionary for future easy access."""
         self.data = { 'run_number': [],
@@ -112,8 +114,6 @@ class MhVsGibbsComparison():
                     }
 
         with open(filename, 'r') as f:
-            # Skip the first line
-            # next(f)
             data = csv.reader(f, delimiter=delimiter)
             # Sort lines by run number and and keep sample id in place so that we maintain the correct
             # input for the other functions.
@@ -147,35 +147,39 @@ class MhVsGibbsComparison():
         self.data['mh_time_stddev']=mh_times_stddev
         self.data['gibbs_time_stddev']=gibbs_times_stddev
 
-    def generic_mh_vs_gibbs_avg(self):
+    def mh_vs_gibbs_avg(self):
         mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev = compute_avg_and_stddev_two_data_sets(self.data,'mh_time','gibbs_time','run_number','samples')
         self.overwrite_data_set(mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev)
 
-    # arithm_sample
+
+class ArithmSampleMhVsGibbs(MhVsGibbs):
     def arithm_sample_mh_vs_gibbs(self):
         self.plot_mh_vs_gibbs('arithm_sample mh vs gibbs avg')
 
     def arithm_sample_mh_vs_gibbs_avg(self):
-        self.generic_mh_vs_gibbs_avg()
+        self.mh_vs_gibbs_avg()
         self.arithm_sample_mh_vs_gibbs()
 
-    # test33_sample
+
+class Test33SampleMhVsGibbs(MhVsGibbs):
     def test33_sample_mh_vs_gibbs(self):
         self.plot_mh_vs_gibbs('test33_sample mh vs gibbs avg')
 
     def test33_sample_mh_vs_gibbs_avg(self):
-        self.generic_mh_vs_gibbs_avg()
+        self.mh_vs_gibbs_avg()
         self.test33_sample_mh_vs_gibbs()
 
-    # test66_sample
+
+class Test66SampleMhVsGibbs(MhVsGibbs):
     def test66_sample_mh_vs_gibbs(self):
         self.plot_mh_vs_gibbs('test66_sample mh vs gibbs avg')
 
     def test66_sample_mh_vs_gibbs_avg(self):
-        self.generic_mh_vs_gibbs_avg()
+        self.mh_vs_gibbs_avg()
         self.test66_sample_mh_vs_gibbs()
 
-    # Prob avg && stddev TODO
+
+# Prob avg && stddev TODO
 
 
 def main():
@@ -184,13 +188,13 @@ def main():
     # Get the file name from argv. This decides the type of plot.
     file_name=sys.argv[1]
     if file_name == 'arithm_sample.csv':
-        speeds = MhVsGibbsComparison(file_name,',')
+        speeds = ArithmSampleMhVsGibbs(file_name,',')
         speeds.arithm_sample_mh_vs_gibbs_avg()
     elif file_name == 'test33_sample.csv':
-        speeds = MhVsGibbsComparison(file_name,',')
+        speeds = Test33SampleMhVsGibbs(file_name,',')
         speeds.test33_sample_mh_vs_gibbs_avg()
     elif file_name == 'test66_sample.csv':
-        speeds = MhVsGibbsComparison(file_name,',')
+        speeds = Test66SampleMhVsGibbs(file_name,',')
         speeds.test66_sample_mh_vs_gibbs_avg()
 
 if __name__ == '__main__':
