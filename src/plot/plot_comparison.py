@@ -51,7 +51,6 @@ def plot_two_data_sets(data,
     y2 = data[y2_id]
     y1_stddev = data[y1_stddev]
     y2_stddev = data[y2_stddev]
-    print(y1_stddev)
     plt.errorbar(x1,y1,yerr=y1_stddev,markersize=2.5,linestyle='-',marker='o', capsize=2.5)
     plt.errorbar(x2,y2,yerr=y2_stddev,markersize=2.5,linestyle='-',marker='o', capsize=2.5)
     plt.title(title)
@@ -78,13 +77,13 @@ def compute_avg_and_stddev_two_data_sets(data,key_a,key_b,rows_name,cols_name):
     matrix_b = np.matrix(data[key_b])
     matrix_b = matrix_b.reshape(rows, cols)
 
+    # Compute average and standard deviation
+    # of the running times for each sample.
     for c in range(0, cols):
         sum_a = 0
         sum_b = 0
         stddev_buf_a = list()
         stddev_buf_b = list()
-        # Compute average and standard deviation
-        # of the running times for each sample.
         for r in range(0,rows):
             sum_a += matrix_a.item(r,c)
             sum_b += matrix_b.item(r,c)
@@ -92,11 +91,11 @@ def compute_avg_and_stddev_two_data_sets(data,key_a,key_b,rows_name,cols_name):
             stddev_buf_a.append(matrix_a.item(r,c))
             stddev_buf_b.append(matrix_b.item(r,c))
 
-            avg_a.append(sum_a/rows)
-            avg_b.append(sum_b/rows)
+        avg_a.append(sum_a/rows)
+        avg_b.append(sum_b/rows)
 
-            stddev_a.append(np.std(stddev_buf_a))
-            stddev_b.append(np.std(stddev_buf_b))
+        stddev_a.append(np.std(stddev_buf_a))
+        stddev_b.append(np.std(stddev_buf_b))
 
     return avg_a, avg_b, stddev_a, stddev_b
 
@@ -141,17 +140,12 @@ class MhVsGibbsComparison():
                         'running time (ms)')
 
     def overwrite_data_set(self,mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev):
-        print(self.data['mh_time'])
-
         self.data['mh_time']=mh_times_avg
         self.data['gibbs_time']=gibbs_times_avg
         self.data['run_number']=sorted(list(set(self.data['run_number'])))
         self.data['samples']=sorted(list(set(self.data['samples'])))
         self.data['mh_time_stddev']=mh_times_stddev
         self.data['gibbs_time_stddev']=gibbs_times_stddev
-
-        print(mh_times_avg)
-        print(self.data['mh_time'])
 
     def generic_mh_vs_gibbs_avg(self):
         mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev = compute_avg_and_stddev_two_data_sets(self.data,'mh_time','gibbs_time','run_number','samples')
@@ -173,8 +167,13 @@ class MhVsGibbsComparison():
         self.generic_mh_vs_gibbs_avg()
         self.test33_sample_mh_vs_gibbs()
 
-    # test66_sample TODO
+    # test66_sample
+    def test66_sample_mh_vs_gibbs(self):
+        self.plot_mh_vs_gibbs('test66_sample mh vs gibbs avg')
 
+    def test66_sample_mh_vs_gibbs_avg(self):
+        self.generic_mh_vs_gibbs_avg()
+        self.test66_sample_mh_vs_gibbs()
 
     # Prob avg && stddev TODO
 
@@ -191,7 +190,8 @@ def main():
         speeds = MhVsGibbsComparison(file_name,',')
         speeds.test33_sample_mh_vs_gibbs_avg()
     elif file_name == 'test66_sample.csv':
-        pass
+        speeds = MhVsGibbsComparison(file_name,',')
+        speeds.test66_sample_mh_vs_gibbs_avg()
 
 if __name__ == '__main__':
     main()
