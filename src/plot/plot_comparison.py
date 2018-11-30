@@ -35,9 +35,12 @@ import numpy as np
 import csv
 import sys
 
-def plot_two_data_sets(data,x_id,y1_id,y2_id,
-                    y1_std_dev,
-                    y2_std_dev,
+def plot_two_data_sets(data,
+                    x_id,
+                    y1_id,
+                    y2_id,
+                    y1_stddev,
+                    y2_stddev,
                     legend=['set a', 'set b'],
                     title='Comparison',x_label='x',y_label='y'):
     """ Plot two set of values for direct comparison."""
@@ -46,10 +49,11 @@ def plot_two_data_sets(data,x_id,y1_id,y2_id,
     x1 = x2 = data[x_id]
     y1 = data[y1_id]
     y2 = data[y2_id]
-    y1_std_dev = data[y1_std_dev]
-    y2_std_dev = data[y2_std_dev]
-    plt.errorbar(x1,y1,yerr=y1_std_dev,markersize=2.5,linestyle='-',marker='o', capsize=2.5)
-    plt.errorbar(x2,y2,yerr=y2_std_dev,markersize=2.5,linestyle='-',marker='o', capsize=2.5)
+    y1_stddev = data[y1_stddev]
+    y2_stddev = data[y2_stddev]
+    print(y1_stddev)
+    plt.errorbar(x1,y1,yerr=y1_stddev,markersize=2.5,linestyle='-',marker='o', capsize=2.5)
+    plt.errorbar(x2,y2,yerr=y2_stddev,markersize=2.5,linestyle='-',marker='o', capsize=2.5)
     plt.title(title)
     plt.legend(legend)
     plt.xlabel(x_label)
@@ -137,12 +141,17 @@ class MhVsGibbsComparison():
                         'running time (ms)')
 
     def overwrite_data_set(self,mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev):
+        print(self.data['mh_time'])
+
         self.data['mh_time']=mh_times_avg
         self.data['gibbs_time']=gibbs_times_avg
         self.data['run_number']=sorted(list(set(self.data['run_number'])))
         self.data['samples']=sorted(list(set(self.data['samples'])))
         self.data['mh_time_stddev']=mh_times_stddev
         self.data['gibbs_time_stddev']=gibbs_times_stddev
+
+        print(mh_times_avg)
+        print(self.data['mh_time'])
 
     def generic_mh_vs_gibbs_avg(self):
         mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev = compute_avg_and_stddev_two_data_sets(self.data,'mh_time','gibbs_time','run_number','samples')
@@ -154,7 +163,6 @@ class MhVsGibbsComparison():
 
     def arithm_sample_mh_vs_gibbs_avg(self):
         self.generic_mh_vs_gibbs_avg()
-        print(self.data)
         self.arithm_sample_mh_vs_gibbs()
 
     # test33_sample
