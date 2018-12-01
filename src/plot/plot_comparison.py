@@ -61,7 +61,9 @@ def plot_two_data_sets(data,
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.savefig(plot_file)
-
+    # Flush output. Without this consecutive plots overlap.
+    # See: https://stackoverflow.com/questions/17106288/matplotlib-pyplot-will-not-forget-previous-plots-how-can-i-flush-refresh
+    plt.gcf().clear()
 
 def compute_avg_and_stddev_two_data_sets(data,key_a,key_b,rows_name,cols_name):
     # Init.
@@ -142,7 +144,7 @@ class MhVsGibbs():
                         'running time (ms)',
                         plot_file)
 
-    def plot_mh_vs_gibbs_prob(self, plot_title,plot_file):
+    def plot_mh_vs_gibbs_probs(self, plot_title,plot_file):
         assert isinstance(plot_title,str)
         assert isinstance(plot_file,str)
         plot_two_data_sets(self.data,
@@ -177,41 +179,47 @@ class MhVsGibbs():
         mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev = compute_avg_and_stddev_two_data_sets(self.data,'mh_time','gibbs_time','run_number','samples')
         self.overwrite_avg_data_set(mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev)
 
-    def mh_vs_gibbs_prob_avg(self):
+    def mh_vs_gibbs_probs_avg(self):
         mh_probs_avg,gibbs_probs_avg,mh_probs_stddev,gibbs_probs_stddev = compute_avg_and_stddev_two_data_sets(self.data,'mh_prob','gibbs_prob','run_number','samples')
         self.overwrite_prob_data_set(mh_probs_avg,gibbs_probs_avg,mh_probs_stddev,gibbs_probs_stddev)
 
 
 class ArithmSampleMhVsGibbs(MhVsGibbs):
     def arithm_sample_mh_vs_gibbs(self):
-        self.plot_mh_vs_gibbs_times('arithm_sample mh vs gibbs avg',
+        self.plot_mh_vs_gibbs_times('arithm_sample mh vs gibbs times avg',
+                              'plot_arithm_sample_mh_vs_gibbs_times.png')
+        self.plot_mh_vs_gibbs_probs('arithm_sample mh vs gibbs probs avg',
                               'plot_arithm_sample_mh_vs_gibbs.png')
 
     def arithm_sample_mh_vs_gibbs_avg(self):
         self.mh_vs_gibbs_times_avg()
+        self.mh_vs_gibbs_probs_avg()
         self.arithm_sample_mh_vs_gibbs()
 
 
 class Test33SampleMhVsGibbs(MhVsGibbs):
     def test33_sample_mh_vs_gibbs(self):
-#        self.plot_mh_vs_gibbs_times('test33_sample mh vs gibbs times avg',
-#                              'plot_test33_sample_mh_vs_gibbs_times.png')
-        self.plot_mh_vs_gibbs_prob('test33_sample mh vs gibbs prob avg',
-                              'plot_test33_sample_mh_vs_gibbs_prob.png')
+        self.plot_mh_vs_gibbs_times('test33_sample mh vs gibbs times avg',
+                              'plot_test33_sample_mh_vs_gibbs_times.png')
+        self.plot_mh_vs_gibbs_probs('test33_sample mh vs gibbs probs avg',
+                              'plot_test33_sample_mh_vs_gibbs_probs.png')
 
     def test33_sample_mh_vs_gibbs_avg(self):
         self.mh_vs_gibbs_times_avg()
-        self.mh_vs_gibbs_prob_avg()
+        self.mh_vs_gibbs_probs_avg()
         self.test33_sample_mh_vs_gibbs()
 
 
 class Test66SampleMhVsGibbs(MhVsGibbs):
     def test66_sample_mh_vs_gibbs(self):
-        self.plot_mh_vs_gibbs_times('test66_sample mh vs gibbs avg',
-                              'plot_test66_sample_mh_vs_gibbs.png')
+        self.plot_mh_vs_gibbs_times('test66_sample mh vs gibbs times avg',
+                              'plot_test66_sample_mh_vs_gibbs_times.png')
+        self.plot_mh_vs_gibbs_probs('test66_sample mh vs gibbs probs avg',
+                              'plot_test66_sample_mh_vs_gibbs_probs.png')
 
     def test66_sample_mh_vs_gibbs_avg(self):
         self.mh_vs_gibbs_times_avg()
+        self.mh_vs_gibbs_probs_avg()
         self.test66_sample_mh_vs_gibbs()
 
 

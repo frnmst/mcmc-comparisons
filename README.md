@@ -157,9 +157,11 @@ Running times are computed in milliseconds.
 The tools useful to plot the results are Python 3 and Matplotlib.
 
 The plot script is in `./src/plot/plot_comparison.py`. This script reads
-a CSV file and plots the average running times of multiple runs for each 
+a CSV file formatted according to the CSV file format rules in this readme.
+It then plots the average running times of multiple runs for each 
 sample. The standard deviation of the running times for each sample is plotted 
-as error bars.
+as error bars. The same type of plot is done for the computed probabilities to 
+determine the accuracy of the calculations.
 
 ## Notes on running the tests in parallel
 

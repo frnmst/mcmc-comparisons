@@ -52,5 +52,5 @@ plot_comparison()
 
     export MPLBACKEND=Agg
     python3 "${PLOT_DIRECTORY}"/plot_comparison.py ""${test_name}".csv" \
-        && printf "%s\n" "check the resulting plot"
+        && printf "%s\n" "check the resulting plots"
 }
