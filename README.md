@@ -20,8 +20,10 @@ algorithms in SWI Prolog
         - [Output files](#output-files)
         - [An alternative to GNU Parallel](#an-alternative-to-gnu-parallel)
     - [References](#references)
+        - [Algorithms](#algorithms)
         - [SLURM](#slurm)
             - [Configuration file](#configuration-file)
+            - [Running](#running-1)
     - [License](#license)
 
 [](TOC)
@@ -217,6 +219,10 @@ wait ${job_id[@]}
 
 A configuration file for SLURM is available at `./src/slurm/slurm.conf`. This 
 is the configuration file I use for my setup.
+
+#### Running
+
+You can run the SLURM daemons by executing `./src/slurm/run_daemons.sh` as root.
 
 ## License
 
