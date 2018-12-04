@@ -46,10 +46,11 @@ algorithms in SWI Prolog
       ?- pack_install(cplint).
 
 - Install [Python 3](http://www.python.org/), 
-  [Matplotlib](https://matplotlib.org/) and
-  [NumPy](http://www.numpy.org/).
-
-- Install [GNU Parallel](http://www.gnu.org/software/parallel/)
+  [Matplotlib](https://matplotlib.org/),
+  [NumPy](http://www.numpy.org/),
+  [GNU Parallel](http://www.gnu.org/software/parallel/)
+  [GNU Bash](http://www.gnu.org/software/bash/bash.html)
+  [util-linux](https://www.kernel.org/pub/linux/utils/util-linux/)
 
 - Clone the repository with the swish git submodule:
 

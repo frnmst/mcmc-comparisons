@@ -189,7 +189,7 @@ class ArithmSampleMhVsGibbs(MhVsGibbs):
         self.plot_mh_vs_gibbs_times('arithm_sample mh vs gibbs times avg',
                               'plot_arithm_sample_mh_vs_gibbs_times.png')
         self.plot_mh_vs_gibbs_probs('arithm_sample mh vs gibbs probs avg',
-                              'plot_arithm_sample_mh_vs_gibbs.png')
+                              'plot_arithm_sample_mh_vs_gibbs_probs.png')
 
     def arithm_sample_mh_vs_gibbs_avg(self):
         self.mh_vs_gibbs_times_avg()
