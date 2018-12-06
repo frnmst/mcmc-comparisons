@@ -1,2 +1,3 @@
 */*/*.csv*
 */*/plot*.png
+./src/prolog/amcmc/xsb/*.xwam

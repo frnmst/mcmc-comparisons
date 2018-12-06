@@ -160,7 +160,7 @@ measure_arithm_gibbs_sample(Time, Samples, Prob):-
 
 tests_single_test33(Min,Max,Step,Run_label):-
     format('performing test33.pl on test33_sample.csv\n'),
-    ['../prolog/amcmc/test33'],
+    ['../prolog/amcmc/swi/test33'],
     open('test33_sample.csv',append,Out_a),
     loop_test33_sample(Min,Max,Step,Run_label,Out_a),
     close(Out_a).
@@ -203,7 +203,7 @@ measure_test33_gibbs_sample(Time, Samples, Prob):-
 
 tests_single_test66(Min,Max,Step,Run_label):-
     format('performing test66.pl on test66_sample.csv\n'),
-    ['../prolog/amcmc/test66'],
+    ['../prolog/amcmc/swi/test66'],
     open('test66_sample.csv',append,Out_a),
     loop_test66_sample(Min,Max,Step,Run_label,Out_a),
     close(Out_a).

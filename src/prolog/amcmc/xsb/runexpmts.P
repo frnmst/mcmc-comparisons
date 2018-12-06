@@ -1,0 +1,6 @@
+go1 :- 
+	 consult('ami'),
+	 adaptation(on),
+	 resampling_style(multiswitch(0.5)),
+	 load_dyn('./programs/bnets/fire-alarm.P'),
+	 write_stats(faworld(yes),faworld(yes,yes),100,1000,100,5,'./fire-alarm4.csv').
