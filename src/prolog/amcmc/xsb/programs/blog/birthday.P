@@ -19,5 +19,5 @@ person(11).
 person(12).
 person(13).
 
-set_params :-
-    set_sw(b(_), uniform(365,1,365)).
+%% set_params :-
+set_sw(b(_), uniform(365,1,365)).

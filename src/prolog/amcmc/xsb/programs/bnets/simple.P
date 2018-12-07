@@ -1,8 +1,8 @@
 values(_, [t,f]).
-set_params :-
-	set_sw(a, [0.8, 0.2]),
-	set_sw(b(t), [0.1, 0.9]),
-	set_sw(b(f), [0.8, 0.2]).
+%% set_params :-
+set_sw(a, [0.8, 0.2]).
+set_sw(b(t), [0.1, 0.9]).
+set_sw(b(f), [0.8, 0.2]).
 
 world(A, B) :-
 	msw(a, A),
