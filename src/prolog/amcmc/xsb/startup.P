@@ -1,4 +1,0 @@
-:- go.
-go :-
-	consult('runexpmts.P'),
-	go1.

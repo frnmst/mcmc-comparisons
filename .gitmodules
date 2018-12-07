@@ -1,6 +1,6 @@
 [submodule "swish"]
 	path = src/prolog/swish
 	url = https://github.com/friguzzi/swish
-[submodule "xsb"]
+[submodule "src/prolog/amcmc/xsb"]
 	path = src/prolog/amcmc/xsb
 	url = https://github.com/frnmst/Adaptive-MCMC
