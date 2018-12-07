@@ -45,6 +45,8 @@ algorithms in SWI Prolog
 
       ?- pack_install(cplint).
 
+- Install [XSB Prolog](https://www.xsb.com/what-we-do/emerging-technologies/xsb-prolog.html)
+
 - Install [Python 3](http://www.python.org/), 
   [Matplotlib](https://matplotlib.org/),
   [NumPy](http://www.numpy.org/),
