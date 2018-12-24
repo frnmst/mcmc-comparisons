@@ -34,6 +34,7 @@ BINARIES='swipl parallel python3'
 TESTS_DIRECTORY='../prolog'
 PLOT_DIRECTORY='../plot'
 LIST_OF_TEST_NAMES='arithm_sample test33_sample test66_sample'
+XSB_AMCMC_DIRECTORY='../prolog/amcmc/xsb'
 
 # Assign default values for the flags.
 MIN='1000'

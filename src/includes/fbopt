@@ -95,8 +95,8 @@ main()
     declare -a argc=("${!1}")
 
     # Set the options. flag_f has an optional argument.
-    local getopt_short_options='lm:M:s:r:ght:p'
-    local getopt_long_options='list-test-names,min:,max:,step:,runs:,help,parallel::,single-run-with-label:,test-name:,threads:,graph,graph-only,no-remove-csv-files,print-flags'
+    local getopt_short_options='lm:M:s:r:ght:y:p'
+    local getopt_long_options='list-test-names,min:,max:,step:,runs:,help,parallel::,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-only,no-remove-csv-files,print-flags'
 
     # Set the default values for the flags.
     local graph='false'
@@ -110,6 +110,7 @@ main()
     local parallel='false'
     local label='-1'
     local no_remove_csv_files='false'
+    local test_type="${TEST_TYPE}"
 
     local program_name="${0}"
     opts="$(getopt \
@@ -162,6 +163,9 @@ main()
             -t | --test-name )          test_name="${2}";
                                         shift 1 ;;
 
+            -y | --test-type )          test_type="${2}";
+                                        shift 1 ;;
+
         esac
         # Iterate through all arguments.
         shift 1
@@ -210,13 +214,29 @@ main()
         && return 1
     [ "${list_test_names}" = 'true' ] && list_available_tests && return 0
     [ "${graph_only}" = 'true' ] && { plot_comparison "${test_name}"; return ${?}; }
+
+    # Run a single test.
     if [ "${label}" = '-1' ] && [ "${parallel}" = 'false' ]; then
+        if [ "${test_type}" = 'xsb' ]; then
+            run_xsb_tests
+        else
             swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
+        fi
     elif [ "${parallel}" = 'true' ]; then
-        seq 1 ${runs} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
+        if [ "${test_type}" = 'xsb' ]; then
+            :
+        else
+            seq 1 ${runs} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
+        fi
+    # Run a single test with a label.
     elif [ "${label}" != '-1' ]; then
-        swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${label} 1
+        if [ "${test_type}" = 'xsb' ]; then
+            :
+        else
+            swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${label} 1
+        fi
     fi
+
     [ "${graph}" = 'true' ] && plot_comparison "${test_name}"
 }
 

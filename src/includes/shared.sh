@@ -54,3 +54,14 @@ plot_comparison()
     python3 "${PLOT_DIRECTORY}"/plot_comparison.py ""${test_name}".csv" \
         && printf "%s\n" "check the resulting plots"
 }
+
+run_xsb_tests()
+{
+    pushd "${XSB_AMCMC_DIRECTORY}"
+    # Since we cannot use argc/argv we must read the arguments from a
+    # test file, just like the author of amcmc.
+    xsb -e "compile('startup_experiments.P'),halt."
+    xsb startup_experiments
+    popd
+}
+
