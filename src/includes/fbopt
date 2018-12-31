@@ -27,7 +27,8 @@ Options:
     -g, --graph                         run the plot script after the tests
     --graph-only                        run the plot script only
     -h, --help                          print this help
-    -l, --list-tests-names              list the available tests
+    --list-test-names                   list the available test
+    --list-test-types                   list the available test types
     -m, --min=MIN                       starting number of samples
     -M, --max=MAX                       ending number of samples
     -p, --parallel                      execute tests on separate computing
@@ -58,6 +59,7 @@ Options:
     -s, --steps=STEPS                   the number of samples between
                                         consecutive iterations
     -t, --test-name=NAME                the name of the test
+    -y, --test-type=NAME                the type of the test
 
 Exit status:
  0  if OK,
@@ -95,13 +97,15 @@ main()
     declare -a argc=("${!1}")
 
     # Set the options. flag_f has an optional argument.
-    local getopt_short_options='lm:M:s:r:ght:y:p'
-    local getopt_long_options='list-test-names,min:,max:,step:,runs:,help,parallel::,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-only,no-remove-csv-files,print-flags'
+    local getopt_short_options='m:M:s:r:ght:y:p'
+    local getopt_long_options='list-test-names,list-test-types,min:,max:,step:,runs:,help,\
+parallel::,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-only,no-remove-csv-files,print-flags'
 
     # Set the default values for the flags.
     local graph='false'
     local graph_only='false'
     local list_test_names='false'
+    local list_test_types='false'
     local min="${MIN}"
     local max="${MAX}"
     local step="${STEP}"
@@ -131,7 +135,9 @@ main()
     while [ "${1}" != '--' ]; do
         case "${1}" in
 
-            -l | --list-test-names )    list_test_names='true' ;;
+            --list-test-names )         list_test_names='true' ;;
+
+            --list-test-types )         list_test_types='true' ;;
 
             -g | --graph )              graph='true' ;;
 
@@ -193,6 +199,7 @@ main()
             'graph_only' \
             'label' \
             'list_test_names' \
+            'list_test_types' \
             'min' \
             'max' \
             'step' \
@@ -212,16 +219,18 @@ main()
         && [ "${label}" != '-1' ] \
         && getopt_error \
         && return 1
-    [ "${list_test_names}" = 'true' ] && list_available_tests && return 0
+    [ "${list_test_names}" = 'true' ] && list_available_test_names && return 0
+    [ "${list_test_types}" = 'true' ] && list_available_test_types && return 0
     [ "${graph_only}" = 'true' ] && { plot_comparison "${test_name}"; return ${?}; }
 
     # Run a single test.
     if [ "${label}" = '-1' ] && [ "${parallel}" = 'false' ]; then
         if [ "${test_type}" = 'xsb' ]; then
-            run_xsb_tests
+            run_xsb_tests "${test_name}"
         else
             swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
         fi
+    # Run tests in parallel.
     elif [ "${parallel}" = 'true' ]; then
         if [ "${test_type}" = 'xsb' ]; then
             :

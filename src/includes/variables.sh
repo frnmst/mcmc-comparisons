@@ -30,10 +30,11 @@
 #
 
 OUTPUTS='arithm_sample.csv test33_sample.csv test66_sample.csv'
-BINARIES='swipl parallel python3'
+BINARIES='swipl xsb parallel python3'
 TESTS_DIRECTORY='../prolog'
 PLOT_DIRECTORY='../plot'
 LIST_OF_TEST_NAMES='arithm_sample test33_sample test66_sample'
+LIST_OF_TEST_TYPES='swi xsb'
 XSB_AMCMC_DIRECTORY='../prolog/amcmc/xsb'
 
 # Assign default values for the flags.

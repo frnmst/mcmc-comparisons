@@ -41,9 +41,14 @@ check_binaries()
     which ${BINARIES} || exit 1
 } 1>/dev/null
 
-list_available_tests()
+list_available_test_names()
 {
     printf "%s\n" "${LIST_OF_TEST_NAMES}"
+}
+
+list_available_test_types()
+{
+    printf "%s\n" "${LIST_OF_TEST_TYPES}"
 }
 
 plot_comparison()
@@ -57,6 +62,8 @@ plot_comparison()
 
 run_xsb_tests()
 {
+    local test_name="${1}"
+
     pushd "${XSB_AMCMC_DIRECTORY}"
     # Since we cannot use argc/argv we must read the arguments from a
     # test file, just like the author of amcmc.
