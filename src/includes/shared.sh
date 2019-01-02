@@ -74,12 +74,12 @@ run_xsb_tests()
     pushd "${XSB_AMCMC_DIRECTORY}"
 
     # Build the file.
-    cat <<-EOF
+    cat <<-EOF > startup_experiments_TWO.P
 :- go.
 go :-
     consult('tests.P'),
     tests_"${single_or_parallel}"_"${test_name}"(${min},${max},${step},${run_label},${adaptation},${resampling_style}).
-EOF > startup_experiments_TWO.P
+EOF
 
     # Since we cannot use argc/argv we must read the arguments from a
     # test file, just like the author of amcmc.
