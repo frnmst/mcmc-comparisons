@@ -24,12 +24,15 @@ Run MCMC tests
 
 Mandatory arguments to long options are mandatory for short options too.
 Options:
+    --adaptation                        enable adapation for AMCMC
     -g, --graph                         run the plot script after the tests
     --graph-only                        run the plot script only
     -h, --help                          print this help
     --list-test-names                   list the available test
     --list-test-types                   list the available test types
     -m, --min=MIN                       starting number of samples
+    --multi-switch                      enable multi switch instead of single
+                                        switch for AMCMC
     -M, --max=MAX                       ending number of samples
     -p, --parallel                      execute tests on separate computing
                                         threads. If this option is enabled the
@@ -102,6 +105,7 @@ main()
 parallel::,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-only,no-remove-csv-files,print-flags'
 
     # Set the default values for the flags.
+    local adaptation='off'
     local graph='false'
     local graph_only='false'
     local list_test_names='false'
@@ -226,7 +230,7 @@ parallel::,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-onl
     # Run a single test.
     if [ "${label}" = '-1' ] && [ "${parallel}" = 'false' ]; then
         if [ "${test_type}" = 'xsb' ]; then
-            run_xsb_tests "${test_name}"
+            run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${adaptation} ${resampling_style} 'single'
         else
             swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
         fi

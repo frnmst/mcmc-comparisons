@@ -63,8 +63,24 @@ plot_comparison()
 run_xsb_tests()
 {
     local test_name="${1}"
+    local min=${2}
+    local max=${3}
+    local step=${4}
+    local run_label=${5}
+    local adaptation="${6}"
+    local resampling_style="${7}"
+    local single_or_parallel="${8}"
 
     pushd "${XSB_AMCMC_DIRECTORY}"
+
+    # Build the file.
+    cat <<-EOF
+:- go.
+go :-
+    consult('tests.P'),
+    tests_"${single_or_parallel}"_"${test_name}"(${min},${max},${step},${run_label},${adaptation},${resampling_style}).
+EOF > startup_experiments_TWO.P
+
     # Since we cannot use argc/argv we must read the arguments from a
     # test file, just like the author of amcmc.
     xsb -e "compile('startup_experiments.P'),halt."
