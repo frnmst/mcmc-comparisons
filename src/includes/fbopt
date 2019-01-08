@@ -24,7 +24,6 @@ Run MCMC tests
 
 Mandatory arguments to long options are mandatory for short options too.
 Options:
-    --adaptation                        enable adapation for AMCMC
     -g, --graph                         run the plot script after the tests
     --graph-only                        run the plot script only
     -h, --help                          print this help
@@ -105,7 +104,6 @@ main()
 parallel::,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-only,no-remove-csv-files,print-flags'
 
     # Set the default values for the flags.
-    local adaptation='off'
     local graph='false'
     local graph_only='false'
     local list_test_names='false'
@@ -119,6 +117,7 @@ parallel::,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-onl
     local label='-1'
     local no_remove_csv_files='false'
     local test_type="${TEST_TYPE}"
+    local multi_switch='false'
 
     local program_name="${0}"
     opts="$(getopt \
@@ -227,10 +226,16 @@ parallel::,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-onl
     [ "${list_test_types}" = 'true' ] && list_available_test_types && return 0
     [ "${graph_only}" = 'true' ] && { plot_comparison "${test_name}"; return ${?}; }
 
+    # For the xsb type tests, override the default test name to avoid using the
+    # one used for swi.
+    [ "${test_type}" = 'xsb' ] && [ "${test_name}" = "${TEST_NAME}" ] && test_name='test33'
+    local resampling_style=''
+    [ "${test_type}" = 'xsb' ] && [ "${multi_switch}" = 'true' ] && resampling_style='multiswitch' || resampling_style='singleswitch'
+
     # Run a single test.
     if [ "${label}" = '-1' ] && [ "${parallel}" = 'false' ]; then
         if [ "${test_type}" = 'xsb' ]; then
-            run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${adaptation} ${resampling_style} 'single'
+            run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'single'
         else
             swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
         fi

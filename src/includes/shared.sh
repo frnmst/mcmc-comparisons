@@ -67,24 +67,44 @@ run_xsb_tests()
     local max=${3}
     local step=${4}
     local run_label=${5}
-    local adaptation="${6}"
-    local resampling_style="${7}"
-    local single_or_parallel="${8}"
+    local resampling_style="${6}"
+    local single_or_parallel="${7}"
 
     pushd "${XSB_AMCMC_DIRECTORY}"
 
     # Build the file.
-    cat <<-EOF > startup_experiments_TWO.P
+    cat <<EOF > startup_experiments.P
+
 :- go.
 go :-
     consult('tests.P'),
-    tests_"${single_or_parallel}"_"${test_name}"(${min},${max},${step},${run_label},${adaptation},${resampling_style}).
+    tests_${single_or_parallel}_${test_name}(${min},${max},${step},${run_label},'${resampling_style}').
+
 EOF
+
+# For some reason I get the following if I don't add the sleep command.
+#
+#[xsb_configuration loaded]
+#[sysinitrc loaded]
+#[xsbbrat loaded]
+#++Error[XSB/Runtime/P]: [Type (94589064825984 in place of atom)] in arg 1 of
+#predicate atom_codes/2
+#Forward Continuation...
+#... string:atom_to_term/2  From /home/vm/build/XSB/syslib/string.xwam
+#... string:atom_to_term/2  From /home/vm/build/XSB/syslib/string.xwam
+#... loader:check_times_and_load/5  From /home/vm/build/XSB/syslib/loader.xwam
+#... standard:call/1  From /home/vm/build/XSB/syslib/standard.xwam
+#... standard:catch/3  From /home/vm/build/XSB/syslib/standard.xwam
+#
+#End XSB (cputime 0.01 secs, elapsetime 0.02 secs)
+    sync &
+    sleep 1
+    wait $!
 
     # Since we cannot use argc/argv we must read the arguments from a
     # test file, just like the author of amcmc.
     xsb -e "compile('startup_experiments.P'),halt."
     xsb startup_experiments
+    rm startup_experiments.P
     popd
 }
-
