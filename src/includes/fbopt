@@ -31,7 +31,7 @@ Options:
     --list-test-types                   list the available test types
     -m, --min=MIN                       starting number of samples
     --multi-switch                      enable multi switch instead of single
-                                        switch for AMCMC
+                                        switch for AMCMC xsb tests
     -M, --max=MAX                       ending number of samples
     -p, --parallel                      execute tests on separate computing
                                         threads. If this option is enabled the
@@ -68,7 +68,7 @@ Exit status:
  1  if an error occurred.
 
 This software is released under the BSD 2-Clause license
-Copyright (c) 2018, Franco Masotti
+Copyright (c) 2018-2019, Franco Masotti
 EOF
 }
 
@@ -101,7 +101,8 @@ main()
     # Set the options. flag_f has an optional argument.
     local getopt_short_options='m:M:s:r:ght:y:p'
     local getopt_long_options='list-test-names,list-test-types,min:,max:,step:,runs:,help,\
-parallel::,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-only,no-remove-csv-files,print-flags'
+parallel::,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-only,\
+multi-switch,no-remove-csv-files,print-flags'
 
     # Set the default values for the flags.
     local graph='false'
@@ -153,6 +154,8 @@ parallel::,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-onl
 
             -M | --max )                max="${2}";
                                         shift 1 ;;
+
+            --multi-switch )            multi_switch='true' ;;
 
             --no-remove-csv-files )     no_remove_csv_files='true' ;;
 
@@ -208,8 +211,10 @@ parallel::,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-onl
             'step' \
             'runs' \
             'test_name' \
+            'test_type' \
             'parallel' \
             'no_remove_csv_files' \
+            'multi_switch' \
         && return 0
     [ "${help}" = 'true' ] && show_help && return 0
 
