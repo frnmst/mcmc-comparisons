@@ -29,13 +29,16 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-OUTPUTS='arithm_sample.csv test33_sample.csv test66_sample.csv'
 BINARIES='swipl xsb parallel python3'
 TESTS_DIRECTORY='../prolog'
 PLOT_DIRECTORY='../plot'
 LIST_OF_TEST_NAMES='arithm_sample test33_sample test66_sample'
 LIST_OF_TEST_TYPES='swi xsb'
 XSB_AMCMC_DIRECTORY='../prolog/amcmc/xsb'
+OUTPUTS="arithm_sample.csv test33_sample.csv test66_sample.csv "${XSB_AMCMC_DIRECTORY}"/test33_cond_prob.csv"
+
+# Relative to $XSB_AMCMC_DIRECTORY
+XSB_AMCMC_STARTUP_FILE='startup_experiments.P'
 
 # Assign default values for the flags.
 MIN='1000'

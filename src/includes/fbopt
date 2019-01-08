@@ -199,6 +199,11 @@ multi-switch,no-remove-csv-files,print-flags'
         || [ -z "${label}" ] \
         || [ -z "${test_name}" ]; } \
         && getopt_error && return 1
+
+    # For the xsb type tests, override the default test name to avoid using the
+    # one used for swi. This code is here because of the print_flags option.
+    [ "${test_type}" = 'xsb' ] && [ "${test_name}" = "${TEST_NAME}" ] && test_name='test33'
+
     [ "${print_flags}" = 'true' ] \
         && show_flags \
             'graph' \
@@ -231,30 +236,32 @@ multi-switch,no-remove-csv-files,print-flags'
     [ "${list_test_types}" = 'true' ] && list_available_test_types && return 0
     [ "${graph_only}" = 'true' ] && { plot_comparison "${test_name}"; return ${?}; }
 
-    # For the xsb type tests, override the default test name to avoid using the
-    # one used for swi.
-    [ "${test_type}" = 'xsb' ] && [ "${test_name}" = "${TEST_NAME}" ] && test_name='test33'
     local resampling_style=''
     [ "${test_type}" = 'xsb' ] && [ "${multi_switch}" = 'true' ] && resampling_style='multiswitch' || resampling_style='singleswitch'
+
 
     # Run a single test.
     if [ "${label}" = '-1' ] && [ "${parallel}" = 'false' ]; then
         if [ "${test_type}" = 'xsb' ]; then
-            run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'single'
+            run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'sequential'
         else
             swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
         fi
     # Run tests in parallel.
     elif [ "${parallel}" = 'true' ]; then
         if [ "${test_type}" = 'xsb' ]; then
-            :
+            # Export variables so that they are visible to GNU Parallel.
+            export -f run_xsb_tests
+            export XSB_AMCMC_DIRECTORY
+            export XSB_AMCMC_STARTUP_FILE
+            seq 1 ${runs} | parallel --lb run_xsb_tests "${test_name}" ${min} ${max} ${step} {} ${resampling_style} 'single'
         else
             seq 1 ${runs} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
         fi
     # Run a single test with a label.
     elif [ "${label}" != '-1' ]; then
         if [ "${test_type}" = 'xsb' ]; then
-            :
+            run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'single'
         else
             swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${label} 1
         fi

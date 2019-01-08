@@ -69,11 +69,13 @@ run_xsb_tests()
     local run_label=${5}
     local resampling_style="${6}"
     local single_or_parallel="${7}"
+    local startup_file_path=""${XSB_AMCMC_STARTUP_FILE}"_${run_label}.P"
 
     pushd "${XSB_AMCMC_DIRECTORY}"
 
     # Build the file.
-    cat <<EOF > startup_experiments.P
+    if [ ! -f "${startup_file_path}" ]; then
+        cat <<EOF > "${startup_file_path}"
 
 :- go.
 go :-
@@ -81,6 +83,7 @@ go :-
     tests_${single_or_parallel}_${test_name}(${min},${max},${step},${run_label},'${resampling_style}').
 
 EOF
+    fi
 
 # For some reason I get the following if I don't add the sleep command.
 #
@@ -103,8 +106,8 @@ EOF
 
     # Since we cannot use argc/argv we must read the arguments from a
     # test file, just like the author of amcmc.
-    xsb -e "compile('startup_experiments.P'),halt."
-    xsb startup_experiments
-    rm startup_experiments.P
+    xsb -e "compile('"${startup_file_path}"'),halt."
+    xsb "${startup_file_path%.P}"
+    rm "${startup_file_path}"
     popd
 }
