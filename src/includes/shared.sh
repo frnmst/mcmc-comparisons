@@ -74,8 +74,7 @@ run_xsb_tests()
     pushd "${XSB_AMCMC_DIRECTORY}"
 
     # Build the file.
-    if [ ! -f "${startup_file_path}" ]; then
-        cat <<EOF > "${startup_file_path}"
+    cat <<EOF > "${startup_file_path}"
 
 :- go.
 go :-
@@ -83,7 +82,6 @@ go :-
     tests_${single_or_parallel}_${test_name}(${min},${max},${step},${run_label},'${resampling_style}').
 
 EOF
-    fi
 
 # For some reason I get the following if I don't add the sleep command.
 #

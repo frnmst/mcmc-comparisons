@@ -255,6 +255,8 @@ multi-switch,no-remove-csv-files,print-flags'
             export XSB_AMCMC_DIRECTORY
             export XSB_AMCMC_STARTUP_FILE
             seq 1 ${runs} | parallel --lb run_xsb_tests "${test_name}" ${min} ${max} ${step} {} ${resampling_style} 'single'
+            # Move the csv file to a place where it can be feeded to the plot script.
+            mv ""${XSB_AMCMC_DIRECTORY}"/"${test_name}"_cond_prob.csv" .
         else
             seq 1 ${runs} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
         fi
