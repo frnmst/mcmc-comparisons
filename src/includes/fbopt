@@ -202,7 +202,7 @@ multi-switch,no-remove-csv-files,print-flags'
 
     # For the xsb type tests, override the default test name to avoid using the
     # one used for swi. This code is here because of the print_flags option.
-    [ "${test_type}" = 'xsb' ] && [ "${test_name}" = "${TEST_NAME}" ] && test_name='test33'
+    [ "${test_type}" = 'xsb' ] && [ "${test_name}" = "${TEST_NAME}" ] && test_name='test33_cond_prob'
 
     [ "${print_flags}" = 'true' ] \
         && show_flags \
@@ -256,7 +256,7 @@ multi-switch,no-remove-csv-files,print-flags'
             export XSB_AMCMC_STARTUP_FILE
             seq 1 ${runs} | parallel --lb run_xsb_tests "${test_name}" ${min} ${max} ${step} {} ${resampling_style} 'single'
             # Move the csv file to a place where it can be feeded to the plot script.
-            mv ""${XSB_AMCMC_DIRECTORY}"/"${test_name}"_cond_prob.csv" .
+            mv ""${XSB_AMCMC_DIRECTORY}"/"${test_name}".csv" .
         else
             seq 1 ${runs} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
         fi
