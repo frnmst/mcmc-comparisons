@@ -35,27 +35,28 @@ import numpy as np
 import csv
 import sys
 
-def plot_two_data_sets(data,
-                    x_id,
-                    y1_id,
-                    y2_id,
-                    y1_stddev,
-                    y2_stddev,
-                    legend=['set a', 'set b'],
-                    title='Comparison',
-                    x_label='x',
-                    y_label='y',
-                    plot_file='plot.png'):
-    """ Plot two set of values for direct comparison."""
+def plot_data_sets(data,
+                   x_id,
+                   y_ids,
+                   y_stddev_ids,
+                   legend=['set a', 'set b'],
+                   title='Comparison',
+                   x_label='x',
+                   y_label='y',
+                   plot_file='plot.png'):
+    """ Plot n sets of values for direct comparison."""
     assert isinstance(data, dict)
+    assert isinstance(x_id, str)
+    assert isinstance(y_ids, list)
+    for e in y_ids:
+        assert isinstance(e, str)
+    assert isinstance(y_stddev_ids, list)
+    for e in y_stddev_ids:
+        assert isinstance(e, str)
+    assert (len(y_ids) == len(y_stddev_ids))
 
-    x1 = x2 = data[x_id]
-    y1 = data[y1_id]
-    y2 = data[y2_id]
-    y1_stddev = data[y1_stddev]
-    y2_stddev = data[y2_stddev]
-    plt.errorbar(x1,y1,yerr=y1_stddev,markersize=2.5,linestyle='-',marker='o', capsize=2.5)
-    plt.errorbar(x2,y2,yerr=y2_stddev,markersize=2.5,linestyle='-',marker='o', capsize=2.5)
+    for i in range(0,len(y_ids)):
+        plt.errorbar(data[x_id],data[y_ids[i]],yerr=data[y_stddev_ids[i]],markersize=2.5,linestyle='-',marker='o', capsize=2.5)
     plt.title(title)
     plt.legend(legend)
     plt.xlabel(x_label)
@@ -66,6 +67,12 @@ def plot_two_data_sets(data,
     plt.gcf().clear()
 
 def compute_avg_and_stddev_two_data_sets(data,key_a,key_b,rows_name,cols_name):
+    assert isinstance(data, dict)
+    assert isinstance(key_a, str)
+    assert isinstance(key_b, str)
+    assert isinstance(rows_name, str)
+    assert isinstance(cols_name, str)
+
     # Init.
     rows = max(data[rows_name])
     cols = len(set(data[cols_name]))
@@ -250,12 +257,10 @@ class Amcmc():
     def plot_adapt_on_vs_adapt_off_times(self, plot_title, plot_file):
         assert isinstance(plot_title,str)
         assert isinstance(plot_file,str)
-        plot_two_data_sets(self.data,
+        plot_data_sets(self.data,
                         'samples',
-                        'adapt_on_time',
-                        'adapt_off_time',
-                        'adapt_on_time_stddev',
-                        'adapt_off_time_stddev',
+                        ['adapt_on_time','adapt_off_time'],
+                        ['adapt_on_time_stddev','adapt_off_time_stddev'],
                         ['adapt_on', 'adapt_off'],
                         plot_title,
                         'samples',
@@ -265,12 +270,10 @@ class Amcmc():
     def plot_adapt_on_vs_adapt_off_probs(self, plot_title, plot_file):
         assert isinstance(plot_title,str)
         assert isinstance(plot_file,str)
-        plot_two_data_sets(self.data,
+        plot_data_sets(self.data,
                         'samples',
-                        'adapt_on_prob',
-                        'adapt_off_prob',
-                        'adapt_on_prob_stddev',
-                        'adapt_off_prob_stddev',
+                        ['adapt_on_prob','adapt_off_prob'],
+                        ['adapt_on_prob_stddev','adapt_off_prob_stddev'],
                         ['adapt_on', 'adapt_off'],
                         plot_title,
                         'samples',
@@ -330,8 +333,13 @@ def main():
         speeds = Test66SampleMhVsGibbs(file_name,delimiter)
         speeds.test66_sample_mh_vs_gibbs_avg()
     elif file_name == 'test33_cond_prob.csv':
-        speeds = Test33CondProbAdaptOnVsAdaptOff(file_name,delimiter)
-        speeds.test33_cond_prob_adapt_on_vs_adapt_off_avg()
+        speedsA = Test33CondProbAdaptOnVsAdaptOff(file_name,delimiter)
+#        speedsA.test33_cond_prob_adapt_on_vs_adapt_off_avg()
+        speedsB = Test33SampleMhVsGibbs('test33_sample.csv',delimiter)
+        speedsA.adapt_on_vs_adapt_off_times_avg()
+        speedsB.mh_vs_gibbs_times_avg()
+        print(speedsA.data)
+        print(speedsB.data)
 
 if __name__ == '__main__':
     main()
