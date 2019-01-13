@@ -53,7 +53,10 @@ def plot_data_sets(data,
     assert isinstance(y_stddev_ids, list)
     for e in y_stddev_ids:
         assert isinstance(e, str)
-    assert (len(y_ids) == len(y_stddev_ids))
+    assert isinstance(legend, list)
+    for e in legend:
+        assert isinstance(e, str)
+    assert (len(y_ids) == len(y_stddev_ids) == len(legend))
 
     for i in range(0,len(y_ids)):
         plt.errorbar(data[x_id],data[y_ids[i]],yerr=data[y_stddev_ids[i]],markersize=2.5,linestyle='-',marker='o', capsize=2.5)
@@ -141,10 +144,8 @@ class MhVsGibbs():
         assert isinstance(plot_file,str)
         plot_two_data_sets(self.data,
                         'samples',
-                        'mh_time',
-                        'gibbs_time',
-                        'mh_time_stddev',
-                        'gibbs_time_stddev',
+                        ['mh_time', 'gibbs_time'],
+                        ['mh_time_stddev', 'gibbs_time_stddev'],
                         ['mh', 'gibbs'],
                         plot_title,
                         'samples',
@@ -156,10 +157,8 @@ class MhVsGibbs():
         assert isinstance(plot_file,str)
         plot_two_data_sets(self.data,
                         'samples',
-                        'mh_prob',
-                        'gibbs_prob',
-                        'mh_prob_stddev',
-                        'gibbs_prob_stddev',
+                        ['mh_prob', 'gibbs_prob'],
+                        ['mh_prob_stddev', 'gibbs_prob_stddev'],
                         ['mh', 'gibbs'],
                         plot_title,
                         'samples',
@@ -338,8 +337,29 @@ def main():
         speedsB = Test33SampleMhVsGibbs('test33_sample.csv',delimiter)
         speedsA.adapt_on_vs_adapt_off_times_avg()
         speedsB.mh_vs_gibbs_times_avg()
-        print(speedsA.data)
-        print(speedsB.data)
+#        print(speedsA.data)
+#        print(speedsB.data)
+#        self.plot_adapt_on_vs_adapt_off_times('test33_cond_prob adapt_on vs adapt_off times avg',
+#                              'plot_test33_cond_prob_adapt_on_vs_adapt_off_times.png')
+        # 1.0. unite the data dictionaries from CondProb and Sample.
+        # 1.1. Instead of uniting dicts, fix the compute_avg_and_stddev_two_data_sets func to accepts any number of sets.
+        ## https://stackoverflow.com/questions/38987/how-to-merge-two-dictionaries-in-a-single-expression
+        dData = {**speedsA.data, **speedsB.data}
+        print(dData)
+
+        plot_data_sets(dData,
+                        'samples',
+                        ['adapt_on_time','adapt_off_time', 'mh_time', 'gibbs_time'],
+                        ['adapt_on_time_stddev','adapt_off_time_stddev', 'mh_time_stddev', 'gibbs_time_stddev'],
+                        ['adapt_on', 'adapt_off', 'mh', 'gibbs'],
+                        'u',
+                        'samples',
+                        'running time (ms)',
+                        'testing.png')
+
+        # 2. create a plot interface function that accepts the new dict
+
+        # 3. Cleanup all duplicate code.
 
 if __name__ == '__main__':
     main()
