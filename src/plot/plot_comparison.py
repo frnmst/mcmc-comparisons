@@ -138,8 +138,30 @@ class LoadFile():
                 self.data[dim_c].append(int(round(float(row[4]))))
                 self.data[dim_d].append(float(row[5]))
 
-def plot_frontend(plot_title, plot_file):
-    pass
+def plot_frontend(data, plot_title, plot_file, running_times, running_times_stddev, legend, y_label):
+        assert isinstance(plot_title,str)
+        assert isinstance(plot_file,str)
+        assert isinstance(running_times, list)
+        for e in running_times:
+            assert isinstance(e, str)
+        assert isinstance(running_times_stddev, list)
+        for e in running_times_stddev:
+            assert isinstance(e, str)
+        assert isinstance(legend, list)
+        for e in legend:
+            assert isinstance(e, str)
+        assert isinstance(y_label, str)
+
+        plot_two_data_sets(self.data,
+                        'samples',
+                        running_times,
+                        running_times_stddev,
+                        legend,
+                        plot_title,
+                        'samples',
+                        'running time (ms)',
+                        plot_file)
+
 
 class MhVsGibbs(LoadFile):
 
@@ -147,30 +169,10 @@ class MhVsGibbs(LoadFile):
         super().__init__(filename, delimiter, 'run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob')
 
     def plot_mh_vs_gibbs_times(self, plot_title, plot_file):
-        assert isinstance(plot_title,str)
-        assert isinstance(plot_file,str)
-        plot_two_data_sets(self.data,
-                        'samples',
-                        ['mh_time', 'gibbs_time'],
-                        ['mh_time_stddev', 'gibbs_time_stddev'],
-                        ['mh', 'gibbs'],
-                        plot_title,
-                        'samples',
-                        'running time (ms)',
-                        plot_file)
+        plot_frontend(self.data, plot_title, plot_file, ['mh_time', 'gibbs_time'], ['mh_time_stddev', 'gibbs_time_stddev'], ['mh', 'gibbs'],'running time (ms)')
 
     def plot_mh_vs_gibbs_probs(self, plot_title, plot_file):
-        assert isinstance(plot_title,str)
-        assert isinstance(plot_file,str)
-        plot_two_data_sets(self.data,
-                        'samples',
-                        ['mh_prob', 'gibbs_prob'],
-                        ['mh_prob_stddev', 'gibbs_prob_stddev'],
-                        ['mh', 'gibbs'],
-                        plot_title,
-                        'samples',
-                        'probability [0,1]',
-                        plot_file)
+        plot_frontend(self.data, plot_title, plot_file, ['mh_prob', 'gibbs_prob'], ['mh_prob_stddev', 'gibbs_prob_stddev'], ['mh', 'gibbs'], 'probability [0,1]')
 
     def overwrite_avg_data_set(self,mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev):
         self.data['mh_time']=mh_times_avg
@@ -241,30 +243,10 @@ class Amcmc(LoadFile):
         super().__init__(filename, delimiter, 'run_number', 'samples', 'adapt_on_time', 'adapt_on_prob', 'adapt_off_time', 'adapt_off_prob')
 
     def plot_adapt_on_vs_adapt_off_times(self, plot_title, plot_file):
-        assert isinstance(plot_title,str)
-        assert isinstance(plot_file,str)
-        plot_data_sets(self.data,
-                        'samples',
-                        ['adapt_on_time','adapt_off_time'],
-                        ['adapt_on_time_stddev','adapt_off_time_stddev'],
-                        ['adapt_on', 'adapt_off'],
-                        plot_title,
-                        'samples',
-                        'running time (ms)',
-                        plot_file)
+        plot_frontend(self.data, plot_title, plot_file, ['adapt_on_time','adapt_off_time'], ['adapt_on_time_stddev','adapt_off_time_stddev'], ['adapt_on', 'adapt_off'], 'running time (ms)')
 
     def plot_adapt_on_vs_adapt_off_probs(self, plot_title, plot_file):
-        assert isinstance(plot_title,str)
-        assert isinstance(plot_file,str)
-        plot_data_sets(self.data,
-                        'samples',
-                        ['adapt_on_prob','adapt_off_prob'],
-                        ['adapt_on_prob_stddev','adapt_off_prob_stddev'],
-                        ['adapt_on', 'adapt_off'],
-                        plot_title,
-                        'samples',
-                        'probability [0,1]',
-                        plot_file)
+        plot_frontend(self.data, plot_title, plot_file, ['adapt_on_prob','adapt_off_prob'], ['adapt_on_prob_stddev','adapt_off_prob_stddev'], ['adapt_on', 'adapt_off'], 'probability [0,1]')
 
     def overwrite_avg_data_set(self,adapt_on_times_avg,adapt_off_times_avg,adapt_on_times_stddev,adapt_off_times_stddev):
         self.data['adapt_on_time']=adapt_on_times_avg
