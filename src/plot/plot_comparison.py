@@ -114,16 +114,15 @@ def compute_avg_and_stddev_two_data_sets(data,key_a,key_b,rows_name,cols_name):
 
     return avg_a, avg_b, stddev_a, stddev_b
 
-
-class MhVsGibbs():
-    def __init__(self, filename, delimiter=','):
+class LoadFile():
+    def __init__(self, filename, delimiter=',', iteration='it', x_axis='x', dim_a='a', dim_b='b', dim_c='c', dim_d='d'):
         """ Load the file contents in a dictionary for future easy access."""
-        self.data = { 'run_number': [],
-                      'samples': [],
-                      'mh_time': [],
-                      'mh_prob': [],
-                      'gibbs_time': [],
-                      'gibbs_prob': [],
+        self.data = { iteration: [],
+                      x_axis: [],
+                      dim_a: [],
+                      dim_b: [],
+                      dim_c: [],
+                      dim_d: [],
                     }
 
         with open(filename, 'r') as f:
@@ -132,12 +131,20 @@ class MhVsGibbs():
             # input for the other functions.
             data = sorted(data, key=lambda d: d[0])
             for row in data:
-                self.data['run_number'].append(int(row[0]))
-                self.data['samples'].append(int(row[1]))
-                self.data['mh_time'].append(int(row[2]))
-                self.data['mh_prob'].append(float(row[3]))
-                self.data['gibbs_time'].append(int(row[4]))
-                self.data['gibbs_prob'].append(float(row[5]))
+                self.data[iteration].append(int(row[0]))
+                self.data[x_axis].append(int(row[1]))
+                self.data[dim_a].append(int(round(float(row[2]))))
+                self.data[dim_b].append(float(row[3]))
+                self.data[dim_c].append(int(round(float(row[4]))))
+                self.data[dim_d].append(float(row[5]))
+
+def plot_frontend(plot_title, plot_file):
+    pass
+
+class MhVsGibbs(LoadFile):
+
+    def __init__(self, filename, delimiter=','):
+        super().__init__(filename, delimiter, 'run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob')
 
     def plot_mh_vs_gibbs_times(self, plot_title, plot_file):
         assert isinstance(plot_title,str)
@@ -229,29 +236,9 @@ class Test66SampleMhVsGibbs(MhVsGibbs):
         self.test66_sample_mh_vs_gibbs()
 
 
-class Amcmc():
+class Amcmc(LoadFile):
     def __init__(self, filename, delimiter=','):
-        """ Load the file contents in a dictionary for future easy access."""
-        self.data = { 'run_number': [],
-                      'samples': [],
-                      'adapt_on_time': [],
-                      'adapt_on_prob': [],
-                      'adapt_off_time': [],
-                      'adapt_off_prob': [],
-                    }
-
-        with open(filename, 'r') as f:
-            data = csv.reader(f, delimiter=delimiter)
-            # Sort lines by run number and and keep sample id in place so that we maintain the correct
-            # input for the other functions.
-            data = sorted(data, key=lambda d: d[0])
-            for row in data:
-                self.data['run_number'].append(int(row[0]))
-                self.data['samples'].append(int(row[1]))
-                self.data['adapt_on_time'].append(int(round(float(row[2]))))
-                self.data['adapt_on_prob'].append(float(row[3]))
-                self.data['adapt_off_time'].append(int(round(float(row[4]))))
-                self.data['adapt_off_prob'].append(float(row[5]))
+        super().__init__(filename, delimiter, 'run_number', 'samples', 'adapt_on_time', 'adapt_on_prob', 'adapt_off_time', 'adapt_off_prob')
 
     def plot_adapt_on_vs_adapt_off_times(self, plot_title, plot_file):
         assert isinstance(plot_title,str)
