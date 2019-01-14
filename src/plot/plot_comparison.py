@@ -102,49 +102,48 @@ class Utils():
         # See: https://stackoverflow.com/questions/17106288/matplotlib-pyplot-will-not-forget-previous-plots-how-can-i-flush-refresh
         plt.gcf().clear()
 
-    def compute_avg_and_stddev_two_data_sets(self,key_a,key_b,rows_name,cols_name):
-        assert isinstance(key_a, str)
-        assert isinstance(key_b, str)
+    # Rows name and cols name is the same for all cases.
+    def compute_avg_and_stddev_two_data_sets(self, dim_id, rows_name, cols_name):
+        assert isinstance(dim_id, list)
+        for e in dim_id:
+            assert isinstance(e, str)
         assert isinstance(rows_name, str)
         assert isinstance(cols_name, str)
 
         # Init.
         rows = max(self.data[rows_name])
         cols = len(set(self.data[cols_name]))
-        avg_a = list()
-        avg_b = list()
-        stddev_a = list()
-        stddev_b = list()
+        dim=dict()
+        for k in dim_id:
+            dim[k]=list()
+            dim['stddev_' + k]=list()
 
         # Transform the original data into a matrix with:
         #   rows = current run
         #   columns = current sample set
-        matrix_a = np.matrix(self.data[key_a])
-        matrix_a = matrix_a.reshape(rows, cols)
-        matrix_b = np.matrix(self.data[key_b])
-        matrix_b = matrix_b.reshape(rows, cols)
+        matrix_dim=dict()
+        for k in dim_id:
+            matrix_dim[k]=np.matrix(self.data[k])
+            matrix_dim[k]=matrix_dim[k].reshape(rows, cols)
 
         # Compute average and standard deviation
         # of the running times for each sample.
         for c in range(0, cols):
-            sum_a = 0
-            sum_b = 0
-            stddev_buf_a = list()
-            stddev_buf_b = list()
+            sum=dict()
+            stddev_buf=dict()
+            for k in dim_id:
+                sum[k] = 0
+                stddev_buf[k] = list()
             for r in range(0,rows):
-                sum_a += matrix_a.item(r,c)
-                sum_b += matrix_b.item(r,c)
+                for k in dim_id:
+                    sum[k] += matrix_dim[k].item(r,c)
+                    stddev_buf[k].append(matrix_dim[k].item(r,c))
 
-                stddev_buf_a.append(matrix_a.item(r,c))
-                stddev_buf_b.append(matrix_b.item(r,c))
+            for k in dim_id:
+                dim[k].append(sum[k]/rows)
+                dim['stddev_' + k].append(np.std(stddev_buf[k]))
 
-            avg_a.append(sum_a/rows)
-            avg_b.append(sum_b/rows)
-
-            stddev_a.append(np.std(stddev_buf_a))
-            stddev_b.append(np.std(stddev_buf_b))
-
-        return avg_a, avg_b, stddev_a, stddev_b
+        return dim
 
     def plot_frontend(self, plot_title, plot_file, running_times, running_times_stddev, legend, y_label):
             assert isinstance(plot_title,str)
@@ -200,8 +199,9 @@ class MhVsGibbs(Utils):
                                     [mh_probs_avg, gibbs_probs_avg, sorted(list(set(self.data['run_number']))), sorted(list(set(self.data['samples']))), mh_probs_stddev, gibbs_probs_stddev])
 
     def mh_vs_gibbs_times_avg(self):
-        mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev = self.compute_avg_and_stddev_two_data_sets('mh_time','gibbs_time','run_number','samples')
-        self.overwrite_avg_data_set(mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev)
+        times_avg, stddev_times_avg = self.compute_avg_and_stddev_two_data_sets(['mh_time','gibbs_time'],'run_number','samples')
+        mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev = None
+        self.overwrite_data_set_with_avg(mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev)
 
     def mh_vs_gibbs_probs_avg(self):
         mh_probs_avg,gibbs_probs_avg,mh_probs_stddev,gibbs_probs_stddev = self.compute_avg_and_stddev_two_data_sets('mh_prob','gibbs_prob','run_number','samples')
@@ -266,8 +266,11 @@ class Amcmc(Utils):
                                     [adapt_on_probs_avg, adapt_off_probs_avg, sorted(list(set(self.data['run_number']))), sorted(list(set(self.data['samples']))), adapt_on_probs_stddev, adapt_off_probs_stddev])
 
     def adapt_on_vs_adapt_off_times_avg(self):
-        adapt_on_times_avg,adapt_off_times_avg,adapt_on_times_stddev,adapt_off_times_stddev = self.compute_avg_and_stddev_two_data_sets('adapt_on_time','adapt_off_time','run_number','samples')
-        self.overwrite_avg_data_set(adapt_on_times_avg,adapt_off_times_avg,adapt_on_times_stddev,adapt_off_times_stddev)
+        avgs = self.compute_avg_and_stddev_two_data_sets(['adapt_on_time','adapt_off_time','adapt_on_prob','adapt_off_prob'],'run_number','samples')
+#        adapt_on_times_avg,adapt_off_times_avg,adapt_on_times_stddev,adapt_off_times_stddev = None
+#        self.overwrite_avg_data_set(adapt_on_times_avg,adapt_off_times_avg,adapt_on_times_stddev,adapt_off_times_stddev)
+        adapt_on_times=print(avgs)
+        print('here')
 
     def adapt_on_vs_adapt_off_probs_avg(self):
         adapt_on_probs_avg,adapt_off_probs_avg,adapt_on_probs_stddev,adapt_off_probs_stddev = self.compute_avg_and_stddev_two_data_sets('adapt_on_prob','adapt_off_prob','run_number','samples')
