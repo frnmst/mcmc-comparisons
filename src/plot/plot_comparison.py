@@ -35,88 +35,18 @@ import numpy as np
 import csv
 import sys
 
-def plot_data_sets(data,
-                   x_id,
-                   y_ids,
-                   y_stddev_ids,
-                   legend=['set a', 'set b'],
-                   title='Comparison',
-                   x_label='x',
-                   y_label='y',
-                   plot_file='plot.png'):
-    """ Plot n sets of values for direct comparison."""
-    assert isinstance(data, dict)
-    assert isinstance(x_id, str)
-    assert isinstance(y_ids, list)
-    for e in y_ids:
-        assert isinstance(e, str)
-    assert isinstance(y_stddev_ids, list)
-    for e in y_stddev_ids:
-        assert isinstance(e, str)
-    assert isinstance(legend, list)
-    for e in legend:
-        assert isinstance(e, str)
-    assert (len(y_ids) == len(y_stddev_ids) == len(legend))
+class Utils():
 
-    for i in range(0,len(y_ids)):
-        plt.errorbar(data[x_id],data[y_ids[i]],yerr=data[y_stddev_ids[i]],markersize=2.5,linestyle='-',marker='o', capsize=2.5)
-    plt.title(title)
-    plt.legend(legend)
-    plt.xlabel(x_label)
-    plt.ylabel(y_label)
-    plt.savefig(plot_file)
-    # Flush output. Without this consecutive plots overlap.
-    # See: https://stackoverflow.com/questions/17106288/matplotlib-pyplot-will-not-forget-previous-plots-how-can-i-flush-refresh
-    plt.gcf().clear()
-
-def compute_avg_and_stddev_two_data_sets(data,key_a,key_b,rows_name,cols_name):
-    assert isinstance(data, dict)
-    assert isinstance(key_a, str)
-    assert isinstance(key_b, str)
-    assert isinstance(rows_name, str)
-    assert isinstance(cols_name, str)
-
-    # Init.
-    rows = max(data[rows_name])
-    cols = len(set(data[cols_name]))
-    avg_a = list()
-    avg_b = list()
-    stddev_a = list()
-    stddev_b = list()
-
-    # Transform the original data into a matrix with:
-    #   rows = current run
-    #   columns = current sample set
-    matrix_a = np.matrix(data[key_a])
-    matrix_a = matrix_a.reshape(rows, cols)
-    matrix_b = np.matrix(data[key_b])
-    matrix_b = matrix_b.reshape(rows, cols)
-
-    # Compute average and standard deviation
-    # of the running times for each sample.
-    for c in range(0, cols):
-        sum_a = 0
-        sum_b = 0
-        stddev_buf_a = list()
-        stddev_buf_b = list()
-        for r in range(0,rows):
-            sum_a += matrix_a.item(r,c)
-            sum_b += matrix_b.item(r,c)
-
-            stddev_buf_a.append(matrix_a.item(r,c))
-            stddev_buf_b.append(matrix_b.item(r,c))
-
-        avg_a.append(sum_a/rows)
-        avg_b.append(sum_b/rows)
-
-        stddev_a.append(np.std(stddev_buf_a))
-        stddev_b.append(np.std(stddev_buf_b))
-
-    return avg_a, avg_b, stddev_a, stddev_b
-
-class LoadFile():
     def __init__(self, filename, delimiter=',', iteration='it', x_axis='x', dim_a='a', dim_b='b', dim_c='c', dim_d='d'):
         """ Load the file contents in a dictionary for future easy access."""
+        assert isinstance(filename, str)
+        assert isinstance(iteration, str)
+        assert isinstance(x_axis, str)
+        assert isinstance(dim_a, str)
+        assert isinstance(dim_b, str)
+        assert isinstance(dim_c, str)
+        assert isinstance(dim_d, str)
+
         self.data = { iteration: [],
                       x_axis: [],
                       dim_a: [],
@@ -138,32 +68,119 @@ class LoadFile():
                 self.data[dim_c].append(int(round(float(row[4]))))
                 self.data[dim_d].append(float(row[5]))
 
-def plot_frontend(data, plot_title, plot_file, running_times, running_times_stddev, legend, y_label):
-        assert isinstance(plot_title,str)
-        assert isinstance(plot_file,str)
-        assert isinstance(running_times, list)
-        for e in running_times:
+    def plot_data_sets(
+                   data,
+                   x_id,
+                   y_ids,
+                   y_stddev_ids,
+                   legend=['set a', 'set b'],
+                   title='Comparison',
+                   x_label='x',
+                   y_label='y',
+                   plot_file='plot.png'):
+        """ Plot n sets of values for direct comparison."""
+        assert isinstance(x_id, str)
+        assert isinstance(y_ids, list)
+        for e in y_ids:
             assert isinstance(e, str)
-        assert isinstance(running_times_stddev, list)
-        for e in running_times_stddev:
+        assert isinstance(y_stddev_ids, list)
+        for e in y_stddev_ids:
             assert isinstance(e, str)
         assert isinstance(legend, list)
         for e in legend:
             assert isinstance(e, str)
-        assert isinstance(y_label, str)
+        assert (len(y_ids) == len(y_stddev_ids) == len(legend))
 
-        plot_two_data_sets(self.data,
-                        'samples',
-                        running_times,
-                        running_times_stddev,
-                        legend,
-                        plot_title,
-                        'samples',
-                        'running time (ms)',
-                        plot_file)
+        for i in range(0,len(y_ids)):
+            plt.errorbar(data[x_id],data[y_ids[i]],yerr=data[y_stddev_ids[i]],markersize=2.5,linestyle='-',marker='o', capsize=2.5)
+        plt.title(title)
+        plt.legend(legend)
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        plt.savefig(plot_file)
+        # Flush output. Without this consecutive plots overlap.
+        # See: https://stackoverflow.com/questions/17106288/matplotlib-pyplot-will-not-forget-previous-plots-how-can-i-flush-refresh
+        plt.gcf().clear()
+
+    def compute_avg_and_stddev_two_data_sets(self,key_a,key_b,rows_name,cols_name):
+        assert isinstance(key_a, str)
+        assert isinstance(key_b, str)
+        assert isinstance(rows_name, str)
+        assert isinstance(cols_name, str)
+
+        # Init.
+        rows = max(self.data[rows_name])
+        cols = len(set(self.data[cols_name]))
+        avg_a = list()
+        avg_b = list()
+        stddev_a = list()
+        stddev_b = list()
+
+        # Transform the original data into a matrix with:
+        #   rows = current run
+        #   columns = current sample set
+        matrix_a = np.matrix(self.data[key_a])
+        matrix_a = matrix_a.reshape(rows, cols)
+        matrix_b = np.matrix(self.data[key_b])
+        matrix_b = matrix_b.reshape(rows, cols)
+
+        # Compute average and standard deviation
+        # of the running times for each sample.
+        for c in range(0, cols):
+            sum_a = 0
+            sum_b = 0
+            stddev_buf_a = list()
+            stddev_buf_b = list()
+            for r in range(0,rows):
+                sum_a += matrix_a.item(r,c)
+                sum_b += matrix_b.item(r,c)
+
+                stddev_buf_a.append(matrix_a.item(r,c))
+                stddev_buf_b.append(matrix_b.item(r,c))
+
+            avg_a.append(sum_a/rows)
+            avg_b.append(sum_b/rows)
+
+            stddev_a.append(np.std(stddev_buf_a))
+            stddev_b.append(np.std(stddev_buf_b))
+
+        return avg_a, avg_b, stddev_a, stddev_b
+
+    def plot_frontend(self, plot_title, plot_file, running_times, running_times_stddev, legend, y_label):
+            assert isinstance(plot_title,str)
+            assert isinstance(plot_file,str)
+            assert isinstance(running_times, list)
+            for e in running_times:
+                assert isinstance(e, str)
+            assert isinstance(running_times_stddev, list)
+            for e in running_times_stddev:
+                assert isinstance(e, str)
+            assert isinstance(legend, list)
+            for e in legend:
+                assert isinstance(e, str)
+            assert isinstance(y_label, str)
+
+            plot_two_data_sets(data,
+                            'samples',
+                            running_times,
+                            running_times_stddev,
+                            legend,
+                            plot_title,
+                            'samples',
+                            y_label,
+                            plot_file)
 
 
-class MhVsGibbs(LoadFile):
+    def overwrite_data_set_with_avg(self, dim_id_avg, dim_value_avg):
+        # Assume that the list have a semantic order between them: l1[0] -> l2[0].
+        assert isinstance(dim_id_avg, list)
+        assert isinstance(dim_value_avg, list)
+
+        for d in dim_id_avg:
+            self.data[d]=dim_value_avg[dim_id_avg.index(d)]
+
+
+class MhVsGibbs(Utils):
 
     def __init__(self, filename, delimiter=','):
         super().__init__(filename, delimiter, 'run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob')
@@ -175,27 +192,19 @@ class MhVsGibbs(LoadFile):
         plot_frontend(self.data, plot_title, plot_file, ['mh_prob', 'gibbs_prob'], ['mh_prob_stddev', 'gibbs_prob_stddev'], ['mh', 'gibbs'], 'probability [0,1]')
 
     def overwrite_avg_data_set(self,mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev):
-        self.data['mh_time']=mh_times_avg
-        self.data['gibbs_time']=gibbs_times_avg
-        self.data['run_number']=sorted(list(set(self.data['run_number'])))
-        self.data['samples']=sorted(list(set(self.data['samples'])))
-        self.data['mh_time_stddev']=mh_times_stddev
-        self.data['gibbs_time_stddev']=gibbs_times_stddev
+        self.overwrite_data_set_with_avg(['mh_time', 'gibbs_time', 'run_number', 'samples', 'mh_time_stddev', 'gibbs_time_stddev'],
+                                    [mh_times_avg, gibbs_times_avg, sorted(list(set(self.data['run_number']))), sorted(list(set(self.data['samples']))), mh_times_stddev, gibbs_times_stddev])
 
     def overwrite_prob_data_set(self,mh_probs_avg,gibbs_probs_avg,mh_probs_stddev,gibbs_probs_stddev):
-        self.data['mh_prob']=mh_probs_avg
-        self.data['gibbs_prob']=gibbs_probs_avg
-        self.data['run_number']=sorted(list(set(self.data['run_number'])))
-        self.data['samples']=sorted(list(set(self.data['samples'])))
-        self.data['mh_prob_stddev']=mh_probs_stddev
-        self.data['gibbs_prob_stddev']=gibbs_probs_stddev
+        self.overwrite_data_set_with_avg(['mh_prob', 'gibbs_prob', 'run_number', 'samples', 'mh_prob_stddev', 'gibbs_prob_stddev'],
+                                    [mh_probs_avg, gibbs_probs_avg, sorted(list(set(self.data['run_number']))), sorted(list(set(self.data['samples']))), mh_probs_stddev, gibbs_probs_stddev])
 
     def mh_vs_gibbs_times_avg(self):
-        mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev = compute_avg_and_stddev_two_data_sets(self.data,'mh_time','gibbs_time','run_number','samples')
+        mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev = self.compute_avg_and_stddev_two_data_sets('mh_time','gibbs_time','run_number','samples')
         self.overwrite_avg_data_set(mh_times_avg,gibbs_times_avg,mh_times_stddev,gibbs_times_stddev)
 
     def mh_vs_gibbs_probs_avg(self):
-        mh_probs_avg,gibbs_probs_avg,mh_probs_stddev,gibbs_probs_stddev = compute_avg_and_stddev_two_data_sets(self.data,'mh_prob','gibbs_prob','run_number','samples')
+        mh_probs_avg,gibbs_probs_avg,mh_probs_stddev,gibbs_probs_stddev = self.compute_avg_and_stddev_two_data_sets('mh_prob','gibbs_prob','run_number','samples')
         self.overwrite_prob_data_set(mh_probs_avg,gibbs_probs_avg,mh_probs_stddev,gibbs_probs_stddev)
 
 
@@ -238,7 +247,7 @@ class Test66SampleMhVsGibbs(MhVsGibbs):
         self.test66_sample_mh_vs_gibbs()
 
 
-class Amcmc(LoadFile):
+class Amcmc(Utils):
     def __init__(self, filename, delimiter=','):
         super().__init__(filename, delimiter, 'run_number', 'samples', 'adapt_on_time', 'adapt_on_prob', 'adapt_off_time', 'adapt_off_prob')
 
@@ -249,28 +258,21 @@ class Amcmc(LoadFile):
         plot_frontend(self.data, plot_title, plot_file, ['adapt_on_prob','adapt_off_prob'], ['adapt_on_prob_stddev','adapt_off_prob_stddev'], ['adapt_on', 'adapt_off'], 'probability [0,1]')
 
     def overwrite_avg_data_set(self,adapt_on_times_avg,adapt_off_times_avg,adapt_on_times_stddev,adapt_off_times_stddev):
-        self.data['adapt_on_time']=adapt_on_times_avg
-        self.data['adapt_off_time']=adapt_off_times_avg
-        self.data['run_number']=sorted(list(set(self.data['run_number'])))
-        self.data['samples']=sorted(list(set(self.data['samples'])))
-        self.data['adapt_on_time_stddev']=adapt_on_times_stddev
-        self.data['adapt_off_time_stddev']=adapt_off_times_stddev
+        self.overwrite_data_set_with_avg(['adapt_on_time', 'adapt_off_time', 'run_number', 'samples', 'adapt_on_time_stddev', 'adapt_off_time_stddev'],
+                                    [adapt_on_times_avg, adapt_off_times_avg, sorted(list(set(self.data['run_number']))), sorted(list(set(self.data['samples']))), adapt_on_times_stddev, adapt_off_times_stddev])
 
     def overwrite_prob_data_set(self,adapt_on_probs_avg,adapt_off_probs_avg,adapt_on_probs_stddev,adapt_off_probs_stddev):
-        self.data['adapt_on_prob']=adapt_on_probs_avg
-        self.data['adapt_off_prob']=adapt_off_probs_avg
-        self.data['run_number']=sorted(list(set(self.data['run_number'])))
-        self.data['samples']=sorted(list(set(self.data['samples'])))
-        self.data['adapt_on_prob_stddev']=adapt_on_probs_stddev
-        self.data['adapt_off_prob_stddev']=adapt_off_probs_stddev
+        self.overwrite_data_set_with_avg(['adapt_on_prob', 'adapt_off_prob', 'run_number', 'samples', 'adapt_on_prob_stddev', 'adapt_off_prob_stddev'],
+                                    [adapt_on_probs_avg, adapt_off_probs_avg, sorted(list(set(self.data['run_number']))), sorted(list(set(self.data['samples']))), adapt_on_probs_stddev, adapt_off_probs_stddev])
 
     def adapt_on_vs_adapt_off_times_avg(self):
-        adapt_on_times_avg,adapt_off_times_avg,adapt_on_times_stddev,adapt_off_times_stddev = compute_avg_and_stddev_two_data_sets(self.data,'adapt_on_time','adapt_off_time','run_number','samples')
+        adapt_on_times_avg,adapt_off_times_avg,adapt_on_times_stddev,adapt_off_times_stddev = self.compute_avg_and_stddev_two_data_sets('adapt_on_time','adapt_off_time','run_number','samples')
         self.overwrite_avg_data_set(adapt_on_times_avg,adapt_off_times_avg,adapt_on_times_stddev,adapt_off_times_stddev)
 
     def adapt_on_vs_adapt_off_probs_avg(self):
-        adapt_on_probs_avg,adapt_off_probs_avg,adapt_on_probs_stddev,adapt_off_probs_stddev = compute_avg_and_stddev_two_data_sets(self.data,'adapt_on_prob','adapt_off_prob','run_number','samples')
+        adapt_on_probs_avg,adapt_off_probs_avg,adapt_on_probs_stddev,adapt_off_probs_stddev = self.compute_avg_and_stddev_two_data_sets('adapt_on_prob','adapt_off_prob','run_number','samples')
         self.overwrite_prob_data_set(adapt_on_probs_avg,adapt_off_probs_avg,adapt_on_probs_stddev,adapt_off_probs_stddev)
+
 
 class Test33CondProbAdaptOnVsAdaptOff(Amcmc):
     def test33_cond_prob_adapt_on_vs_adapt_off(self):
@@ -316,7 +318,7 @@ def main():
         dData = {**speedsA.data, **speedsB.data}
         print(dData)
 
-        plot_data_sets(dData,
+        Utils.plot_data_sets(dData,
                         'samples',
                         ['adapt_on_time','adapt_off_time', 'mh_time', 'gibbs_time'],
                         ['adapt_on_time_stddev','adapt_off_time_stddev', 'mh_time_stddev', 'gibbs_time_stddev'],
@@ -327,8 +329,6 @@ def main():
                         'testing.png')
 
         # 2. create a plot interface function that accepts the new dict
-
-        # 3. Cleanup all duplicate code.
 
 if __name__ == '__main__':
     main()
