@@ -257,37 +257,36 @@ class Amcmc(Utils):
     def plot_adapt_on_vs_adapt_off_probs(self, plot_title, plot_file):
         plot_frontend(self.data, plot_title, plot_file, ['adapt_on_prob','adapt_off_prob'], ['adapt_on_prob_stddev','adapt_off_prob_stddev'], ['adapt_on', 'adapt_off'], 'probability [0,1]')
 
-    def overwrite_avg_data_set(self,adapt_on_times_avg,adapt_off_times_avg,adapt_on_times_stddev,adapt_off_times_stddev):
-        self.overwrite_data_set_with_avg(['adapt_on_time', 'adapt_off_time', 'run_number', 'samples', 'adapt_on_time_stddev', 'adapt_off_time_stddev'],
-                                    [adapt_on_times_avg, adapt_off_times_avg, sorted(list(set(self.data['run_number']))), sorted(list(set(self.data['samples']))), adapt_on_times_stddev, adapt_off_times_stddev])
+    def overwrite_avg_data_set(self,avgs):
+         self.overwrite_data_set_with_avg(['adapt_on_time', 
+'adapt_off_time', 
+'adapt_on_prob', 'adapt_off_prob', 'run_number', 'samples', 
+'stddev_adapt_on_time', 'stddev_adapt_off_time', 'stddev_adapt_on_prob_', 
+'stddev_adapt_off_prob'],
+                                    [avgs['adapt_on_time'], 
+avgs['adapt_off_time'], 
+avgs['adapt_on_prob'], avgs['adapt_off_prob'], 
+sorted(list(set(self.data['run_number']))), 
+sorted(list(set(self.data['samples']))), avgs['stddev_adapt_on_time'], 
+avgs['stddev_adapt_off_time'], avgs['stddev_adapt_on_prob'], 
+avgs['stddev_adapt_off_prob']])
 
-    def overwrite_prob_data_set(self,adapt_on_probs_avg,adapt_off_probs_avg,adapt_on_probs_stddev,adapt_off_probs_stddev):
-        self.overwrite_data_set_with_avg(['adapt_on_prob', 'adapt_off_prob', 'run_number', 'samples', 'adapt_on_prob_stddev', 'adapt_off_prob_stddev'],
-                                    [adapt_on_probs_avg, adapt_off_probs_avg, sorted(list(set(self.data['run_number']))), sorted(list(set(self.data['samples']))), adapt_on_probs_stddev, adapt_off_probs_stddev])
-
-    def adapt_on_vs_adapt_off_times_avg(self):
-        avgs = self.compute_avg_and_stddev_two_data_sets(['adapt_on_time','adapt_off_time','adapt_on_prob','adapt_off_prob'],'run_number','samples')
-#        adapt_on_times_avg,adapt_off_times_avg,adapt_on_times_stddev,adapt_off_times_stddev = None
-#        self.overwrite_avg_data_set(adapt_on_times_avg,adapt_off_times_avg,adapt_on_times_stddev,adapt_off_times_stddev)
-        adapt_on_times=print(avgs)
-        print('here')
-
-    def adapt_on_vs_adapt_off_probs_avg(self):
-        adapt_on_probs_avg,adapt_off_probs_avg,adapt_on_probs_stddev,adapt_off_probs_stddev = self.compute_avg_and_stddev_two_data_sets('adapt_on_prob','adapt_off_prob','run_number','samples')
-        self.overwrite_prob_data_set(adapt_on_probs_avg,adapt_off_probs_avg,adapt_on_probs_stddev,adapt_off_probs_stddev)
+    def adapt_on_vs_adapt_off_avg(self):
+        avgs = self.compute_avg_and_stddev_two_data_sets(['adapt_on_time',
+            'adapt_off_time', 'adapt_on_prob', 'adapt_off_prob'],
+            'run_number','samples')
+        print(avgs)
+        self.overwrite_avg_data_set(avgs)
+#        print(self.data)
 
 
 class Test33CondProbAdaptOnVsAdaptOff(Amcmc):
-    def test33_cond_prob_adapt_on_vs_adapt_off(self):
+    def test33_cond_prob_adapt_on_vs_adapt_off_avg(self):
+        self.adapt_on_vs_adapt_off_avg()
         self.plot_adapt_on_vs_adapt_off_times('test33_cond_prob adapt_on vs adapt_off times avg',
                               'plot_test33_cond_prob_adapt_on_vs_adapt_off_times.png')
         self.plot_adapt_on_vs_adapt_off_probs('test33_cond_prob adapt_on vs adapt_off probs avg',
                               'plot_test33_cond_prob_adapt_on_vs_adapt_off_probs.png')
-
-    def test33_cond_prob_adapt_on_vs_adapt_off_avg(self):
-        self.adapt_on_vs_adapt_off_times_avg()
-        self.adapt_on_vs_adapt_off_probs_avg()
-        self.test33_cond_prob_adapt_on_vs_adapt_off()
 
 def main():
     # This is necessary to save the plot to a file instead of displaying it directly.
@@ -295,7 +294,6 @@ def main():
     # Get the file name from argv. This decides the type of plot.
     file_name=sys.argv[1]
     delimiter=','
-    print(file_name)
     if file_name == 'arithm_sample.csv':
         speeds = ArithmSampleMhVsGibbs(file_name,delimiter)
         speeds.arithm_sample_mh_vs_gibbs_avg()
@@ -309,8 +307,8 @@ def main():
         speedsA = Test33CondProbAdaptOnVsAdaptOff(file_name,delimiter)
 #        speedsA.test33_cond_prob_adapt_on_vs_adapt_off_avg()
         speedsB = Test33SampleMhVsGibbs('test33_sample.csv',delimiter)
-        speedsA.adapt_on_vs_adapt_off_times_avg()
-        speedsB.mh_vs_gibbs_times_avg()
+        speedsA.adapt_on_vs_adapt_off_avg()
+#        speedsB.mh_vs_gibbs_times_avg()
 #        print(speedsA.data)
 #        print(speedsB.data)
 #        self.plot_adapt_on_vs_adapt_off_times('test33_cond_prob adapt_on vs adapt_off times avg',
@@ -318,18 +316,18 @@ def main():
         # 1.0. unite the data dictionaries from CondProb and Sample.
         # 1.1. Instead of uniting dicts, fix the compute_avg_and_stddev_two_data_sets func to accepts any number of sets.
         ## https://stackoverflow.com/questions/38987/how-to-merge-two-dictionaries-in-a-single-expression
-        dData = {**speedsA.data, **speedsB.data}
-        print(dData)
+#        dData = {**speedsA.data, **speedsB.data}
+#        print(dData)
 
-        Utils.plot_data_sets(dData,
-                        'samples',
-                        ['adapt_on_time','adapt_off_time', 'mh_time', 'gibbs_time'],
-                        ['adapt_on_time_stddev','adapt_off_time_stddev', 'mh_time_stddev', 'gibbs_time_stddev'],
-                        ['adapt_on', 'adapt_off', 'mh', 'gibbs'],
-                        'u',
-                        'samples',
-                        'running time (ms)',
-                        'testing.png')
+#        Utils.plot_data_sets(dData,
+#                        'samples',
+#                        ['adapt_on_time','adapt_off_time', 'mh_time', 'gibbs_time'],
+#                        ['adapt_on_time_stddev','adapt_off_time_stddev', 'mh_time_stddev', 'gibbs_time_stddev'],
+#                        ['adapt_on', 'adapt_off', 'mh', 'gibbs'],
+#                        'u',
+#                        'samples',
+#                        'running time (ms)',
+#                        'testing.png')
 
         # 2. create a plot interface function that accepts the new dict
 
