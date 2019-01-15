@@ -170,13 +170,15 @@ class Utils():
                             plot_file)
 
 
-    def overwrite_data_set_with_avg(self, dim_id_avg, dim_value_avg):
-        # Assume that the list have a semantic order between them: l1[0] -> l2[0].
-        assert isinstance(dim_id_avg, list)
-        assert isinstance(dim_value_avg, list)
+    def overwrite_data_set_with_avg(self, dims_avg):
+        assert isinstance(dims_avg, dict)
 
-        for d in dim_id_avg:
-            self.data[d]=dim_value_avg[dim_id_avg.index(d)]
+        for key, value in dims_avg.items():
+            if key == 'run_number' or key == 'samples':
+                # Remove duplicates from these two sets.
+                self.data[key]=sorted(list(set(self.data[key])))
+            else:
+                self.data[key]=value
 
 
 class MhVsGibbs(Utils):
@@ -257,27 +259,18 @@ class Amcmc(Utils):
     def plot_adapt_on_vs_adapt_off_probs(self, plot_title, plot_file):
         plot_frontend(self.data, plot_title, plot_file, ['adapt_on_prob','adapt_off_prob'], ['adapt_on_prob_stddev','adapt_off_prob_stddev'], ['adapt_on', 'adapt_off'], 'probability [0,1]')
 
-    def overwrite_avg_data_set(self,avgs):
-         self.overwrite_data_set_with_avg(['adapt_on_time', 
-'adapt_off_time', 
-'adapt_on_prob', 'adapt_off_prob', 'run_number', 'samples', 
-'stddev_adapt_on_time', 'stddev_adapt_off_time', 'stddev_adapt_on_prob_', 
-'stddev_adapt_off_prob'],
-                                    [avgs['adapt_on_time'], 
-avgs['adapt_off_time'], 
-avgs['adapt_on_prob'], avgs['adapt_off_prob'], 
-sorted(list(set(self.data['run_number']))), 
-sorted(list(set(self.data['samples']))), avgs['stddev_adapt_on_time'], 
-avgs['stddev_adapt_off_time'], avgs['stddev_adapt_on_prob'], 
-avgs['stddev_adapt_off_prob']])
-
     def adapt_on_vs_adapt_off_avg(self):
         avgs = self.compute_avg_and_stddev_two_data_sets(['adapt_on_time',
             'adapt_off_time', 'adapt_on_prob', 'adapt_off_prob'],
             'run_number','samples')
+        avgs['run_number']=self.data['run_number']
+        avgs['samples']=self.data['samples']
         print(avgs)
-        self.overwrite_avg_data_set(avgs)
-#        print(self.data)
+        print("===")
+        print(self.data)
+        print("===")
+        self.overwrite_data_set_with_avg(avgs)
+        print(self.data)
 
 
 class Test33CondProbAdaptOnVsAdaptOff(Amcmc):
