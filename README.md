@@ -128,14 +128,18 @@ or
 
 ## Plot
 
-The tools useful to plot the results are Python 3 and Matplotlib.
+The tools necessary to plot the results are Python 3 and Matplotlib.
 
-The plot script is in `./src/plot/plot_comparison.py`. This script reads
-a CSV file formatted according to the CSV file format rules in this readme.
-It then plots the average running times of multiple runs for each 
-sample. The standard deviation of the running times for each sample is plotted 
-as error bars. The same type of plot is done for the computed probabilities to 
-determine the accuracy of the calculations.
+The plot called `plot_comparison.py` can be found under the `./src/plot` 
+directory:
+1. it reads one or more CSV files written according to the CSV file 
+   format rules in this readme. 
+2. it plots the average running times of multiple runs for each 
+   sample. The standard deviation of the running times for each sample is 
+   plotted as error bars.
+
+The same type of plot is done for the computed probabilities to determine the 
+accuracy of the calculations.
 
 ## Notes on running the tests in parallel
 
@@ -155,7 +159,8 @@ for output in $OUTPUTS; do
 done
 ```
 
-The `plot_comparison.py` script sorts the data internally.
+The `plot_comparison.py` script sorts the data internally, so if you use the 
+provided plot script there is not need to sort the file by hand.
 
 ### An alternative to GNU Parallel
 

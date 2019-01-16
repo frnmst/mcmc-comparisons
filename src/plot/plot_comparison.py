@@ -68,16 +68,8 @@ class Utils():
                 self.data[dim_c].append(int(round(float(row[4]))))
                 self.data[dim_d].append(float(row[5]))
 
-    def plot_data_sets(
-                   self,
-                   x_id,
-                   y_ids,
-                   y_stddev_ids,
-                   legend=['set a', 'set b'],
-                   title='Comparison',
-                   x_label='x',
-                   y_label='y',
-                   plot_file='plot.png'):
+    def plot_data_sets(self, x_id, y_ids, y_stddev_ids, legend=['set a', 'set b'],
+                       title='Comparison', x_label='x', y_label='y', plot_file='plot.png'):
         """ Plot n sets of values for direct comparison."""
         assert isinstance(x_id, str)
         assert isinstance(y_ids, list)
@@ -103,7 +95,7 @@ class Utils():
         plt.gcf().clear()
 
     # Rows name and cols name is the same for all cases.
-    def compute_avg_and_stddev_two_data_sets(self, dim_id, rows_name, cols_name):
+    def compute_avg_and_stddev_data_sets(self, dim_id, rows_name, cols_name):
         assert isinstance(dim_id, list)
         for e in dim_id:
             assert isinstance(e, str)
@@ -190,7 +182,7 @@ class MhVsGibbs(Utils):
         self.plot_frontend(plot_title, plot_file, ['mh_prob','gibbs_prob'], ['stddev_mh_prob','stddev_gibbs_prob'], ['mh', 'gibbs'], 'probability [0,1]')
 
     def mh_vs_gibbs_avg(self):
-        avgs = self.compute_avg_and_stddev_two_data_sets(['mh_time',
+        avgs = self.compute_avg_and_stddev_data_sets(['mh_time',
             'gibbs_time', 'mh_prob', 'gibbs_prob'],
             'run_number','samples')
         avgs['run_number']=self.data['run_number']
@@ -236,7 +228,7 @@ class Amcmc(Utils):
         self.plot_frontend(plot_title, plot_file, ['adapt_on_prob','adapt_off_prob'], ['adapt_on_prob_stddev','adapt_off_prob_stddev'], ['adapt_on', 'adapt_off'], 'probability [0,1]')
 
     def adapt_on_vs_adapt_off_avg(self):
-        avgs = self.compute_avg_and_stddev_two_data_sets(['adapt_on_time',
+        avgs = self.compute_avg_and_stddev_data_sets(['adapt_on_time',
             'adapt_off_time', 'adapt_on_prob', 'adapt_off_prob'],
             'run_number','samples')
         avgs['run_number']=self.data['run_number']
@@ -269,10 +261,9 @@ def main():
         speeds.test66_sample_mh_vs_gibbs_avg()
     elif file_name == 'test33_cond_prob.csv':
         speedsA = Test33CondProbAdaptOnVsAdaptOff(file_name,delimiter)
-#        speedsA.test33_cond_prob_adapt_on_vs_adapt_off_avg()
         speedsB = Test33SampleMhVsGibbs('test33_sample.csv',delimiter)
         speedsA.adapt_on_vs_adapt_off_avg()
-#        speedsB.mh_vs_gibbs_times_avg()
+        speedsB.mh_vs_gibbs_avg()
 #        print(speedsA.data)
 #        print(speedsB.data)
 #        self.plot_adapt_on_vs_adapt_off_times('test33_cond_prob adapt_on vs adapt_off times avg',
@@ -280,8 +271,8 @@ def main():
         # 1.0. unite the data dictionaries from CondProb and Sample.
         # 1.1. Instead of uniting dicts, fix the compute_avg_and_stddev_two_data_sets func to accepts any number of sets.
         ## https://stackoverflow.com/questions/38987/how-to-merge-two-dictionaries-in-a-single-expression
-#        dData = {**speedsA.data, **speedsB.data}
-#        print(dData)
+        dData = {**speedsA.data, **speedsB.data}
+        print(dData)
 
 #        Utils.plot_data_sets(dData,
 #                        'samples',
@@ -292,8 +283,6 @@ def main():
 #                        'samples',
 #                        'running time (ms)',
 #                        'testing.png')
-
-        # 2. create a plot interface function that accepts the new dict
 
 if __name__ == '__main__':
     main()
