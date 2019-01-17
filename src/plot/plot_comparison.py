@@ -37,36 +37,43 @@ import sys
 
 class Utils():
 
-    def __init__(self, filename, delimiter=',', iteration='it', x_axis='x', dim_a='a', dim_b='b', dim_c='c', dim_d='d'):
+    def __init__(self, files):
         """ Load the file contents in a dictionary for future easy access."""
-        assert isinstance(filename, str)
-        assert isinstance(iteration, str)
-        assert isinstance(x_axis, str)
-        assert isinstance(dim_a, str)
-        assert isinstance(dim_b, str)
-        assert isinstance(dim_c, str)
-        assert isinstance(dim_d, str)
+        # Load multiple files (list).
+        # Each file has 4+2 dimensions (list).
+        # Each file may have a different delimiter (list).
+        # Everything is loaded in self.data (dict).
+        assert isinstance(files, list)
+        for f in files:
+            assert isinstance(f, dict)
+            assert 'name' in f
+            assert 'delimiter' in f
+            assert 'fields' in f
+            assert isinstance(f['name'], str)
+            assert isinstance(f['delimiter'], str)
+            assert isinstance(f['fields'], list)
+            for i in f['fields']:
+                assert isinstance(i, str)
 
-        self.data = { iteration: [],
-                      x_axis: [],
-                      dim_a: [],
-                      dim_b: [],
-                      dim_c: [],
-                      dim_d: [],
-                    }
+        self.data = dict()
 
-        with open(filename, 'r') as f:
-            data = csv.reader(f, delimiter=delimiter)
-            # Sort lines by run number and and keep sample id in place so that we maintain the correct
-            # input for the other functions.
-            data = sorted(data, key=lambda d: d[0])
-            for row in data:
-                self.data[iteration].append(int(row[0]))
-                self.data[x_axis].append(int(row[1]))
-                self.data[dim_a].append(int(round(float(row[2]))))
-                self.data[dim_b].append(float(row[3]))
-                self.data[dim_c].append(int(round(float(row[4]))))
-                self.data[dim_d].append(float(row[5]))
+        for f in files:
+            for i in f['fields']:
+                self.data[i] = list()
+
+        for file in files:
+            with open(file['name'], 'r') as f:
+                data = csv.reader(f, delimiter=file['delimiter'])
+                # Sort lines by run number and and keep sample id in place so
+                # that we maintain the correct input for the other functions.
+                data = sorted(data, key=lambda d: d[0])
+                for row in data:
+                    self.data[file['fields'][0]].append(int(row[0]))
+                    self.data[file['fields'][1]].append(int(row[1]))
+                    self.data[file['fields'][2]].append(int(round(float(row[2]))))
+                    self.data[file['fields'][3]].append(float(row[3]))
+                    self.data[file['fields'][4]].append(int(round(float(row[4]))))
+                    self.data[file['fields'][5]].append(float(row[5]))
 
     def plot_data_sets(self, x_id, y_ids, y_stddev_ids, legend=['set a', 'set b'],
                        title='Comparison', x_label='x', y_label='y', plot_file='plot.png'):
@@ -173,7 +180,9 @@ class Utils():
 
 class MhVsGibbs(Utils):
     def __init__(self, filename, delimiter=','):
-        super().__init__(filename, delimiter, 'run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob')
+        file={ 'name': filename, 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob'] }
+        files=[file]
+        super().__init__(files)
 
     def plot_mh_vs_gibbs_times(self, plot_title, plot_file):
         self.plot_frontend(plot_title, plot_file, ['mh_time','gibbs_time'], ['stddev_mh_time','stddev_gibbs_time'], ['mh', 'gibbs'], 'running time (ms)')
@@ -219,7 +228,9 @@ class Test66SampleMhVsGibbs(MhVsGibbs):
 
 class Amcmc(Utils):
     def __init__(self, filename, delimiter=','):
-        super().__init__(filename, delimiter, 'run_number', 'samples', 'adapt_on_time', 'adapt_on_prob', 'adapt_off_time', 'adapt_off_prob')
+        file={ 'name': filename, 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'adapt_on_time', 'adapt_on_prob', 'adapt_off_time', 'adapt_off_prob'] }
+        files=[file]
+        super().__init__(files)
 
     def plot_adapt_on_vs_adapt_off_times(self, plot_title, plot_file):
         self.plot_frontend(plot_title, plot_file, ['adapt_on_time','adapt_off_time'], ['stddev_adapt_on_time','stddev_adapt_off_time'], ['adapt_on', 'adapt_off'], 'running time (ms)')
@@ -244,23 +255,41 @@ class Test33CondProbAdaptOnVsAdaptOff(Amcmc):
         self.plot_adapt_on_vs_adapt_off_probs('test33_cond_prob adapt_on vs adapt_off probs avg',
                               'plot_test33_cond_prob_adapt_on_vs_adapt_off_probs.png')
 
+
+class Test66CondProbAdaptOnVsAdaptOff(Amcmc):
+    def test66_cond_prob_adapt_on_vs_adapt_off_avg(self):
+        self.adapt_on_vs_adapt_off_avg()
+        self.plot_adapt_on_vs_adapt_off_times('test66_cond_prob adapt_on vs adapt_off times avg',
+                              'plot_test66_cond_prob_adapt_on_vs_adapt_off_times.png')
+        self.plot_adapt_on_vs_adapt_off_probs('test66_cond_prob adapt_on vs adapt_off probs avg',
+                              'plot_test66_cond_prob_adapt_on_vs_adapt_off_probs.png')
+
+
+#class Test33FourWayComparison(Utils):
+#        avgs = self.compute_avg_and_stddev_data_sets(['mh_time',
+#            'gibbs_time', 'mh_prob', 'gibbs_prob', 'adapt_on_time',
+#            'adapt_off_time', 'adapt_on_prob', 'adapt_off_prob'],
+#            'run_number','samples')
+#        avgs['run_number']=self.data['run_number']
+#        avgs['samples']=self.data['samples']
+#        self.overwrite_data_set_with_avg(avgs)
+
+
 def main():
     # This is necessary to save the plot to a file instead of displaying it directly.
     matplotlib.use('Agg')
-    # Get the file name from argv. This decides the type of plot.
-    file_name=sys.argv[1]
+    # Get the file names from argv. This decides the type of plot.
+    file_name_a=sys.argv[1]
+    if len(sys.argv) == 3:
+        # Plot two tests.
+        file_name_b=sys.argv[2]
+    else:
+        # Plot a single test.
+#        file_name_b=''
+        file_name_b='test33_sample.csv'
     delimiter=','
-    if file_name == 'arithm_sample.csv':
-        speeds = ArithmSampleMhVsGibbs(file_name,delimiter)
-        speeds.arithm_sample_mh_vs_gibbs_avg()
-    elif file_name == 'test33_sample.csv':
-        speeds = Test33SampleMhVsGibbs(file_name,delimiter)
-        speeds.test33_sample_mh_vs_gibbs_avg()
-    elif file_name == 'test66_sample.csv':
-        speeds = Test66SampleMhVsGibbs(file_name,delimiter)
-        speeds.test66_sample_mh_vs_gibbs_avg()
-    elif file_name == 'test33_cond_prob.csv':
-        speedsA = Test33CondProbAdaptOnVsAdaptOff(file_name,delimiter)
+    if file_name_a == 'test33_cond_prob.csv' and file_name_b=='test33_sample.csv':
+        speedsA = Test33CondProbAdaptOnVsAdaptOff(file_name_a,delimiter)
         speedsB = Test33SampleMhVsGibbs('test33_sample.csv',delimiter)
         speedsA.adapt_on_vs_adapt_off_avg()
         speedsB.mh_vs_gibbs_avg()
@@ -279,6 +308,21 @@ def main():
                         'samples',
                         'running time (ms)',
                         'testing.png')
+    if file_name_a == 'arithm_sample.csv':
+        speeds = ArithmSampleMhVsGibbs(file_name_a,delimiter)
+        speeds.arithm_sample_mh_vs_gibbs_avg()
+    elif file_name_a == 'test33_sample.csv':
+        speeds = Test33SampleMhVsGibbs(file_name_a,delimiter)
+        speeds.test33_sample_mh_vs_gibbs_avg()
+    elif file_name_a == 'test66_sample.csv':
+        speeds = Test66SampleMhVsGibbs(file_name_a,delimiter)
+        speeds.test66_sample_mh_vs_gibbs_avg()
+    elif file_name_a == 'test33_cond_prob.csv':
+        speeds = Test33CondProbAdaptOnVsAdaptOff(file_name_a,delimiter)
+        speeds.adapt_on_vs_adapt_off_avg()
+    elif file_name_a == 'test66_cond_prob.csv':
+        speeds = Test66CondProbAdaptOnVsAdaptOff(file_name_a,delimiter)
+        speeds.adapt_on_vs_adapt_off_avg()
 
 if __name__ == '__main__':
     main()
