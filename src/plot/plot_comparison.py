@@ -39,10 +39,6 @@ class Utils():
 
     def __init__(self, files):
         """ Load the file contents in a dictionary for future easy access."""
-        # Load multiple files (list).
-        # Each file has 4+2 dimensions (list).
-        # Each file may have a different delimiter (list).
-        # Everything is loaded in self.data (dict).
         assert isinstance(files, list)
         for f in files:
             assert isinstance(f, dict)
@@ -174,6 +170,7 @@ class Utils():
             if key == 'run_number' or key == 'samples':
                 # Remove duplicates from these two sets.
                 self.data[key]=sorted(list(set(self.data[key])))
+                print('here')
             else:
                 self.data[key]=value
 
@@ -265,14 +262,28 @@ class Test66CondProbAdaptOnVsAdaptOff(Amcmc):
                               'plot_test66_cond_prob_adapt_on_vs_adapt_off_probs.png')
 
 
-#class Test33FourWayComparison(Utils):
-#        avgs = self.compute_avg_and_stddev_data_sets(['mh_time',
-#            'gibbs_time', 'mh_prob', 'gibbs_prob', 'adapt_on_time',
-#            'adapt_off_time', 'adapt_on_prob', 'adapt_off_prob'],
-#            'run_number','samples')
-#        avgs['run_number']=self.data['run_number']
-#        avgs['samples']=self.data['samples']
-#        self.overwrite_data_set_with_avg(avgs)
+class Test33FourWayComparison(Utils):
+    def __init__(self, delimiter=','):
+        file_a={ 'name': 'test33_sample.csv', 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob'] }
+        file_b={ 'name': 'test33_cond_prob.csv', 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'adapt_on_time', 'adapt_on_prob', 'adapt_off_time', 'adapt_off_prob'] }
+        files=[file_a, file_b]
+        super().__init__(files)
+        avgs = self.compute_avg_and_stddev_data_sets(['mh_time',
+            'gibbs_time', 'mh_prob', 'gibbs_prob', 'adapt_on_time',
+            'adapt_off_time', 'adapt_on_prob', 'adapt_off_prob'],
+            'run_number','samples')
+        avgs['run_number']=self.data['run_number']
+        avgs['samples']=self.data['samples']
+        self.overwrite_data_set_with_avg(avgs)
+        print (avgs)
+        self.plot_data_sets('samples',
+                        ['adapt_on_time','adapt_off_time', 'mh_time', 'gibbs_time'],
+                        ['stddev_adapt_on_time','stddev_adapt_off_time', 'stddev_mh_time', 'stddev_gibbs_time'],
+                        ['adapt_on', 'adapt_off', 'mh', 'gibbs'],
+                        'u',
+                        'samples',
+                        'running time (ms)',
+                        'testing.png')
 
 
 def main():
@@ -289,25 +300,7 @@ def main():
         file_name_b='test33_sample.csv'
     delimiter=','
     if file_name_a == 'test33_cond_prob.csv' and file_name_b=='test33_sample.csv':
-        speedsA = Test33CondProbAdaptOnVsAdaptOff(file_name_a,delimiter)
-        speedsB = Test33SampleMhVsGibbs('test33_sample.csv',delimiter)
-        speedsA.adapt_on_vs_adapt_off_avg()
-        speedsB.mh_vs_gibbs_avg()
-        # 1.0. unite the data dictionaries from CondProb and Sample.
-        # 1.1. Instead of uniting dicts, fix the compute_avg_and_stddev_two_data_sets func to accepts any number of sets.
-        ## https://stackoverflow.com/questions/38987/how-to-merge-two-dictionaries-in-a-single-expression
-        dData = {**speedsA.data, **speedsB.data}
-        speedsA.data = dData
-        print(speedsA.data)
-
-        speedsA.plot_data_sets('samples',
-                        ['adapt_on_time','adapt_off_time', 'mh_time', 'gibbs_time'],
-                        ['stddev_adapt_on_time','stddev_adapt_off_time', 'stddev_mh_time', 'stddev_gibbs_time'],
-                        ['adapt_on', 'adapt_off', 'mh', 'gibbs'],
-                        'u',
-                        'samples',
-                        'running time (ms)',
-                        'testing.png')
+        Test33FourWayComparison(delimiter=',')
     if file_name_a == 'arithm_sample.csv':
         speeds = ArithmSampleMhVsGibbs(file_name_a,delimiter)
         speeds.arithm_sample_mh_vs_gibbs_avg()
