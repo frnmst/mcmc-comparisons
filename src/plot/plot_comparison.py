@@ -170,7 +170,6 @@ class Utils():
             if key == 'run_number' or key == 'samples':
                 # Remove duplicates from these two sets.
                 self.data[key]=sorted(list(set(self.data[key])))
-                print('here')
             else:
                 self.data[key]=value
 
@@ -262,12 +261,20 @@ class Test66CondProbAdaptOnVsAdaptOff(Amcmc):
                               'plot_test66_cond_prob_adapt_on_vs_adapt_off_probs.png')
 
 
-class Test33FourWayComparison(Utils):
-    def __init__(self, delimiter=','):
-        file_a={ 'name': 'test33_sample.csv', 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob'] }
-        file_b={ 'name': 'test33_cond_prob.csv', 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'adapt_on_time', 'adapt_on_prob', 'adapt_off_time', 'adapt_off_prob'] }
+class FourWayComparison(Utils):
+    def __init__(self, filename_a, filename_b, delimiter=','):
+        file_a={ 'name': filename_a, 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob'] }
+        file_b={ 'name': filename_b, 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'adapt_on_time', 'adapt_on_prob', 'adapt_off_time', 'adapt_off_prob'] }
         files=[file_a, file_b]
         super().__init__(files)
+
+    def plot_times(self, plot_title, plot_file):
+        self.plot_frontend(plot_title, plot_file, ['adapt_on_time','adapt_off_time', 'mh_time', 'gibbs_time'], ['stddev_adapt_on_time','stddev_adapt_off_time', 'stddev_mh_time', 'stddev_gibbs_time'], ['adapt_on', 'adapt_off', 'mh', 'gibbs'], 'running time (ms)')
+
+    def plot_probs(self, plot_title, plot_file):
+        self.plot_frontend(plot_title, plot_file, ['adapt_on_prob','adapt_off_prob', 'mh_prob', 'gibbs_prob'], ['stddev_adapt_on_prob','stddev_adapt_off_prob', 'stddev_mh_prob', 'stddev_gibbs_prob'], ['adapt_on', 'adapt_off', 'mh', 'gibbs'], 'probability [0,1]')
+
+    def compute_avg(self):
         avgs = self.compute_avg_and_stddev_data_sets(['mh_time',
             'gibbs_time', 'mh_prob', 'gibbs_prob', 'adapt_on_time',
             'adapt_off_time', 'adapt_on_prob', 'adapt_off_prob'],
@@ -275,15 +282,15 @@ class Test33FourWayComparison(Utils):
         avgs['run_number']=self.data['run_number']
         avgs['samples']=self.data['samples']
         self.overwrite_data_set_with_avg(avgs)
-        print (avgs)
-        self.plot_data_sets('samples',
-                        ['adapt_on_time','adapt_off_time', 'mh_time', 'gibbs_time'],
-                        ['stddev_adapt_on_time','stddev_adapt_off_time', 'stddev_mh_time', 'stddev_gibbs_time'],
-                        ['adapt_on', 'adapt_off', 'mh', 'gibbs'],
-                        'u',
-                        'samples',
-                        'running time (ms)',
-                        'testing.png')
+
+
+class Test33FourWayComparison(FourWayComparison):
+    def test33_four_way_comparison_avg(self):
+        self.compute_avg()
+        self.plot_times('test33 times avg',
+                              'plot_test33_times.png')
+        self.plot_probs('test33 probs avg',
+                              'plot_test33_probs.png')
 
 
 def main():
@@ -300,7 +307,8 @@ def main():
         file_name_b='test33_sample.csv'
     delimiter=','
     if file_name_a == 'test33_cond_prob.csv' and file_name_b=='test33_sample.csv':
-        Test33FourWayComparison(delimiter=',')
+        speeds = Test33FourWayComparison(filename_a, filename_b, delimiter)
+        speeds.test33_four_way_comparison_avg()
     if file_name_a == 'arithm_sample.csv':
         speeds = ArithmSampleMhVsGibbs(file_name_a,delimiter)
         speeds.arithm_sample_mh_vs_gibbs_avg()
