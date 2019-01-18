@@ -262,9 +262,10 @@ class Test66CondProbAdaptOnVsAdaptOff(Amcmc):
 
 
 class FourWayComparison(Utils):
-    def __init__(self, file_name_a, file_name_b, delimiter=','):
-        file_a={ 'name': file_name_b, 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'adapt_on_time', 'adapt_on_prob', 'adapt_off_time', 'adapt_off_prob'] }
-        file_b={ 'name': file_name_a, 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob'] }
+    def __init__(self, file_names, delimiter=','):
+        assert isinstance(file_names, dict)
+        file_a={ 'name': file_names['amcmc'], 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'adapt_on_time', 'adapt_on_prob', 'adapt_off_time', 'adapt_off_prob'] }
+        file_b={ 'name': file_names['no_amcmc'], 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob'] }
         files=[file_a, file_b]
         super().__init__(files)
 
@@ -288,10 +289,10 @@ class Test33FourWayComparison(FourWayComparison):
     def test33_four_way_comparison_avg(self):
         self.compute_avg()
         self.plot_times('test33 times avg',
-                              'plot_test33_times.png')
+                        'plot_test33_times.png')
         self.plot_probs('test33 probs avg',
-                              'plot_test33_probs.png')
-        print ('hi')
+                        'plot_test33_probs.png')
+
 
 def main():
     # This is necessary to save the plot to a file instead of displaying it directly.
@@ -307,7 +308,7 @@ def main():
         file_name_b='test33_sample.csv'
     delimiter=','
     if file_name_a == 'test33_cond_prob.csv' and file_name_b=='test33_sample.csv':
-        speeds = Test33FourWayComparison(file_name_a, file_name_b, delimiter)
+        speeds = Test33FourWayComparison({ 'amcmc': file_name_a , 'no_amcmc': file_name_b }, delimiter)
         speeds.test33_four_way_comparison_avg()
     if file_name_a == 'arithm_sample.csv':
         speeds = ArithmSampleMhVsGibbs(file_name_a,delimiter)
