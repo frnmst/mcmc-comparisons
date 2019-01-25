@@ -24,6 +24,12 @@ Run MCMC tests
 
 Mandatory arguments to long options are mandatory for short options too.
 Options:
+    -f, --four-way-comparison           compare SWI and XSB experiments. In
+                                        this case you need to specify the test
+                                        names separating them with a colon
+                                        character and specifing the SWI then
+                                        XSB the test name, like this:
+                                        'test_name_swi:test_name_xsb'
     -g, --graph                         run the plot script after the tests
     --graph-only                        run the plot script only
     -h, --help                          print this help
@@ -31,7 +37,7 @@ Options:
     --list-test-types                   list the available test types
     -m, --min=MIN                       starting number of samples
     --multi-switch                      enable multi switch instead of single
-                                        switch for AMCMC xsb tests
+                                        switch for AMCMC XSB tests
     -M, --max=MAX                       ending number of samples
     -p, --parallel                      execute tests on separate computing
                                         threads. If this option is enabled the
@@ -99,12 +105,13 @@ main()
     declare -a argc=("${!1}")
 
     # Set the options. flag_f has an optional argument.
-    local getopt_short_options='m:M:s:r:ght:y:p'
+    local getopt_short_options='fm:M:s:r:ght:y:p'
     local getopt_long_options='list-test-names,list-test-types,min:,max:,step:,runs:,help,\
 parallel::,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-only,\
-multi-switch,no-remove-csv-files,print-flags'
+multi-switch,no-remove-csv-files,four-way-comparison,print-flags'
 
     # Set the default values for the flags.
+    local four_way_comparison='false'
     local graph='false'
     local graph_only='false'
     local list_test_names='false'
@@ -139,7 +146,9 @@ multi-switch,no-remove-csv-files,print-flags'
     while [ "${1}" != '--' ]; do
         case "${1}" in
 
-            --list-test-names )         list_test_names='true' ;;
+            -f | --four-way-comparison )    four_way_comparison='true' ;;
+
+            --list-test-names )             list_test_names='true' ;;
 
             --list-test-types )         list_test_types='true' ;;
 
@@ -206,6 +215,7 @@ multi-switch,no-remove-csv-files,print-flags'
 
     [ "${print_flags}" = 'true' ] \
         && show_flags \
+            'four_way_comparison' \
             'graph' \
             'graph_only' \
             'label' \
@@ -234,42 +244,85 @@ multi-switch,no-remove-csv-files,print-flags'
         && return 1
     [ "${list_test_names}" = 'true' ] && list_available_test_names && return 0
     [ "${list_test_types}" = 'true' ] && list_available_test_types && return 0
+
+    # FIXME: Move the following.
     [ "${graph_only}" = 'true' ] && { plot_comparison "${test_name}"; return ${?}; }
 
     local resampling_style=''
     [ "${test_type}" = 'xsb' ] && [ "${multi_switch}" = 'true' ] && resampling_style='multiswitch' || resampling_style='singleswitch'
 
 
-    # Run a single test.
-    if [ "${label}" = '-1' ] && [ "${parallel}" = 'false' ]; then
-        if [ "${test_type}" = 'xsb' ]; then
-            run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'sequential'
+    # We need a loop to make the 4 way comparison.
+    local stop='false'
+    local i=0
+    local idx=0
+    # Test names for the plot script.
+    local test_name_a=''
+    local test_name_b=''
+    local test_name_orig=''
+    while [ "${stop}" = 'false' ]; do
+        if [ "${four_way_comparison}" = 'false' ]; then
+            # No overrides.
+            stop='true'
+            test_name_a="${test_name}"
         else
-            swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
+            # We need to override parallel because of a non implemented
+            # xsb experiment.
+            parallel='true'
+            if [ ${i} -eq 0 ]; then
+                # Run SWI test.
+                test_type='swi'
+                test_name_orig="${test_name}"
+                idx=$(expr index "${test_name}" ':')
+                test_name="${test_name:0:$((${idx}-1))}"
+                test_name_a="${test_name}"
+            elif [ ${i} -eq 1 ]; then
+                # Run XSB test.
+                test_type='xsb'
+                test_name="${test_name_orig}"
+                test_name="${test_name:${idx}}"
+                test_name_b="${test_name}"
+            else
+                stop='true'
+                continue
+            fi
         fi
-    # Run tests in parallel.
-    elif [ "${parallel}" = 'true' ]; then
-        if [ "${test_type}" = 'xsb' ]; then
-            # Export variables so that they are visible to GNU Parallel.
-            export -f run_xsb_tests
-            export XSB_AMCMC_DIRECTORY
-            export XSB_AMCMC_STARTUP_FILE
-            seq 1 ${runs} | parallel --lb run_xsb_tests "${test_name}" ${min} ${max} ${step} {} ${resampling_style} 'single'
-            # Move the csv file to a place where it can be feeded to the plot script.
-            mv ""${XSB_AMCMC_DIRECTORY}"/"${test_name}".csv" .
-        else
-            seq 1 ${runs} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
-        fi
-    # Run a single test with a label.
-    elif [ "${label}" != '-1' ]; then
-        if [ "${test_type}" = 'xsb' ]; then
-            run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'single'
-        else
-            swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${label} 1
-        fi
-    fi
 
-    [ "${graph}" = 'true' ] && plot_comparison "${test_name}"
+        # Run a single test.
+        if [ "${label}" = '-1' ] && [ "${parallel}" = 'false' ]; then
+            if [ "${test_type}" = 'xsb' ]; then
+                # This does not work yet.
+                # run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'sequential'
+                printf "%s\n" 'not implemented'
+            else
+                swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
+            fi
+        # Run tests in parallel.
+        elif [ "${parallel}" = 'true' ]; then
+            if [ "${test_type}" = 'xsb' ]; then
+                # Export variables so that they are visible to GNU Parallel.
+                export -f run_xsb_tests
+                export XSB_AMCMC_DIRECTORY
+                export XSB_AMCMC_STARTUP_FILE
+                seq 1 ${runs} | parallel --lb run_xsb_tests "${test_name}" ${min} ${max} ${step} {} ${resampling_style} 'single'
+                # Move the csv file to a place where it can be feeded to the plot script.
+                mv ""${XSB_AMCMC_DIRECTORY}"/"${test_name}".csv" .
+            else
+                seq 1 ${runs} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
+            fi
+        # Run a single test with a label.
+        elif [ "${label}" != '-1' ]; then
+            if [ "${test_type}" = 'xsb' ]; then
+                run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'single'
+            else
+                swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${label} 1
+            fi
+        fi
+
+        i=$((${i}+1))
+    done
+
+    [ "${graph}" = 'true' ] && plot_comparison "${test_name_a}" "${test_name_b}"
 }
 
 # Test dependencies and versions.

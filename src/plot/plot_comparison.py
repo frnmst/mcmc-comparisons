@@ -304,8 +304,7 @@ def main():
         file_name_b=sys.argv[2]
     else:
         # Plot a single test.
-#        file_name_b=''
-        file_name_b='test33_sample.csv'
+        file_name_b=''
     delimiter=','
     if file_name_a == 'test33_cond_prob.csv' and file_name_b=='test33_sample.csv':
         speeds = Test33FourWayComparison({ 'amcmc': file_name_a , 'no_amcmc': file_name_b }, delimiter)

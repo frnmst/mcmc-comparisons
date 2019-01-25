@@ -53,10 +53,13 @@ list_available_test_types()
 
 plot_comparison()
 {
-    local test_name="${1}"
+    local test_name_a="${1}"
+    local test_name_b="${2}"
 
     export MPLBACKEND=Agg
-    python3 "${PLOT_DIRECTORY}"/plot_comparison.py ""${test_name}".csv" \
+    python3 "${PLOT_DIRECTORY}"/plot_comparison.py \
+        ""${test_name_a}".csv" \
+        ""${test_name_b}".csv" \
         && printf "%s\n" "check the resulting plots"
 }
 
