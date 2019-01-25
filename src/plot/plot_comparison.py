@@ -306,10 +306,10 @@ def main():
         # Plot a single test.
         file_name_b=''
     delimiter=','
-    if file_name_a == 'test33_cond_prob.csv' and file_name_b=='test33_sample.csv':
+    if file_name_a == 'test33_sample.csv' and file_name_b=='test33_cond_prob.csv':
         speeds = Test33FourWayComparison({ 'amcmc': file_name_a , 'no_amcmc': file_name_b }, delimiter)
         speeds.test33_four_way_comparison_avg()
-    if file_name_a == 'arithm_sample.csv':
+    elif file_name_a == 'arithm_sample.csv':
         speeds = ArithmSampleMhVsGibbs(file_name_a,delimiter)
         speeds.arithm_sample_mh_vs_gibbs_avg()
     elif file_name_a == 'test33_sample.csv':

@@ -236,7 +236,7 @@ multi-switch,no-remove-csv-files,four-way-comparison,print-flags'
     # From now on you should call a function or an external program
     # using the values of the flag variables.
     check_binaries
-    [ "${graph_only}" = 'true' ] && no_remove_csv_files='true'
+    [ "${graph_only}" = 'true' ] && no_remove_csv_files='true' && graph='true'
     [ "${no_remove_csv_files}" = 'false' ] && remove_csv_files
     [ "${parallel}" = 'true' ] \
         && [ "${label}" != '-1' ] \
@@ -244,9 +244,6 @@ multi-switch,no-remove-csv-files,four-way-comparison,print-flags'
         && return 1
     [ "${list_test_names}" = 'true' ] && list_available_test_names && return 0
     [ "${list_test_types}" = 'true' ] && list_available_test_types && return 0
-
-    # FIXME: Move the following.
-    [ "${graph_only}" = 'true' ] && { plot_comparison "${test_name}"; return ${?}; }
 
     local resampling_style=''
     [ "${test_type}" = 'xsb' ] && [ "${multi_switch}" = 'true' ] && resampling_style='multiswitch' || resampling_style='singleswitch'
@@ -266,9 +263,11 @@ multi-switch,no-remove-csv-files,four-way-comparison,print-flags'
             stop='true'
             test_name_a="${test_name}"
         else
-            # We need to override parallel because of a non implemented
+
+            # We need to override parallel because of a non-implemented
             # xsb experiment.
             parallel='true'
+
             if [ ${i} -eq 0 ]; then
                 # Run SWI test.
                 test_type='swi'
@@ -287,6 +286,10 @@ multi-switch,no-remove-csv-files,four-way-comparison,print-flags'
                 continue
             fi
         fi
+
+        # If this flag is true, we need to extract the test names only
+        # and then exit this loop.
+        [ "${graph_only}" = 'true' ] && i=$((${i}+1)) && continue
 
         # Run a single test.
         if [ "${label}" = '-1' ] && [ "${parallel}" = 'false' ]; then
