@@ -97,7 +97,7 @@ class Utils():
         # See: https://stackoverflow.com/questions/17106288/matplotlib-pyplot-will-not-forget-previous-plots-how-can-i-flush-refresh
         plt.gcf().clear()
 
-    # Rows name and cols name is the same for all cases.
+    # Rows name and cols name must be the same for all cases.
     def compute_avg_and_stddev_data_sets(self, dim_id, rows_name, cols_name):
         assert isinstance(dim_id, list)
         for e in dim_id:
@@ -113,13 +113,26 @@ class Utils():
             dim[k]=list()
             dim['stddev_' + k]=list()
 
-        # Transform the original data into a matrix with:
+        # Transform the original data into a matrix of size rows x cols, where:
         #   rows = current run
         #   columns = current sample set
+        # matrix_dim is a set of matrices.
         matrix_dim=dict()
         for k in dim_id:
             matrix_dim[k]=np.matrix(self.data[k])
             matrix_dim[k]=matrix_dim[k].reshape(rows, cols)
+
+        #   matrix_dim[i]:
+        #
+        #    Samples    1000    2000    3000    ...
+        # Run           ---------------------------
+        #           1  | times or probs
+        #           2  |
+        #           3  |
+        #           .. |
+        #               sum_0   sum_1   sum_i
+        #
+        #        avg_i = sum_i / #(runs)
 
         # Compute average and standard deviation
         # of the running times for each sample.
@@ -130,11 +143,13 @@ class Utils():
                 sum[k] = 0
                 stddev_buf[k] = list()
             for r in range(0,rows):
+                # To compute the average, we need to sum elements of the same
+                # column so we need to iterate by row.
                 for k in dim_id:
                     sum[k] += matrix_dim[k].item(r,c)
                     stddev_buf[k].append(matrix_dim[k].item(r,c))
-
             for k in dim_id:
+                # Compute avgs by column.
                 dim[k].append(sum[k]/rows)
                 dim['stddev_' + k].append(np.std(stddev_buf[k]))
 
@@ -264,6 +279,9 @@ class Test66CondProbAdaptOnVsAdaptOff(Amcmc):
 class FourWayComparison(Utils):
     def __init__(self, file_names, delimiter=','):
         assert isinstance(file_names, dict)
+        assert 'amcmc' in file_names
+        assert 'no_amcmc' in file_names
+
         file_a={ 'name': file_names['amcmc'], 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'adapt_on_time', 'adapt_on_prob', 'adapt_off_time', 'adapt_off_prob'] }
         file_b={ 'name': file_names['no_amcmc'], 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob'] }
         files=[file_a, file_b]
@@ -307,7 +325,7 @@ def main():
         file_name_b=''
     delimiter=','
     if file_name_a == 'test33_sample.csv' and file_name_b=='test33_cond_prob.csv':
-        speeds = Test33FourWayComparison({ 'amcmc': file_name_a , 'no_amcmc': file_name_b }, delimiter)
+        speeds = Test33FourWayComparison({ 'no_amcmc': file_name_a , 'amcmc': file_name_b }, delimiter)
         speeds.test33_four_way_comparison_avg()
     elif file_name_a == 'arithm_sample.csv':
         speeds = ArithmSampleMhVsGibbs(file_name_a,delimiter)
