@@ -16,7 +16,6 @@ comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/
             - [Sequential version](#sequential-version)
         - [Run on a SLURM queue](#run-on-a-slurm-queue)
     - [CSV file format](#csv-file-format)
-        - [Rules](#rules)
     - [Plot](#plot)
     - [Notes on running the tests in parallel](#notes-on-running-the-tests-in-parallel)
         - [Output files](#output-files)
@@ -82,7 +81,62 @@ ones are faster.
 #### Help
 
 ```shell
-FIXME
+Usage: run.sh [OPTIONS]
+Run MCMC tests
+
+Mandatory arguments to long options are mandatory for short options too.
+Options:
+    -f, --four-way-comparison           compare SWI and XSB experiments. In
+                                        this case you need to specify the test
+                                        names separating them with a colon
+                                        character and specifing the SWI then
+                                        XSB the test name, like this:
+                                        'test_name_swi:test_name_xsb'
+    -g, --graph                         run the plot script after the tests
+    --graph-only                        run the plot script only
+    -h, --help                          print this help
+    --list-test-names                   list the available test
+    --list-test-types                   list the available test types
+    -m, --min=MIN                       starting number of samples
+    --multi-switch                      enable multi switch instead of single
+                                        switch for AMCMC XSB tests
+    -M, --max=MAX                       ending number of samples
+    -p, --parallel                      execute tests on separate computing
+                                        threads. If this option is enabled the
+                                        number of threads is determined by the
+                                        '--threads' option. If this option is
+                                        disabled, the runs are executed
+                                        consecutively.
+    --single-run-with-label=LABEL       run a single test with the specified
+                                        run label. This option excludes
+                                        both the '--parallel' option and the
+                                        '--runs' option
+    --print-flags                       print the enabled options. This can also
+                                        be used to print the default options
+    -r, --runs=RUNS, --threads=RUNS     the number of runs or computing threads.
+                                        See the '--parallel' option for more
+                                        information
+    --no-remove-csv-files               avoid removing all csv files before
+                                        running a test. This option defaults
+                                        to false in all cases except when run
+                                        with the '--graph-only' option. In that
+                                        case the value of this option is
+                                        fixed to true and cannot be changed.
+                                        Set this option if you want to keep old
+                                        results and appending new ones to the
+                                        same file. Normally, you should not set
+                                        this option
+    -s, --steps=STEPS                   the number of samples between
+                                        consecutive iterations
+    -t, --test-name=NAME                the name of the test
+    -y, --test-type=NAME                the type of the test
+
+Exit status:
+ 0  if OK,
+ 1  if an error occurred.
+
+This software is released under the BSD 2-Clause license
+Copyright (c) 2018-2019, Franco Masotti
 ```
 
 #### Sequential version
@@ -100,7 +154,7 @@ for j = 0, j < $runs, j++:
 
 ### Run on a SLURM queue
 
-The purpose of using SLURM is to run the tests in parallel.
+The purpose of using SLURM is to run the experiments is a multi node setup:
 
 - Go to the slurm directory and run the shell file
 
@@ -115,31 +169,33 @@ The purpose of using SLURM is to run the tests in parallel.
 The results of each test will be logged to a corresponding CSV file with the 
 following line format, depending on the type of test:
 
-    run_number,current_samples,mh_time,mh_probability,gibbs_time,gibbs_probability
+    run_number,current_samples,mh_time,mh_probability,gibbs_time,gibbs_probability\n
 
 or
 
-    run_number,current_samples,adapt_on_time,adapt_on_probability,adapt_off_time,adapt_off_probability
+    run_number,current_samples,adapt_on_time,adapt_on_probability,adapt_off_time,adapt_off_probability\n
 
-### Rules
 
-- Each line ends with a line feed character (ASCII code 10).
-- All running times are computed in milliseconds.
+where `\n` is the newline character (ASCII code 10).
+
+`mh_time`,`gibbs_time`,`adapt_on_time`,`adapt_off_time` are computed in 
+milliseconds.
 
 ## Plot
 
 The tools necessary to plot the results are Python 3 and Matplotlib.
 
-The plot called `plot_comparison.py` can be found under the `./src/plot` 
+The plot script called `plot_comparison.py` can be found under the `./src/plot` 
 directory:
+
 1. it reads one or more CSV files written according to the CSV file 
    format rules in this readme. 
 2. it plots the average running times of multiple runs for each 
    sample. The standard deviation of the running times for each sample is 
    plotted as error bars.
 
-The same type of plot is done for the computed probabilities to determine the 
-accuracy of the calculations.
+The same type of plot is done for the probabilities and has the purpose of 
+determining the accuracy of the calculations.
 
 ## Notes on running the tests in parallel
 
@@ -159,8 +215,8 @@ for output in $OUTPUTS; do
 done
 ```
 
-The `plot_comparison.py` script sorts the data internally, so if you use the 
-provided plot script there is not need to sort the file by hand.
+`plot_comparison.py` however sorts the data internally so if you use that 
+script there is not need to fix the file by hand.
 
 ### An alternative to GNU Parallel
 
