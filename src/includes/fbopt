@@ -267,6 +267,7 @@ multi-switch,no-remove-csv-files,four-way-comparison,print-flags'
             # We need to override parallel because of a non-implemented
             # xsb experiment.
             parallel='true'
+            no_remove_csv_files='true'
 
             if [ ${i} -eq 0 ]; then
                 # Run SWI test.
