@@ -34,51 +34,36 @@ comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/
 Compare different kinds of MCMC and AMCMC sampling algorithms to find out which
 ones are faster.
 
-## Installation
+## Repository cloning
 
-- Install the latest version of [SWI prolog](http://www.swi-prolog.org/).
-- Install the [Cplint library](https://github.com/friguzzi/cplint) and all the 
-  suggested dependencies.
+Since this repository contains submodules you need to clone it using the 
+appropriate flag:
+
+    $ git clone --recurse-submodules https://github.com/frnmst/mcmc-comparisons.git
+
+## Dependencies
+
+You need to install the following packages and the ones listed for
+[fbopt](https://github.com/frnmst/fbopt#dependencies):
+
+| Package | Executable | Version command | Package version |
+| [SWI prolog](http://www.swi-prolog.org/) | `/bin/swipl` | `$ swipl --version` | `SWI-Prolog version 7.7.19 for x86_64-linux` |
+| [XSB Prolog](https://www.xsb.com/what-we-do/emerging-technologies/xsb-prolog.html) | <Depends on installation> | `$ xsb --version` | `XSB Version 3.8.0 (Three-Buck Chuck) of October 28, 2017` |
+| [Python 3](http://www.python.org/) | `/bin/python3` | `$ python3 --version` | `Python 3.7.1` | 
+| [Matplotlib](https://matplotlib.org/) | <Python 3 library> | - | `3.0.2` |
+| [NumPy](http://www.numpy.org/) | <Python 3 library> | - | ` 1.15.4` |
+| [GNU Parallel](http://www.gnu.org/software/parallel/) | `/bin/parallel` | `$ parallel --version` | `parallel 20181222` |
+
+You also need to install the 
+[Cplint library](https://github.com/friguzzi/cplint) and all the suggested 
+dependencies:
 
       $ swipl
-
-      Welcome to SWI-Prolog (threaded, 64 bits, version 7.7.19)
-      SWI-Prolog comes with ABSOLUTELY NO WARRANTY. This is free software.
-      Please run ?- license. for legal details.
-
-      For online help and background, visit http://www.swi-prolog.org
-      For built-in help, use ?- help(Topic). or ?- apropos(Word).
-
       ?- pack_install(cplint).
-
-- Install the latest version of 
-  [XSB Prolog](https://www.xsb.com/what-we-do/emerging-technologies/xsb-prolog.html)
-
-- Install [Python 3](http://www.python.org/), 
-  [Matplotlib](https://matplotlib.org/),
-  [NumPy](http://www.numpy.org/),
-  [GNU Parallel](http://www.gnu.org/software/parallel/)
-  [GNU Bash](http://www.gnu.org/software/bash/bash.html)
-  [util-linux](https://www.kernel.org/pub/linux/utils/util-linux/)
-
-- Clone the repository with the swish git submodule:
-
-      $ git clone --recurse-submodules https://github.com/frnmst/mcmc-comparisons.git
 
 ## Running
 
-### Run locally
-
-- Go to the local directory
-
-      $ cd src/local
-
-- Execute the `run.sh` script, for example like this:
-
-      $ ./run.sh -p -g
-
-
-#### Help
+### Help
 
 ```shell
 Usage: run.sh [OPTIONS]
@@ -139,18 +124,15 @@ This software is released under the BSD 2-Clause license
 Copyright (c) 2018-2019, Franco Masotti
 ```
 
-#### Sequential version
+### Run locally
 
-What follows id a pseudocode scheme for the sequential version
+- Go to the local directory
 
-```
-for j = 0, j < $runs, j++:
-    for i = $min, i < $max, i += $step:
-        samples = i
-        time_mh = measure_mh(samples)
-        time_gibbs = measure_gibbs(samples)
-        print(samples, time_mh, time_gibbs)
-```
+      $ cd ./src/local
+
+- Execute the `run.sh` script, for example like this:
+
+      $ ./run.sh -p -g
 
 ### Run on a SLURM queue
 
@@ -158,11 +140,11 @@ The purpose of using SLURM is to run the experiments is a multi node setup:
 
 - Go to the slurm directory and run the shell file
 
-      $ cd src/slurm && sbatch run_slurm.sh
+      $ cd ./src/slurm && sbatch run_slurm.sh
 
 - You may also run the test interactively
 
-      $  cd src/slurm && ./run_slurm.sh
+      $  cd ./src/slurm && ./run_slurm.sh
 
 ## CSV file format
 
@@ -197,7 +179,20 @@ directory:
 The same type of plot is done for the probabilities and has the purpose of 
 determining the accuracy of the calculations.
 
-## Notes on running the tests in parallel
+## Notes on running the tests
+
+### Sequential version
+
+What follows id a pseudocode scheme for the sequential version
+
+```
+for j = 0, j < $runs, j++:
+    for i = $min, i < $max, i += $step:
+        samples = i
+        time_mh = measure_mh(samples)
+        time_gibbs = measure_gibbs(samples)
+        print(samples, time_mh, time_gibbs)
+```
 
 ### Output files
 
@@ -220,7 +215,7 @@ script there is not need to fix the file by hand.
 
 ### An alternative to GNU Parallel
 
-Use background processes.
+Use background processes:
 
 ```shell
 declare -a job_id
