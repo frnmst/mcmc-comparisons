@@ -9,15 +9,16 @@ comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/
 - [mcmc-comparisons](#mcmc-comparisons)
     - [Table of contents](#table-of-contents)
     - [Purpose](#purpose)
-    - [Installation](#installation)
+    - [Repository cloning](#repository-cloning)
+    - [Dependencies](#dependencies)
     - [Running](#running)
+        - [Help](#help)
         - [Run locally](#run-locally)
-            - [Help](#help)
-            - [Sequential version](#sequential-version)
         - [Run on a SLURM queue](#run-on-a-slurm-queue)
     - [CSV file format](#csv-file-format)
     - [Plot](#plot)
-    - [Notes on running the tests in parallel](#notes-on-running-the-tests-in-parallel)
+    - [Notes on running the tests](#notes-on-running-the-tests)
+        - [Sequential version](#sequential-version)
         - [Output files](#output-files)
         - [An alternative to GNU Parallel](#an-alternative-to-gnu-parallel)
     - [References](#references)
@@ -47,6 +48,7 @@ You need to install the following packages and the ones listed for
 [fbopt](https://github.com/frnmst/fbopt#dependencies):
 
 | Package | Executable | Version command | Package version |
+|---------|------------|-----------------|-----------------|
 | [SWI prolog](http://www.swi-prolog.org/) | `/bin/swipl` | `$ swipl --version` | `SWI-Prolog version 7.7.19 for x86_64-linux` |
 | [XSB Prolog](https://www.xsb.com/what-we-do/emerging-technologies/xsb-prolog.html) | <Depends on installation> | `$ xsb --version` | `XSB Version 3.8.0 (Three-Buck Chuck) of October 28, 2017` |
 | [Python 3](http://www.python.org/) | `/bin/python3` | `$ python3 --version` | `Python 3.7.1` | 
