@@ -50,10 +50,10 @@ You need to install the following packages and the ones listed for
 | Package | Executable | Version command | Package version |
 |---------|------------|-----------------|-----------------|
 | [SWI prolog](http://www.swi-prolog.org/) | `/bin/swipl` | `$ swipl --version` | `SWI-Prolog version 7.7.19 for x86_64-linux` |
-| [XSB Prolog](https://www.xsb.com/what-we-do/emerging-technologies/xsb-prolog.html) | <Depends on installation> | `$ xsb --version` | `XSB Version 3.8.0 (Three-Buck Chuck) of October 28, 2017` |
+| [XSB Prolog](https://www.xsb.com/what-we-do/emerging-technologies/xsb-prolog.html) | \<Depends on installation> | `$ xsb --version` | `XSB Version 3.8.0 (Three-Buck Chuck) of October 28, 2017` |
 | [Python 3](http://www.python.org/) | `/bin/python3` | `$ python3 --version` | `Python 3.7.1` | 
 | [Matplotlib](https://matplotlib.org/) | <Python 3 library> | - | `3.0.2` |
-| [NumPy](http://www.numpy.org/) | <Python 3 library> | - | ` 1.15.4` |
+| [NumPy](http://www.numpy.org/) | <Python 3 library> | - | `1.15.4` |
 | [GNU Parallel](http://www.gnu.org/software/parallel/) | `/bin/parallel` | `$ parallel --version` | `parallel 20181222` |
 
 You also need to install the 
