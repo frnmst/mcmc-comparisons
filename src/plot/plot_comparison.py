@@ -247,7 +247,7 @@ class Amcmc(Utils):
         self.plot_frontend(plot_title, plot_file, ['adapt_on_time','adapt_off_time'], ['stddev_adapt_on_time','stddev_adapt_off_time'], ['adapt_on', 'adapt_off'], 'running time (ms)')
 
     def plot_adapt_on_vs_adapt_off_probs(self, plot_title, plot_file):
-        self.plot_frontend(plot_title, plot_file, ['adapt_on_prob','adapt_off_prob'], ['adapt_on_prob_stddev','adapt_off_prob_stddev'], ['adapt_on', 'adapt_off'], 'probability [0,1]')
+        self.plot_frontend(plot_title, plot_file, ['adapt_on_prob','adapt_off_prob'], ['stddev_adapt_on_prob','stddev_adapt_off_prob'], ['adapt_on', 'adapt_off'], 'probability [0,1]')
 
     def adapt_on_vs_adapt_off_avg(self):
         avgs = self.compute_avg_and_stddev_data_sets(['adapt_on_time',
@@ -324,7 +324,7 @@ def main():
         # Plot a single test.
         file_name_b=''
     delimiter=','
-    if file_name_a == 'test33_sample.csv' and file_name_b=='test33_cond_prob.csv':
+    if file_name_a == 'test33_sample.csv' and file_name_b == 'test33_cond_prob.csv':
         speeds = Test33FourWayComparison({ 'no_amcmc': file_name_a , 'amcmc': file_name_b }, delimiter)
         speeds.test33_four_way_comparison_avg()
     elif file_name_a == 'arithm_sample.csv':
@@ -338,10 +338,10 @@ def main():
         speeds.test66_sample_mh_vs_gibbs_avg()
     elif file_name_a == 'test33_cond_prob.csv':
         speeds = Test33CondProbAdaptOnVsAdaptOff(file_name_a,delimiter)
-        speeds.adapt_on_vs_adapt_off_avg()
+        speeds.test33_cond_prob_adapt_on_vs_adapt_off_avg()
     elif file_name_a == 'test66_cond_prob.csv':
         speeds = Test66CondProbAdaptOnVsAdaptOff(file_name_a,delimiter)
-        speeds.adapt_on_vs_adapt_off_avg()
+        speeds.test66_cond_prob_adapt_on_vs_adapt_off_avg()
 
 if __name__ == '__main__':
     main()
