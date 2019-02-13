@@ -46,6 +46,7 @@ remove them after the installation if not needed.
 | Package | Executable | Version command | Package version |
 |---------|------------|-----------------|-----------------|
 | [git](https://git-scm.com/) | `/bin/git` | `$ git --version` | `git version 2.20.1` |
+| [GCC, the GNU Compiler Collection](http://gcc.gnu.org) | `/bin/gcc` | `$ gcc --vserion` | `gcc (GCC) 8.2.1 20181127` |
 | [GNU Make](http://www.gnu.org/software/make) | `/bin/make` | `$ make --version` | `GNU Make 4.2.1` |
 | [GNU Tar](https://www.gnu.org/software/tar/) | `/bin/tar` | `$ tar --version` | `tar (GNU tar) 1.30` |
 | [curl](https://curl.haxx.se) | `/bin/curl` | `$ curl --version` | `curl 7.63.0 (x86_64-pc-linux-gnu) libcurl/7.63.0 OpenSSL/1.1.1a zlib/1.2.11 libidn2/2.0.5 libpsl/0.20.2 (+libidn2/2.0.4) libssh2/1.8.0 nghttp2/1.35.1` |
@@ -63,25 +64,25 @@ You need to install the following packages and the ones listed for
 | [Matplotlib](https://matplotlib.org/) | <Python 3 library> | - | `3.0.2` |
 | [NumPy](http://www.numpy.org/) | <Python 3 library> | - | `1.15.4` |
 | [GNU Parallel](http://www.gnu.org/software/parallel/) | `/bin/parallel` | `$ parallel --version` | `parallel 20181222` |
-| [cplint library](https://github.com/friguzzi/cplint) | - | - | `v4.5.0` |
+| [cplint](https://github.com/friguzzi/cplint) | <SWI Prolog library> | - | `v4.5.0` |
 
 ## Installation
 
 ### Arch Linux based distros
 
-    TODO
-
-    # pacman -S git make tar curl    
+    # pacman -S git gcc make tar curl
     # pacman -S swi-prolog python3 python-matplotlib python-numpy parallel
     $ swipl
     ?- pack_install(cplint).
     $ mkdir --parents ~/build
     $ cd ~/build
     $ curl --output XSB.tar.gz http://xsb.sourceforge.net/downloads/XSB.tar.gz 
-    $ tar -xvzf  XSB.tar.gz XSB
-    $ cd XSB
-    $ configure
-    $ make
+    $ tar -xvzf XSB.tar.gz
+    $ cd XSB/build
+    $ ./configure
+    $ ./makexsb
+    $ cd ~
+    $ echo "alias xsb=\"~/build/XSB/bin/xsb\"" >> ~/.bashrc
 
 ## Repository cloning
 
