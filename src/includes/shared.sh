@@ -71,7 +71,8 @@ run_xsb_tests()
     local step=${4}
     local run_label=${5}
     local resampling_style="${6}"
-    local single_or_parallel="${7}"
+    local resampling_style="${7}"
+    local single_or_parallel="${8}"
     local startup_file_path=""${XSB_AMCMC_STARTUP_FILE}"_${run_label}.P"
 
     pushd "${XSB_AMCMC_DIRECTORY}"
@@ -82,7 +83,7 @@ run_xsb_tests()
 :- go.
 go :-
     consult('tests.P'),
-    tests_${single_or_parallel}_${test_name}(${min},${max},${step},${run_label},'${resampling_style}').
+    tests_${single_or_parallel}_${test_name}(${min},${max},${step},${run_label},'${resampling_style}',${resampling_probability}).
 
 EOF
 
