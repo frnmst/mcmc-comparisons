@@ -113,15 +113,17 @@ Options:
     --list-test-names                   list the available test
     --list-test-types                   list the available test types
     -m, --min=MIN                       starting number of samples
-    --multi-switch                      enable multi switch instead of single
-                                        switch for AMCMC XSB tests
+    --multi-switch=RESAMPLINGPROB       enable multi switch instead of single
+                                        switch for AMCMC XSB tests with the
+                                        specified resampling probability. This
+                                        number goes from 0.0 to 1.0
     -M, --max=MAX                       ending number of samples
     -p, --parallel                      execute tests on separate computing
                                         threads. If this option is enabled the
                                         number of threads is determined by the
                                         '--threads' option. If this option is
                                         disabled, the runs are executed
-                                        consecutively.
+                                        consecutively
     --single-run-with-label=LABEL       run a single test with the specified
                                         run label. This option excludes
                                         both the '--parallel' option and the
