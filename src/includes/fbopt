@@ -298,11 +298,11 @@ multi-switch:,no-remove-csv-files,four-way-comparison,print-flags'
         # Run a single test.
         if [ "${label}" = '-1' ] && [ "${parallel}" = 'false' ]; then
             if [ "${test_type}" = 'xsb' ]; then
-                # This does not work yet.
+                # This does not work.
                 # run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'sequential'
                 printf "%s\n" 'not implemented'
             else
-                swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
+                nice -n 0 swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
             fi
         # Run tests in parallel.
         elif [ "${parallel}" = 'true' ]; then
@@ -311,18 +311,18 @@ multi-switch:,no-remove-csv-files,four-way-comparison,print-flags'
                 export -f run_xsb_tests
                 export XSB_AMCMC_DIRECTORY
                 export XSB_AMCMC_STARTUP_FILE
-                seq 1 ${runs} | parallel --lb run_xsb_tests "${test_name}" ${min} ${max} ${step} {} ${resampling_style} ${resampling_probability} 'single'
+                seq 1 ${runs} | nice -n 0 parallel --lb run_xsb_tests "${test_name}" ${min} ${max} ${step} {} ${resampling_style} ${resampling_probability} 'single'
                 # Move the csv file to a place where it can be feeded to the plot script.
                 mv ""${XSB_AMCMC_DIRECTORY}"/"${test_name}".csv" .
             else
-                seq 1 ${runs} | parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
+                seq 1 ${runs} | nice -n 0 parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
             fi
         # Run a single test with a label.
         elif [ "${label}" != '-1' ]; then
             if [ "${test_type}" = 'xsb' ]; then
-                run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'single'
+                nice -n 0 run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'single'
             else
-                swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${label} 1
+                nice -n 0 swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${label} 1
             fi
         fi
 
