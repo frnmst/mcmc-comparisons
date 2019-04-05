@@ -249,7 +249,13 @@ multi-switch:,no-remove-csv-files,four-way-comparison,print-flags'
     [ "${list_test_types}" = 'true' ] && list_available_test_types && return 0
 
     local resampling_style=''
-    [ "${test_type}" = 'xsb' ] && [ "${multi_switch}" != 'false' ] && resampling_style='multiswitch' || resampling_style='singleswitch'
+    if [ "${test_type}" = 'xsb' ] && [ "${multi_switch}" != 'false' ]; then
+        resampling_style='multiswitch'
+        resampling_probability="${multi_switch}"
+    else
+        resampling_style='singleswitch'
+        resampling_probability='0.0'
+    fi
 
 
     # We need a loop to make the 4 way comparison.

@@ -71,7 +71,7 @@ run_xsb_tests()
     local step=${4}
     local run_label=${5}
     local resampling_style="${6}"
-    local resampling_style="${7}"
+    local resampling_probability="${7}"
     local single_or_parallel="${8}"
     local startup_file_path=""${XSB_AMCMC_STARTUP_FILE}"_${run_label}.P"
 

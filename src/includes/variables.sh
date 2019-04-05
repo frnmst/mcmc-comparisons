@@ -29,7 +29,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-BINARIES='swipl xsb parallel python3'
+BINARIES='swipl xsb parallel python3 nice'
 TESTS_DIRECTORY='../prolog'
 PLOT_DIRECTORY='../plot'
 LIST_OF_TEST_NAMES='arithm_sample test33_sample test66_sample test33_cond_prob'
