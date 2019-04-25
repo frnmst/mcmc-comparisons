@@ -266,7 +266,6 @@ class Test33CondProbAdaptOnVsAdaptOff(Amcmc):
         self.plot_adapt_on_vs_adapt_off_probs('test33_cond_prob adapt_on vs adapt_off probs avg',
                               'plot_test33_cond_prob_adapt_on_vs_adapt_off_probs.png')
 
-
 class Test66CondProbAdaptOnVsAdaptOff(Amcmc):
     def test66_cond_prob_adapt_on_vs_adapt_off_avg(self):
         self.adapt_on_vs_adapt_off_avg()
@@ -274,6 +273,14 @@ class Test66CondProbAdaptOnVsAdaptOff(Amcmc):
                               'plot_test66_cond_prob_adapt_on_vs_adapt_off_times.png')
         self.plot_adapt_on_vs_adapt_off_probs('test66_cond_prob adapt_on vs adapt_off probs avg',
                               'plot_test66_cond_prob_adapt_on_vs_adapt_off_probs.png')
+
+class ArithmCondProbAdaptOnVsAdaptOff(Amcmc):
+    def arithm_cond_prob_adapt_on_vs_adapt_off_avg(self):
+        self.adapt_on_vs_adapt_off_avg()
+        self.plot_adapt_on_vs_adapt_off_times('arithm_cond_prob adapt_on vs adapt_off times avg',
+                              'plot_arithm_cond_prob_adapt_on_vs_adapt_off_times.png')
+        self.plot_adapt_on_vs_adapt_off_probs('arithm_cond_prob adapt_on vs adapt_off probs avg',
+                              'plot_arithm_cond_prob_adapt_on_vs_adapt_off_probs.png')
 
 
 class FourWayComparison(Utils):
@@ -342,6 +349,9 @@ def main():
     elif file_name_a == 'test66_cond_prob.csv':
         speeds = Test66CondProbAdaptOnVsAdaptOff(file_name_a,delimiter)
         speeds.test66_cond_prob_adapt_on_vs_adapt_off_avg()
+    elif file_name_a == 'arithm_cond_prob.csv':
+        speeds = ArithmCondProbAdaptOnVsAdaptOff(file_name_a,delimiter)
+        speeds.arithm_cond_prob_adapt_on_vs_adapt_off_avg()
 
 if __name__ == '__main__':
     main()
