@@ -199,7 +199,7 @@ where, for example, `experiment_name=arithm_sample`.
 
       $  cd ./src/slurm && ./run_slurm.sh
 
-The plot needs to be rendered manually like this:
+The plot needs to be rendered manually like this
 
     $ cp "${experiment_name}".csv ../local/.
     $ cd ../local
