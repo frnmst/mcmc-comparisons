@@ -199,6 +199,12 @@ where, for example, `experiment_name=arithm_sample`.
 
       $  cd ./src/slurm && ./run_slurm.sh
 
+The plot needs to be rendered manually like this:
+
+    $ cp "${experiment_name}".csv ../local/.
+    $ cd ../local
+    $ ./run.sh --graph-only -t "${experiment_name}"
+
 #### Configuration file
 
 A configuration file for SLURM is available at `./src/slurm/slurm.conf`. This 
