@@ -283,7 +283,12 @@ is the configuration file I use for my setup.
 
 #### Running
 
-You can run the SLURM daemons by executing `./src/slurm/run_daemons.sh` as root.
+To run the SLURM daemons, do:
+
+    $ cd ./src/slurm
+    # systemctl start slurmd
+    # systemctl start slurmctld
+    # ./run_daemons.sh
 
 ## License
 
