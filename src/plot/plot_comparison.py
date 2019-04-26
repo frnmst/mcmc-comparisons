@@ -310,6 +310,14 @@ class FourWayComparison(Utils):
         self.overwrite_data_set_with_avg(avgs)
 
 
+class ArithmFourWayComparison(FourWayComparison):
+    def arithm_four_way_comparison_avg(self):
+        self.compute_avg()
+        self.plot_times('arithm times avg',
+                        'plot_arithm_times.png')
+        self.plot_probs('arithm probs avg',
+                        'plot_arithm_probs.png')
+
 class Test33FourWayComparison(FourWayComparison):
     def test33_four_way_comparison_avg(self):
         self.compute_avg()
@@ -331,7 +339,10 @@ def main():
         # Plot a single test.
         file_name_b=''
     delimiter=','
-    if file_name_a == 'test33_sample.csv' and file_name_b == 'test33_cond_prob.csv':
+    if file_name_a == 'arithm_sample.csv' and file_name_b == 'arithm_cond_prob.csv':
+        speeds = ArithmFourWayComparison({ 'no_amcmc': file_name_a , 'amcmc': file_name_b }, delimiter)
+        speeds.arithm_four_way_comparison_avg()
+    elif file_name_a == 'test33_sample.csv' and file_name_b == 'test33_cond_prob.csv':
         speeds = Test33FourWayComparison({ 'no_amcmc': file_name_a , 'amcmc': file_name_b }, delimiter)
         speeds.test33_four_way_comparison_avg()
     elif file_name_a == 'arithm_sample.csv':
