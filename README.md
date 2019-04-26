@@ -283,12 +283,19 @@ is the configuration file I use for my setup.
 
 #### Running
 
-To run the SLURM daemons, do:
+To run the SLURM daemons, do
 
     $ cd ./src/slurm
     # systemctl start slurmd
     # systemctl start slurmctld
     # ./run_daemons.sh
+
+Then, to run the experiment
+
+    $ ln -s frontend_"${experiment_name}".sh frontend.sh
+    $ ./run_slurm.sh
+
+where, for example, `experiment_name=arithm_sample`.
 
 ## License
 
