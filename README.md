@@ -210,6 +210,10 @@ The plot needs to be rendered manually like this
 A configuration file for SLURM is available at `./src/slurm/slurm.conf`. This 
 is the configuration file I use for my setup.
 
+*Note: enforcement of memory limits is disabled in the provided 
+configuration file. See also the `--mem` option at 
+https://slurm.schedmd.com/sbatch.html*
+
 ## CSV file format
 
 The results of each test will be logged to a corresponding CSV file with the 
