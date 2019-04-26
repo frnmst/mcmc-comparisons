@@ -7,28 +7,30 @@ comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/
 [](TOC)
 
 - [mcmc-comparisons](#mcmc-comparisons)
-    - [Table of contents](#table-of-contents)
-    - [Purpose](#purpose)
-    - [Dependencies for the installation phase](#dependencies-for-the-installation-phase)
-    - [Dependencies](#dependencies)
-    - [Installation](#installation)
-        - [Arch Linux based distros](#arch-linux-based-distros)
-    - [Repository cloning](#repository-cloning)
-    - [Running](#running)
-        - [Help](#help)
-        - [Run locally](#run-locally)
-        - [Run on a SLURM queue](#run-on-a-slurm-queue)
+  - [Table of contents](#table-of-contents)
+  - [Purpose](#purpose)
+  - [Dependencies for the installation phase](#dependencies-for-the-installation-phase)
+  - [Dependencies](#dependencies)
+  - [Installation](#installation)
+    - [Arch Linux based distros](#arch-linux-based-distros)
+  - [Repository cloning](#repository-cloning)
+  - [Running](#running)
+    - [Help](#help)
+    - [Run locally](#run-locally)
+    - [Run on a SLURM queue](#run-on-a-slurm-queue)
+      - [Daemons](#daemons)
+      - [Setup](#setup)
+      - [Running the experiment](#running-the-experiment)
+      - [Configuration file](#configuration-file)
     - [CSV file format](#csv-file-format)
     - [Plot](#plot)
     - [Notes on running the tests](#notes-on-running-the-tests)
-        - [Sequential version](#sequential-version)
-        - [Output files](#output-files)
-        - [An alternative to GNU Parallel](#an-alternative-to-gnu-parallel)
+      - [Sequential version](#sequential-version)
+      - [Output files](#output-files)
+      - [An alternative to GNU Parallel](#an-alternative-to-gnu-parallel)
     - [References](#references)
-        - [Algorithms](#algorithms)
-        - [SLURM](#slurm)
-            - [Configuration file](#configuration-file)
-            - [Running](#running-1)
+      - [Algorithms](#algorithms)
+      - [SLURM](#slurm)
     - [License](#license)
 
 [](TOC)
@@ -168,15 +170,39 @@ Copyright (c) 2018-2019, Franco Masotti
 
 ### Run on a SLURM queue
 
-The purpose of using SLURM is to run the experiments is a multi node setup:
+The purpose of using SLURM is to run the experiments is a multi node setup
+
+#### Daemons
+
+Before continuing you must start the daemons
+
+    $ cd ./src/slurm
+    # systemctl start slurmd
+    # systemctl start slurmctld
+    # ./run_daemons.sh
+
+#### Setup
+
+To set up the experiment
+
+    $ ln -s frontend_"${experiment_name}".sh frontend.sh
+
+where, for example, `experiment_name=arithm_sample`.
+
+#### Running the experiment
 
 - Go to the slurm directory and run the shell file
 
       $ cd ./src/slurm && sbatch run_slurm.sh
 
-- You may also run the test interactively
+- You can also run the test interactively
 
       $  cd ./src/slurm && ./run_slurm.sh
+
+#### Configuration file
+
+A configuration file for SLURM is available at `./src/slurm/slurm.conf`. This 
+is the configuration file I use for my setup.
 
 ## CSV file format
 
@@ -275,27 +301,6 @@ wait ${job_id[@]}
 - [SLURM configurator tool](https://slurm.schedmd.com/configurator.html)
 - [The Slurm job scheduler](http://www.arc.ox.ac.uk/content/slurm-job-scheduler)
 - [Slurm - Arch Wiki](https://wiki.archlinux.org/index.php/Slurm)
-
-#### Configuration file
-
-A configuration file for SLURM is available at `./src/slurm/slurm.conf`. This 
-is the configuration file I use for my setup.
-
-#### Running
-
-To run the SLURM daemons, do
-
-    $ cd ./src/slurm
-    # systemctl start slurmd
-    # systemctl start slurmctld
-    # ./run_daemons.sh
-
-Then, to run the experiment
-
-    $ ln -s frontend_"${experiment_name}".sh frontend.sh
-    $ ./run_slurm.sh
-
-where, for example, `experiment_name=arithm_sample`.
 
 ## License
 
