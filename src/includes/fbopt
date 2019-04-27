@@ -66,6 +66,9 @@ Options:
                                         results and appending new ones to the
                                         same file. Normally, you should not set
                                         this option
+    --repetitions=REPETITIONS           repeat the same parallel tests
+                                        a selected number of times. This option
+                                        is ignored by by non parallel tests
     -s, --steps=STEPS                   the number of samples between
                                         consecutive iterations
     -t, --test-name=NAME                the name of the test
@@ -110,7 +113,7 @@ main()
     local getopt_short_options='fm:M:s:r:ght:y:p'
     local getopt_long_options='list-test-names,list-test-types,min:,max:,step:,runs:,help,\
 parallel,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-only,\
-multi-switch:,no-remove-csv-files,four-way-comparison,print-flags'
+multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,print-flags'
 
     # Set the default values for the flags.
     local four_way_comparison='false'
@@ -128,6 +131,7 @@ multi-switch:,no-remove-csv-files,four-way-comparison,print-flags'
     local no_remove_csv_files='false'
     local test_type="${TEST_TYPE}"
     local multi_switch='false'
+    local repetitions=0
 
     local program_name="${0}"
     opts="$(getopt \
@@ -179,6 +183,9 @@ multi-switch:,no-remove-csv-files,four-way-comparison,print-flags'
                                         shift 1 ;;
 
             --single-run-with-label )   label="${2}";
+                                        shift 1 ;;
+
+            --repetitions )             repetitions="${2}"
                                         shift 1 ;;
 
             -s | --step )               step="${2}";
@@ -233,6 +240,7 @@ multi-switch:,no-remove-csv-files,four-way-comparison,print-flags'
             'parallel' \
             'no_remove_csv_files' \
             'multi_switch' \
+            'repetitions' \
         && return 0
     [ "${help}" = 'true' ] && show_help && return 0
 
@@ -321,7 +329,17 @@ multi-switch:,no-remove-csv-files,four-way-comparison,print-flags'
                 # Move the csv file to a place where it can be feeded to the plot script.
                 mv ""${XSB_AMCMC_DIRECTORY}"/"${test_name}".csv" .
             else
-                seq 1 ${runs} | nice -n 0 parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
+                if [ ${repetitions} -gt 0 ]; then
+                local repeat_idx=0
+                local i=1
+                    while [ ${repeat_idx} -lt ${repetitions} ]; do
+                        seq ${i} $((${i}+${runs}-1)) | nice -n 0 parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
+                        i=$((${i}+${runs}))
+                        repeat_idx=$((${repeat_idx}+1))
+                    done
+                else
+                    seq 1 ${runs} | nice -n 0 parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
+                fi
             fi
         # Run a single test with a label.
         elif [ "${label}" != '-1' ]; then

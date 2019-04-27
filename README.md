@@ -145,6 +145,9 @@ Options:
                                         results and appending new ones to the
                                         same file. Normally, you should not set
                                         this option
+    --repetitions=REPETITIONS           repeat the same parallel tests
+                                        a selected number of times. This option
+                                        is ignored by by non parallel tests
     -s, --steps=STEPS                   the number of samples between
                                         consecutive iterations
     -t, --test-name=NAME                the name of the test
