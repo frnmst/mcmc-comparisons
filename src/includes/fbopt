@@ -325,13 +325,23 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,print-flags'
                 export -f run_xsb_tests
                 export XSB_AMCMC_DIRECTORY
                 export XSB_AMCMC_STARTUP_FILE
-                seq 1 ${runs} | nice -n 0 parallel --lb run_xsb_tests "${test_name}" ${min} ${max} ${step} {} ${resampling_style} ${resampling_probability} 'single'
+                if [ ${repetitions} -gt 0 ]; then
+                    local repeat_idx=0
+                    local i=1
+                    while [ ${repeat_idx} -lt ${repetitions} ]; do
+                        seq ${i} $((${i}+${runs}-1)) | nice -n 0 parallel --lb run_xsb_tests "${test_name}" ${min} ${max} ${step} {} ${resampling_style} ${resampling_probability} 'single'
+                        i=$((${i}+${runs}))
+                        repeat_idx=$((${repeat_idx}+1))
+                    done
+                else
+                    seq 1 ${runs} | nice -n 0 parallel --lb run_xsb_tests "${test_name}" ${min} ${max} ${step} {} ${resampling_style} ${resampling_probability} 'single'
+                fi
                 # Move the csv file to a place where it can be feeded to the plot script.
                 mv ""${XSB_AMCMC_DIRECTORY}"/"${test_name}".csv" .
             else
                 if [ ${repetitions} -gt 0 ]; then
-                local repeat_idx=0
-                local i=1
+                    local repeat_idx=0
+                    local i=1
                     while [ ${repeat_idx} -lt ${repetitions} ]; do
                         seq ${i} $((${i}+${runs}-1)) | nice -n 0 parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
                         i=$((${i}+${runs}))
