@@ -49,33 +49,43 @@ select_test(Test_name,Min,Max,Step,Runs,Parallel):-
     Parallel == 1,
     !,
     atom_string("arithm_sample",A),
-    atom_string("test33_sample",B),
-    atom_string("test66_sample",C),
+    atom_string("arithm_rejection_sample",B),
+    atom_string("test33_sample",C),
+    atom_string("test66_sample",D),
     ( A = Test_name
       -> tests_single_arithm(Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( B = Test_name
-      -> tests_single_test33(Min,Max,Step,Runs)
+      -> tests_single_arithm_rejection_sample(Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( C = Test_name
+      -> tests_single_test33(Min,Max,Step,Runs)
+      ; 1 = 1
+    ),
+    ( D = Test_name
       -> tests_single_test66(Min,Max,Step,Runs)
     ).
 
 select_test(Test_name,Min,Max,Step,Runs,_):-
     atom_string("arithm_sample",A),
-    atom_string("test33_sample",B),
-    atom_string("test66_sample",C),
+    atom_string("arithm_rejection_sample",B),
+    atom_string("test33_sample",C),
+    atom_string("test66_sample",D),
     ( A = Test_name
       -> tests_sequential_arithm(Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( B = Test_name
-      -> tests_sequential_test33(Min,Max,Step,Runs)
+      -> tests_sequential_arithm_rejection_sample(Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( C = Test_name
+      -> tests_sequential_test33(Min,Max,Step,Runs)
+      ; 1 = 1
+    ),
+    ( D = Test_name
       -> tests_sequential_test66(Min,Max,Step,Runs)
     ).
 
@@ -113,7 +123,7 @@ parse_cli_args(Argv,Test_name,Min,Max,Step,Runs,Parallel):-
     is_parallel(Parallel),
     Min =< Max.
 
-/* arithm */
+/* arithm sample */
 
 tests_single_arithm(Min,Max,Step,Run_label):-
     format('performing arithm.pl on arithm_sample.csv\n'),
@@ -152,6 +162,49 @@ measure_arithm_mh_sample(Time, Samples, Prob):-
     statistics(walltime, [_|[Time]]).
 
 measure_arithm_gibbs_sample(Time, Samples, Prob):-
+    statistics(walltime, [_|[_]]),
+    mc_gibbs_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100),lag(3),successes(_),failures(_)]),
+    statistics(walltime, [_|[Time]]).
+
+/* arithm rejection sample */
+
+tests_single_arithm_rejection_sample(Min,Max,Step,Run_label):-
+    format('performing arithm.pl on arithm_rejection_sample.csv\n'),
+    ['../prolog/swish/examples/inference/arithm'],
+    open('arithm_rejection_sample.csv',append,Out_a),
+    loop_arithm_rejection_sample(Min,Max,Step,Run_label,Out_a),
+    close(Out_a).
+
+tests_sequential_arithm_rejection_sample(_,_,_,Runs):-
+    Runs=<0,
+    !.
+
+tests_sequential_arithm_rejection_sample(Min,Max,Step,Runs):-
+    tests_single_arithm_rejection_sample(Min,Max,Step,Runs),
+    N is Runs-1,
+    tests_sequential_arithm_rejection_sample(Min,Max,Step,N).
+
+loop_arithm_rejection_sample(Curr,Max,_,_,_):-
+    Curr>Max,
+    !.
+
+loop_arithm_rejection_sample(Curr, Max, Step, Runs, Out):-
+    Samples is Curr,
+    measure_arithm_mh_rejection_sample(Time_mh,Samples,P_mh),
+    measure_arithm_gibbs_sample_bis(Time_gibbs,Samples,P_gibbs),
+    format('run ~q, sample ~q of ~q\n', [Runs, Samples, Max]),
+    format(Out, '~q,~q,~q,~q,~q,~q\n', [Runs, Samples, Time_mh, P_mh, Time_gibbs, P_gibbs]),
+    flush_output(Out),
+    flush_output,
+    N is Curr+Step,
+    loop_arithm_rejection_sample(N,Max,Step,Runs,Out).
+
+measure_arithm_mh_rejection_sample(Time, Samples, Prob):-
+    statistics(walltime, [_|[_]]),
+    mc_rejection_sample(eval(2,4),eval(1,3),Samples,Prob,[]),
+    statistics(walltime, [_|[Time]]).
+
+measure_arithm_gibbs_sample_bis(Time, Samples, Prob):-
     statistics(walltime, [_|[_]]),
     mc_gibbs_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100),lag(3),successes(_),failures(_)]),
     statistics(walltime, [_|[Time]]).

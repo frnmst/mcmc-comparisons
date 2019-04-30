@@ -218,6 +218,14 @@ class ArithmSampleMhVsGibbs(MhVsGibbs):
         self.plot_mh_vs_gibbs_probs('arithm_sample mh vs gibbs probs avg',
                               'plot_arithm_sample_mh_vs_gibbs_probs.png')
 
+class ArithmRejectionSampleMhVsGibbs(MhVsGibbs):
+    def arithm_rejection_sample_mh_vs_gibbs_avg(self):
+        self.mh_vs_gibbs_avg()
+        self.plot_mh_vs_gibbs_times('arithm_rejection_sample mh vs gibbs times avg',
+                              'plot_arithm_rejection_sample_mh_vs_gibbs_times.png')
+        self.plot_mh_vs_gibbs_probs('arithm_rejection_sample mh vs gibbs probs avg',
+                              'plot_arithm_rejection_sample_mh_vs_gibbs_probs.png')
+
 
 class Test33SampleMhVsGibbs(MhVsGibbs):
     def test33_sample_mh_vs_gibbs_avg(self):
@@ -348,6 +356,9 @@ def main():
     elif file_name_a == 'arithm_sample.csv':
         speeds = ArithmSampleMhVsGibbs(file_name_a,delimiter)
         speeds.arithm_sample_mh_vs_gibbs_avg()
+    elif file_name_a == 'arithm_rejection_sample.csv':
+        speeds = ArithmRejectionSampleMhVsGibbs(file_name_a,delimiter)
+        speeds.arithm_rejection_sample_mh_vs_gibbs_avg()
     elif file_name_a == 'test33_sample.csv':
         speeds = Test33SampleMhVsGibbs(file_name_a,delimiter)
         speeds.test33_sample_mh_vs_gibbs_avg()
