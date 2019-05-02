@@ -37,9 +37,8 @@ import sys
 
 class Utils():
 
-    def __init__(self, files):
+    def __init__(self, files: list):
         """ Load the file contents in a dictionary for future easy access."""
-        assert isinstance(files, list)
         for f in files:
             assert isinstance(f, dict)
             assert 'name' in f
@@ -71,17 +70,13 @@ class Utils():
                     self.data[file['fields'][4]].append(int(round(float(row[4]))))
                     self.data[file['fields'][5]].append(float(row[5]))
 
-    def plot_data_sets(self, x_id, y_ids, y_stddev_ids, legend=['set a', 'set b'],
-                       title='Comparison', x_label='x', y_label='y', plot_file='plot.png'):
+    def plot_data_sets(self, x_id: str, y_ids: list, y_stddev_ids: list, legend: list=['set a', 'set b'],
+                       title: str='Comparison', x_label: str='x', y_label: str='y', plot_file: str='plot.png'):
         """ Plot n sets of values for direct comparison."""
-        assert isinstance(x_id, str)
-        assert isinstance(y_ids, list)
         for e in y_ids:
             assert isinstance(e, str)
-        assert isinstance(y_stddev_ids, list)
         for e in y_stddev_ids:
             assert isinstance(e, str)
-        assert isinstance(legend, list)
         for e in legend:
             assert isinstance(e, str)
         assert (len(y_ids) == len(y_stddev_ids) == len(legend))
@@ -98,12 +93,9 @@ class Utils():
         plt.gcf().clear()
 
     # Rows name and cols name must be the same for all cases.
-    def compute_avg_and_stddev_data_sets(self, dim_id, rows_name, cols_name):
-        assert isinstance(dim_id, list)
+    def compute_avg_and_stddev_data_sets(self, dim_id: list, rows_name: str, cols_name: str):
         for e in dim_id:
             assert isinstance(e, str)
-        assert isinstance(rows_name, str)
-        assert isinstance(cols_name, str)
 
         # Init.
         rows = max(self.data[rows_name])
@@ -155,19 +147,13 @@ class Utils():
 
         return dim
 
-    def plot_frontend(self, plot_title, plot_file, running_times, running_times_stddev, legend, y_label):
-            assert isinstance(plot_title,str)
-            assert isinstance(plot_file,str)
-            assert isinstance(running_times, list)
+    def plot_frontend(self, plot_title: str, plot_file: str, running_times: list, running_times_stddev: list, legend: list, y_label: str):
             for e in running_times:
                 assert isinstance(e, str)
-            assert isinstance(running_times_stddev, list)
             for e in running_times_stddev:
                 assert isinstance(e, str)
-            assert isinstance(legend, list)
             for e in legend:
                 assert isinstance(e, str)
-            assert isinstance(y_label, str)
 
             self.plot_data_sets('samples',
                             running_times,
@@ -178,9 +164,7 @@ class Utils():
                             y_label,
                             plot_file)
 
-    def overwrite_data_set_with_avg(self, dims_avg):
-        assert isinstance(dims_avg, dict)
-
+    def overwrite_data_set_with_avg(self, dims_avg: dict):
         for key, value in dims_avg.items():
             if key == 'run_number' or key == 'samples':
                 # Remove duplicates from these two sets.
@@ -246,7 +230,7 @@ class Test66SampleMhVsGibbs(MhVsGibbs):
 
 
 class Amcmc(Utils):
-    def __init__(self, filename, delimiter=','):
+    def __init__(self, filename: str, delimiter: str=','):
         file={ 'name': filename, 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'adapt_on_time', 'adapt_on_prob', 'adapt_off_time', 'adapt_off_prob'] }
         files=[file]
         super().__init__(files)
@@ -292,8 +276,7 @@ class ArithmCondProbAdaptOnVsAdaptOff(Amcmc):
 
 
 class FourWayComparison(Utils):
-    def __init__(self, file_names, delimiter=','):
-        assert isinstance(file_names, dict)
+    def __init__(self, file_names: dict, delimiter: str=','):
         assert 'amcmc' in file_names
         assert 'no_amcmc' in file_names
 
