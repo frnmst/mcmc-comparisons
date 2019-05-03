@@ -92,10 +92,12 @@ class Utils():
         # See: https://stackoverflow.com/questions/17106288/matplotlib-pyplot-will-not-forget-previous-plots-how-can-i-flush-refresh
         plt.gcf().clear()
 
-    # Rows name and cols name must be the same for all cases.
-    def compute_avg_and_stddev_data_sets(self, dim_id: list, rows_name: str, cols_name: str):
+    def compute_avg_and_stddev_data_sets(self, dim_id: list, rows_name: str, cols_name: str) -> dict:
+        r"""Compute averages and standard deviations for all input dimensions."""
         for e in dim_id:
             assert isinstance(e, str)
+
+        # Rows name and cols name must be the same for all cases.
 
         # Init.
         rows = max(self.data[rows_name])
