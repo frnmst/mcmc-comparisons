@@ -31,6 +31,7 @@
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.axes as axes
+import matplotlib.ticker as tk
 import numpy as np
 import csv
 import sys
@@ -71,8 +72,12 @@ class Utils():
                     self.data[file['fields'][5]].append(float(row[5]))
 
     def plot_data_sets(self, x_id: str, y_ids: list, y_stddev_ids: list, legend: list=['set a', 'set b'],
-                       title: str='Comparison', x_label: str='x', y_label: str='y', plot_file: str='plot.png'):
-        """ Plot n sets of values for direct comparison."""
+                       title: str='Comparison', x_label: str='x', y_label: str='y', plot_file: str='plot.png', use_scientific_notation: bool = False):
+        r"""Plot n sets of values for direct comparison.
+
+        .. note: scientific notation is available for the y axis only. See:
+                 https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.ticklabel_format.html
+        """
         for e in y_ids:
             assert isinstance(e, str)
         for e in y_stddev_ids:
@@ -81,6 +86,8 @@ class Utils():
             assert isinstance(e, str)
         assert (len(y_ids) == len(y_stddev_ids) == len(legend))
 
+        if use_scientific_notation:
+            plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 3))
         for i in range(0,len(y_ids)):
             plt.errorbar(self.data[x_id],self.data[y_ids[i]],yerr=self.data[y_stddev_ids[i]],markersize=2.5,linestyle='-',marker='o', capsize=2.5)
         plt.title(title)
@@ -149,7 +156,7 @@ class Utils():
 
         return dim
 
-    def plot_frontend(self, plot_title: str, plot_file: str, running_times: list, running_times_stddev: list, legend: list, y_label: str):
+    def plot_frontend(self, plot_title: str, plot_file: str, running_times: list, running_times_stddev: list, legend: list, y_label: str,  use_scientific_notation: bool = False):
             for e in running_times:
                 assert isinstance(e, str)
             for e in running_times_stddev:
@@ -164,7 +171,8 @@ class Utils():
                             plot_title,
                             'samples',
                             y_label,
-                            plot_file)
+                            plot_file,
+                            use_scientific_notation)
 
     def overwrite_data_set_with_avg(self, dims_avg: dict):
         for key, value in dims_avg.items():
@@ -182,7 +190,7 @@ class MhVsGibbs(Utils):
         super().__init__(files)
 
     def plot_mh_vs_gibbs_times(self, plot_title, plot_file):
-        self.plot_frontend(plot_title, plot_file, ['mh_time','gibbs_time'], ['stddev_mh_time','stddev_gibbs_time'], ['mh', 'gibbs'], 'running time (ms)')
+        self.plot_frontend(plot_title, plot_file, ['mh_time','gibbs_time'], ['stddev_mh_time','stddev_gibbs_time'], ['mh', 'gibbs'], 'running time (ms)', True)
 
     def plot_mh_vs_gibbs_probs(self, plot_title, plot_file):
         self.plot_frontend(plot_title, plot_file, ['mh_prob','gibbs_prob'], ['stddev_mh_prob','stddev_gibbs_prob'], ['mh', 'gibbs'], 'probability [0,1]')
@@ -238,7 +246,7 @@ class Amcmc(Utils):
         super().__init__(files)
 
     def plot_adapt_on_vs_adapt_off_times(self, plot_title, plot_file):
-        self.plot_frontend(plot_title, plot_file, ['adapt_on_time','adapt_off_time'], ['stddev_adapt_on_time','stddev_adapt_off_time'], ['adapt_on', 'adapt_off'], 'running time (ms)')
+        self.plot_frontend(plot_title, plot_file, ['adapt_on_time','adapt_off_time'], ['stddev_adapt_on_time','stddev_adapt_off_time'], ['adapt_on', 'adapt_off'], 'running time (ms)', True)
 
     def plot_adapt_on_vs_adapt_off_probs(self, plot_title, plot_file):
         self.plot_frontend(plot_title, plot_file, ['adapt_on_prob','adapt_off_prob'], ['stddev_adapt_on_prob','stddev_adapt_off_prob'], ['adapt_on', 'adapt_off'], 'probability [0,1]')
@@ -288,7 +296,7 @@ class FourWayComparison(Utils):
         super().__init__(files)
 
     def plot_times(self, plot_title, plot_file):
-        self.plot_frontend(plot_title, plot_file, ['adapt_on_time','adapt_off_time', 'mh_time', 'gibbs_time'], ['stddev_adapt_on_time','stddev_adapt_off_time', 'stddev_mh_time', 'stddev_gibbs_time'], ['adapt_on', 'adapt_off', 'mh', 'gibbs'], 'running time (ms)')
+        self.plot_frontend(plot_title, plot_file, ['adapt_on_time','adapt_off_time', 'mh_time', 'gibbs_time'], ['stddev_adapt_on_time','stddev_adapt_off_time', 'stddev_mh_time', 'stddev_gibbs_time'], ['adapt_on', 'adapt_off', 'mh', 'gibbs'], 'running time (ms)', True)
 
     def plot_probs(self, plot_title, plot_file):
         self.plot_frontend(plot_title, plot_file, ['adapt_on_prob','adapt_off_prob', 'mh_prob', 'gibbs_prob'], ['stddev_adapt_on_prob','stddev_adapt_off_prob', 'stddev_mh_prob', 'stddev_gibbs_prob'], ['adapt_on', 'adapt_off', 'mh', 'gibbs'], 'probability [0,1]')
