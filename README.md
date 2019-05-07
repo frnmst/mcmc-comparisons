@@ -183,10 +183,10 @@ The purpose of using SLURM is to run the experiments is a multi node setup.
 
 Before continuing you must start the daemons
 
-    $ cd ./slurm
+    $ cd ./includes
     # systemctl start slurmd
     # systemctl start slurmctld
-    # ./run_daemons.sh
+    # ./run_slurm_daemons.sh
 
 To run an experiment you must simply use the slurm option, like this
 
@@ -200,7 +200,7 @@ The plot needs to be rendered manually like this
 
 #### Configuration file
 
-A configuration file for SLURM is available at `./src/slurm/slurm.conf`. This 
+A configuration file for SLURM is available at `./src/includes/slurm.conf`. This 
 is the configuration file I use for my setup.
 
 *Note: enforcement of memory limits is disabled in the provided 
