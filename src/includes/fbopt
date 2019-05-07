@@ -20,34 +20,34 @@ show_help()
 {
     cat <<-EOF
 Usage: run.sh [OPTIONS]
-Run MCMC tests
+Run MCMC experiments
 
 Mandatory arguments to long options are mandatory for short options too.
 Options:
     -f, --four-way-comparison           compare SWI and XSB experiments. In
-                                        this case you need to specify the test
+                                        this case you need to specify the experiment
                                         names separating them with a colon
                                         character and specifing the SWI then
-                                        XSB the test name, like this:
-                                        'test_name_swi:test_name_xsb'
-    -g, --graph                         run the plot script after the tests
+                                        XSB the experiment name, like this:
+                                        'experiment_name_swi:experiment_name_xsb'
+    -g, --graph                         run the plot script after the experiments
     --graph-only                        run the plot script only
     -h, --help                          print this help
-    --list-test-names                   list the available test
-    --list-test-types                   list the available test types
+    --list-experiment-names             list the available experiment
+    --list-experiment-types             list the available experiment types
     -m, --min=MIN                       starting number of samples
     --multi-switch=RESAMPLINGPROB       enable multi switch instead of single
-                                        switch for AMCMC XSB tests with the
+                                        switch for AMCMC XSB experiments with the
                                         specified resampling probability. This
                                         number goes from 0.0 to 1.0
     -M, --max=MAX                       ending number of samples
-    -p, --parallel                      execute tests on separate computing
+    -p, --parallel                      execute experiments on separate computing
                                         threads. If this option is enabled the
                                         number of threads is determined by the
                                         '--threads' option. If this option is
                                         disabled, the runs are executed
                                         consecutively
-    --single-run-with-label=LABEL       run a single test with the specified
+    --single-run-with-label=LABEL       run a single experiment with the specified
                                         run label. This option excludes
                                         both the '--parallel' option and the
                                         '--runs' option
@@ -56,8 +56,10 @@ Options:
     -r, --runs=RUNS, --threads=RUNS     the number of runs or computing threads.
                                         See the '--parallel' option for more
                                         information
+    --memory                            the amount om memory in MB assigned
+                                        to the SLURM job
     --no-remove-csv-files               avoid removing all csv files before
-                                        running a test. This option defaults
+                                        running a experiment. This option defaults
                                         to false in all cases except when run
                                         with the '--graph-only' option. In that
                                         case the value of this option is
@@ -66,13 +68,19 @@ Options:
                                         results and appending new ones to the
                                         same file. Normally, you should not set
                                         this option
-    --repetitions=REPETITIONS           repeat the same parallel tests
+    --partition                         the partition name used for the
+                                        SLURM job
+    --repetitions=REPETITIONS           repeat the same parallel experiments
                                         a selected number of times. This option
-                                        is ignored by by non parallel tests
+                                        is ignored by by non parallel experiments
     -s, --steps=STEPS                   the number of samples between
                                         consecutive iterations
-    -t, --test-name=NAME                the name of the test
-    -y, --test-type=NAME                the type of the test
+    -S, --slurm                         run the experiments with the SLURM system.
+                                        This disables the '--graph', '--parallel'
+                                        options and implies the
+                                        '--single-run-with-label' option
+    -t, --experiment-name=NAME          the name of the experiment
+    -y, --experiment-type=NAME          the type of the experiment
 
 Exit status:
  0  if OK,
@@ -110,28 +118,30 @@ main()
     declare -a argc=("${!1}")
 
     # Set the options. flag_f has an optional argument.
-    local getopt_short_options='fm:M:s:r:ght:y:p'
-    local getopt_long_options='list-test-names,list-test-types,min:,max:,step:,runs:,help,\
-parallel,single-run-with-label:,test-name:,threads:,test-type:,graph,graph-only,\
-multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,print-flags'
+    local getopt_short_options='fm:M:s:r:ght:y:pS'
+    local getopt_long_options='list-experiment-names,list-experiment-types,min:,max:,step:,runs:,help,\
+parallel,single-run-with-label:,experiment-name:,threads:,experiment-type:,graph,graph-only,\
+multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,slurm,memory:,print-flags'
 
     # Set the default values for the flags.
     local four_way_comparison='false'
     local graph='false'
     local graph_only='false'
-    local list_test_names='false'
-    local list_test_types='false'
+    local list_experiment_names='false'
+    local list_experiment_types='false'
     local min="${MIN}"
     local max="${MAX}"
     local step="${STEP}"
     local runs="${RUNS}"
-    local test_name="${TEST_NAME}"
+    local experiment_name="${EXPERIMENT_NAME}"
     local parallel='false'
     local label='-1'
     local no_remove_csv_files='false'
-    local test_type="${TEST_TYPE}"
+    local experiment_type="${EXPERIMENT_TYPE}"
     local multi_switch='false'
     local repetitions=0
+    local slurm='false'
+    local memory=8192
 
     local program_name="${0}"
     opts="$(getopt \
@@ -154,9 +164,9 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,print-flags'
 
             -f | --four-way-comparison )    four_way_comparison='true' ;;
 
-            --list-test-names )             list_test_names='true' ;;
+            --list-experiment-names )       list_experiment_names='true' ;;
 
-            --list-test-types )         list_test_types='true' ;;
+            --list-experiment-types )       list_experiment_types='true' ;;
 
             -g | --graph )              graph='true' ;;
 
@@ -182,6 +192,9 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,print-flags'
             -r | --runs | --threads )   runs="${2}";
                                         shift 1 ;;
 
+            --memory )                  memory="${2}";
+                                        shift 1 ;;
+
             --single-run-with-label )   label="${2}";
                                         shift 1 ;;
 
@@ -191,10 +204,12 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,print-flags'
             -s | --step )               step="${2}";
                                         shift 1 ;;
 
-            -t | --test-name )          test_name="${2}";
+            -S | --slurm )              slurm='true';;
+
+            -t | --experiment-name )    experiment_name="${2}";
                                         shift 1 ;;
 
-            -y | --test-type )          test_type="${2}";
+            -y | --experiment-type )    experiment_type="${2}";
                                         shift 1 ;;
 
         esac
@@ -216,12 +231,12 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,print-flags'
         || [ -z "${step}" ] \
         || [ -z "${runs}" ] \
         || [ -z "${label}" ] \
-        || [ -z "${test_name}" ]; } \
+        || [ -z "${experiment_name}" ]; } \
         && getopt_error && return 1
 
-    # For the xsb type tests, override the default test name to avoid using the
+    # For the xsb type experiments, override the default experiment name to avoid using the
     # one used for swi. This code is here because of the print_flags option.
-    [ "${test_type}" = 'xsb' ] && [ "${test_name}" = "${TEST_NAME}" ] && test_name='test33_cond_prob'
+    [ "${experiment_type}" = 'xsb' ] && [ "${experiment_name}" = "${experiment_NAME}" ] && experiment_name='experiment33_cond_prob'
 
     [ "${print_flags}" = 'true' ] \
         && show_flags \
@@ -229,18 +244,20 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,print-flags'
             'graph' \
             'graph_only' \
             'label' \
-            'list_test_names' \
-            'list_test_types' \
+            'list_experiment_names' \
+            'list_experiment_types' \
             'min' \
             'max' \
             'step' \
             'runs' \
-            'test_name' \
-            'test_type' \
+            'experiment_name' \
+            'experiment_type' \
             'parallel' \
             'no_remove_csv_files' \
             'multi_switch' \
             'repetitions' \
+            'slurm' \
+            'memory' \
         && return 0
     [ "${help}" = 'true' ] && show_help && return 0
 
@@ -249,15 +266,18 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,print-flags'
     check_binaries
     [ "${graph_only}" = 'true' ] && no_remove_csv_files='true' && graph='true'
     [ "${no_remove_csv_files}" = 'false' ] && remove_csv_files
+    [ "${slurm}" = 'true' ] \
+        && run_experiments_with_slurm "${experiment_name}" ${min} ${max} ${step} ${memory} ${partition} \
+        && return 0
     [ "${parallel}" = 'true' ] \
         && [ "${label}" != '-1' ] \
         && getopt_error \
         && return 1
-    [ "${list_test_names}" = 'true' ] && list_available_test_names && return 0
-    [ "${list_test_types}" = 'true' ] && list_available_test_types && return 0
+    [ "${list_experiment_names}" = 'true' ] && list_available_experiment_names && return 0
+    [ "${list_experiment_types}" = 'true' ] && list_available_experiment_types && return 0
 
     local resampling_style=''
-    if [ "${test_type}" = 'xsb' ] && [ "${multi_switch}" != 'false' ]; then
+    if [ "${experiment_type}" = 'xsb' ] && [ "${multi_switch}" != 'false' ]; then
         resampling_style='multiswitch'
         resampling_probability="${multi_switch}"
     else
@@ -270,15 +290,15 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,print-flags'
     local stop='false'
     local i=0
     local idx=0
-    # Test names for the plot script.
-    local test_name_a=''
-    local test_name_b=''
-    local test_name_orig=''
+    # experiment names for the plot script.
+    local experiment_name_a=''
+    local experiment_name_b=''
+    local experiment_name_orig=''
     while [ "${stop}" = 'false' ]; do
         if [ "${four_way_comparison}" = 'false' ]; then
             # No overrides.
             stop='true'
-            test_name_a="${test_name}"
+            experiment_name_a="${experiment_name}"
         else
 
             # We need to override parallel because of a non-implemented
@@ -287,83 +307,83 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,print-flags'
             no_remove_csv_files='true'
 
             if [ ${i} -eq 0 ]; then
-                # Run SWI test.
-                test_type='swi'
-                test_name_orig="${test_name}"
-                idx=$(expr index "${test_name}" ':')
-                test_name="${test_name:0:$((${idx}-1))}"
-                test_name_a="${test_name}"
+                # Run SWI experiment.
+                experiment_type='swi'
+                experiment_name_orig="${experiment_name}"
+                idx=$(expr index "${experiment_name}" ':')
+                experiment_name="${experiment_name:0:$((${idx}-1))}"
+                experiment_name_a="${experiment_name}"
             elif [ ${i} -eq 1 ]; then
-                # Run XSB test.
-                test_type='xsb'
-                test_name="${test_name_orig}"
-                test_name="${test_name:${idx}}"
-                test_name_b="${test_name}"
+                # Run XSB experiment.
+                experiment_type='xsb'
+                experiment_name="${experiment_name_orig}"
+                experiment_name="${experiment_name:${idx}}"
+                experiment_name_b="${experiment_name}"
             else
                 stop='true'
                 continue
             fi
         fi
 
-        # If this flag is true, we need to extract the test names only
+        # If this flag is true, we need to extract the experiment names only
         # and then exit this loop.
         [ "${graph_only}" = 'true' ] && i=$((${i}+1)) && continue
 
-        # Run a single test.
+        # Run a single experiment.
         if [ "${label}" = '-1' ] && [ "${parallel}" = 'false' ]; then
-            if [ "${test_type}" = 'xsb' ]; then
+            if [ "${experiment_type}" = 'xsb' ]; then
                 # This does not work.
-                # run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'sequential'
+                # run_xsb_experiments "${experiment_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'sequential'
                 printf "%s\n" 'not implemented'
             else
-                nice -n 0 swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${runs} 0
+                nice -n 0 swipl -s "${EXPERIMENTS_DIRECTORY}"/experiments "${experiment_name}" ${min} ${max} ${step} ${runs} 0
             fi
-        # Run tests in parallel.
+        # Run experiments in parallel.
         elif [ "${parallel}" = 'true' ]; then
-            if [ "${test_type}" = 'xsb' ]; then
+            if [ "${experiment_type}" = 'xsb' ]; then
                 # Export variables so that they are visible to GNU Parallel.
-                export -f run_xsb_tests
+                export -f run_xsb_experiments
                 export XSB_AMCMC_DIRECTORY
                 export XSB_AMCMC_STARTUP_FILE
                 if [ ${repetitions} -gt 0 ]; then
                     local repeat_idx=0
                     local i=1
                     while [ ${repeat_idx} -lt ${repetitions} ]; do
-                        seq ${i} $((${i}+${runs}-1)) | nice -n 0 parallel --lb run_xsb_tests "${test_name}" ${min} ${max} ${step} {} ${resampling_style} ${resampling_probability} 'single'
+                        seq ${i} $((${i}+${runs}-1)) | nice -n 0 parallel --lb run_xsb_experiments "${experiment_name}" ${min} ${max} ${step} {} ${resampling_style} ${resampling_probability} 'single'
                         i=$((${i}+${runs}))
                         repeat_idx=$((${repeat_idx}+1))
                     done
                 else
-                    seq 1 ${runs} | nice -n 0 parallel --lb run_xsb_tests "${test_name}" ${min} ${max} ${step} {} ${resampling_style} ${resampling_probability} 'single'
+                    seq 1 ${runs} | nice -n 0 parallel --lb run_xsb_experiments "${experiment_name}" ${min} ${max} ${step} {} ${resampling_style} ${resampling_probability} 'single'
                 fi
                 # Move the csv file to a place where it can be feeded to the plot script.
-                mv ""${XSB_AMCMC_DIRECTORY}"/"${test_name}".csv" .
+                mv ""${XSB_AMCMC_DIRECTORY}"/"${experiment_name}".csv" .
             else
                 if [ ${repetitions} -gt 0 ]; then
                     local repeat_idx=0
                     local i=1
                     while [ ${repeat_idx} -lt ${repetitions} ]; do
-                        seq ${i} $((${i}+${runs}-1)) | nice -n 0 parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
+                        seq ${i} $((${i}+${runs}-1)) | nice -n 0 parallel --lb swipl -s "${EXPERIMENTS_DIRECTORY}"/experiments "${experiment_name}" ${min} ${max} ${step} {} 1
                         i=$((${i}+${runs}))
                         repeat_idx=$((${repeat_idx}+1))
                     done
                 else
-                    seq 1 ${runs} | nice -n 0 parallel --lb swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} {} 1
+                    seq 1 ${runs} | nice -n 0 parallel --lb swipl -s "${EXPERIMENTS_DIRECTORY}"/experiments "${experiment_name}" ${min} ${max} ${step} {} 1
                 fi
             fi
-        # Run a single test with a label.
+        # Run a single experiment with a label.
         elif [ "${label}" != '-1' ]; then
-            if [ "${test_type}" = 'xsb' ]; then
-                nice -n 0 run_xsb_tests "${test_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'single'
+            if [ "${experiment_type}" = 'xsb' ]; then
+                nice -n 0 run_xsb_experiments "${experiment_name}" ${min} ${max} ${step} ${runs} ${resampling_style} 'single'
             else
-                nice -n 0 swipl -s "${TESTS_DIRECTORY}"/tests "${test_name}" ${min} ${max} ${step} ${label} 1
+                nice -n 0 swipl -s "${EXPERIMENTS_DIRECTORY}"/experiments "${experiment_name}" ${min} ${max} ${step} ${label} 1
             fi
         fi
 
         i=$((${i}+1))
     done
 
-    [ "${graph}" = 'true' ] && plot_comparison "${test_name_a}" "${test_name_b}"
+    [ "${graph}" = 'true' ] && plot_comparison "${experiment_name_a}" "${experiment_name_b}"
 }
 
 # Test dependencies and versions.

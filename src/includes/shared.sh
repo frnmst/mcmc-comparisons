@@ -38,34 +38,35 @@ remove_csv_files()
 
 check_binaries()
 {
-    which ${BINARIES} || exit 1
+#    which ${BINARIES} || exit 1
+    :
 } 1>/dev/null
 
-list_available_test_names()
+list_available_experiment_names()
 {
-    printf "%s\n" "${LIST_OF_TEST_NAMES}"
+    printf "%s\n" "${LIST_OF_EXPERIMENT_NAMES}"
 }
 
-list_available_test_types()
+list_available_experiment_types()
 {
-    printf "%s\n" "${LIST_OF_TEST_TYPES}"
+    printf "%s\n" "${LIST_OF_EXPERIMENT_TYPES}"
 }
 
 plot_comparison()
 {
-    local test_name_a="${1}"
-    local test_name_b="${2}"
+    local experiment_name_a="${1}"
+    local experiment_name_b="${2}"
 
     export MPLBACKEND=Agg
     python3 "${PLOT_DIRECTORY}"/plot_comparison.py \
-        ""${test_name_a}".csv" \
-        ""${test_name_b}".csv" \
+        ""${experiment_name_a}".csv" \
+        ""${experiment_name_b}".csv" \
         && printf "%s\n" "check the resulting plots"
 }
 
-run_xsb_tests()
+run_xsb_experiments()
 {
-    local test_name="${1}"
+    local experiment_name="${1}"
     local min=${2}
     local max=${3}
     local step=${4}
@@ -82,8 +83,8 @@ run_xsb_tests()
 
 :- go.
 go :-
-    consult('tests.P'),
-    tests_${single_or_parallel}_${test_name}(${min},${max},${step},${run_label},'${resampling_style}',${resampling_probability}).
+    consult('experiments.P'),
+    experiments_${single_or_parallel}_${experiment_name}(${min},${max},${step},${run_label},'${resampling_style}',${resampling_probability}).
 
 EOF
 
@@ -112,4 +113,54 @@ EOF
     xsb "${startup_file_path%.P}"
     rm "${startup_file_path}"
     popd
+}
+
+run_experiments_with_slurm()
+{
+    local experiment_name="${1}"
+    local min=${2}
+    local max=${3}
+    local step=${4}
+    local memory_mb=${5}
+    local partition="${6}"
+    local slurm_conf_file='run_slurm.conf'
+    local slurm_run_file='run_slurm.sh'
+    local slurm_frontend_file='frontend.sh'
+
+    cat <<EOF > "${slurm_conf_file}"
+0-3 ./frontend.sh %t
+EOF
+    cat <<-EOF > "${slurm_frontend_file}"
+#!/bin/bash
+. ../includes/variables.sh
+. ../includes/shared.sh
+. ../includes/fbopt --experiment-name ${experiment_name} --min ${min} --max ${max} --step ${step} \\
+EOF
+    cat <<-"EOF" >> "${slurm_frontend_file}"
+    --single-run-with-label=$((${1}+1))
+EOF
+
+    cat <<-EOF > "${slurm_run_file}"
+#!/bin/bash
+#SBATCH --job-name=${experiment_name}
+#SBATCH -N 1 # number of nodes
+#SBATCH -p normal
+#SBATCH --ntasks=4 # cores
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu ${memory_mb}
+#SBATCH -o slurm.%j.out # STDOUT
+#SBATCH -e slurm.%j.err # STDERR
+
+. ../includes/variables.sh
+. ../includes/shared.sh
+
+srun --multi-prog run_slurm.conf
+EOF
+
+chmod +x "${slurm_frontend_file}" "${slurm_run_file}"
+
+# Since the slurm files source these scripts again it is better
+# to start with a fresh environment.
+#env --ignore-environment PATH="${HOME}:/usr/bin:." sbatch run_slurm.sh
+sbatch run_slurm.sh
 }

@@ -1,6 +1,6 @@
 # mcmc-comparisons
 
-comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo)
+comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) algorithms
 
 ## Table of contents
 
@@ -18,13 +18,11 @@ comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/
     - [Help](#help)
     - [Run locally](#run-locally)
     - [Run on a SLURM queue](#run-on-a-slurm-queue)
-      - [Daemons](#daemons)
-      - [Setup](#setup)
-      - [Running the experiment](#running-the-experiment)
+      - [Plot](#plot)
       - [Configuration file](#configuration-file)
     - [CSV file format](#csv-file-format)
-    - [Plot](#plot)
-    - [Notes on running the tests](#notes-on-running-the-tests)
+    - [Plot](#plot-1)
+    - [Notes on running the experiments](#notes-on-running-the-experiments)
       - [Sequential version](#sequential-version)
       - [Output files](#output-files)
       - [An alternative to GNU Parallel](#an-alternative-to-gnu-parallel)
@@ -99,34 +97,34 @@ appropriate flag:
 
 ```shell
 Usage: run.sh [OPTIONS]
-Run MCMC tests
+Run MCMC experiments
 
 Mandatory arguments to long options are mandatory for short options too.
 Options:
     -f, --four-way-comparison           compare SWI and XSB experiments. In
-                                        this case you need to specify the test
+                                        this case you need to specify the experiment
                                         names separating them with a colon
                                         character and specifing the SWI then
-                                        XSB the test name, like this:
-                                        'test_name_swi:test_name_xsb'
-    -g, --graph                         run the plot script after the tests
+                                        XSB the experiment name, like this:
+                                        'experiment_name_swi:experiment_name_xsb'
+    -g, --graph                         run the plot script after the experiments
     --graph-only                        run the plot script only
     -h, --help                          print this help
-    --list-test-names                   list the available test
-    --list-test-types                   list the available test types
+    --list-experiment-names             list the available experiment
+    --list-experiment-types             list the available experiment types
     -m, --min=MIN                       starting number of samples
     --multi-switch=RESAMPLINGPROB       enable multi switch instead of single
-                                        switch for AMCMC XSB tests with the
+                                        switch for AMCMC XSB experiments with the
                                         specified resampling probability. This
                                         number goes from 0.0 to 1.0
     -M, --max=MAX                       ending number of samples
-    -p, --parallel                      execute tests on separate computing
+    -p, --parallel                      execute experiments on separate computing
                                         threads. If this option is enabled the
                                         number of threads is determined by the
                                         '--threads' option. If this option is
                                         disabled, the runs are executed
                                         consecutively
-    --single-run-with-label=LABEL       run a single test with the specified
+    --single-run-with-label=LABEL       run a single experiment with the specified
                                         run label. This option excludes
                                         both the '--parallel' option and the
                                         '--runs' option
@@ -135,8 +133,10 @@ Options:
     -r, --runs=RUNS, --threads=RUNS     the number of runs or computing threads.
                                         See the '--parallel' option for more
                                         information
+    --memory                            the amount om memory in MB assigned
+                                        to the SLURM job
     --no-remove-csv-files               avoid removing all csv files before
-                                        running a test. This option defaults
+                                        running a experiment. This option defaults
                                         to false in all cases except when run
                                         with the '--graph-only' option. In that
                                         case the value of this option is
@@ -145,13 +145,19 @@ Options:
                                         results and appending new ones to the
                                         same file. Normally, you should not set
                                         this option
-    --repetitions=REPETITIONS           repeat the same parallel tests
+    --partition                         the partition name used for the
+                                        SLURM job
+    --repetitions=REPETITIONS           repeat the same parallel experiments
                                         a selected number of times. This option
-                                        is ignored by by non parallel tests
+                                        is ignored by by non parallel experiments
     -s, --steps=STEPS                   the number of samples between
                                         consecutive iterations
-    -t, --test-name=NAME                the name of the test
-    -y, --test-type=NAME                the type of the test
+    -S, --slurm                         run the experiments with the SLURM system.
+                                        This disables the '--graph', '--parallel'
+                                        options and implies the
+                                        '--single-run-with-label' option
+    -t, --experiment-name=NAME          the name of the experiment
+    -y, --experiment-type=NAME          the type of the experiment
 
 Exit status:
  0  if OK,
@@ -173,39 +179,23 @@ Copyright (c) 2018-2019, Franco Masotti
 
 ### Run on a SLURM queue
 
-The purpose of using SLURM is to run the experiments is a multi node setup
-
-#### Daemons
+The purpose of using SLURM is to run the experiments is a multi node setup.
 
 Before continuing you must start the daemons
 
-    $ cd ./src/slurm
+    $ cd ./slurm
     # systemctl start slurmd
     # systemctl start slurmctld
     # ./run_daemons.sh
 
-#### Setup
+To run an experiment you must simply use the slurm option, like this
 
-To set up the experiment
+    $  ./run.sh -S
 
-    $ ln -s frontend_"${experiment_name}".sh frontend.sh
-
-where, for example, `experiment_name=arithm_sample`.
-
-#### Running the experiment
-
-- Go to the slurm directory and run the shell file
-
-      $ cd ./src/slurm && sbatch run_slurm.sh
-
-- You can also run the test interactively
-
-      $  cd ./src/slurm && ./run_slurm.sh
+#### Plot
 
 The plot needs to be rendered manually like this
 
-    $ cp "${experiment_name}".csv ../local/.
-    $ cd ../local
     $ ./run.sh --graph-only -t "${experiment_name}"
 
 #### Configuration file
@@ -250,11 +240,12 @@ directory:
 The same type of plot is done for the probabilities and has the purpose of 
 determining the accuracy of the calculations.
 
-## Notes on running the tests
+## Notes on running the experiments
 
 ### Sequential version
 
-What follows id a pseudocode scheme for the sequential version
+What follows is a pseudocode scheme for the sequential version of one of the
+experiments
 
 ```
 for j = 0, j < $runs, j++:
@@ -267,7 +258,7 @@ for j = 0, j < $runs, j++:
 
 ### Output files
 
-When running the tests in parallel the result of each iteration is written on 
+When running the experiments in parallel the result of each iteration is written on 
 the same output file thus producing an unsorted output. To fix this you may run
 the following shell commands
 
@@ -291,7 +282,7 @@ Use background processes:
 ```shell
 declare -a job_id
 for i in $(seq 1 ${5}); do
-    swipl -s tests ${2} ${3} ${4} ${i} 1 &
+    swipl -s experiments ${2} ${3} ${4} ${i} 1 &
     job_id=("${job_id[@]}" $!)
 done
 wait ${job_id[@]}

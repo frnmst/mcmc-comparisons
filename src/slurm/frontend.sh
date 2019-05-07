@@ -1,1 +1,0 @@
-frontend_arithm_sample.sh
