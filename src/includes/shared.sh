@@ -38,8 +38,7 @@ remove_csv_files()
 
 check_binaries()
 {
-#    which ${BINARIES} || exit 1
-    :
+    which ${BINARIES} || exit 1
 } 1>/dev/null
 
 list_available_experiment_names()
@@ -142,14 +141,15 @@ EOF
 
     cat <<-EOF > "${slurm_run_file}"
 #!/bin/bash
+#SBATCH --partition=${partition}
 #SBATCH --job-name=${experiment_name}
-#SBATCH -N 1 # number of nodes
-#SBATCH -p normal
 #SBATCH --ntasks=4 # cores
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu ${memory_mb}
-#SBATCH -o slurm.%j.out # STDOUT
-#SBATCH -e slurm.%j.err # STDERR
+#SBATCH --mem-per-cpu=${memory_mb}
+#SBATCH -o ${experiment_name}-%j.out # STDOUT
+#SBATCH -e ${experiment_name}-%j.err # STDERR
+
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 . ../includes/variables.sh
 . ../includes/shared.sh

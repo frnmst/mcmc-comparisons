@@ -1,7 +1,8 @@
 */*/*.csv*
 */*/plot*.png
-./src/prolog/amcmc/xsb/*.xwam
-./src/local/frontend.sh
-./src/local/run_*.sh
-./src/local/*.err
-./src/local/*.out
+src/prolog/amcmc/xsb/*.xwam
+src/local/frontend.sh
+src/local/run_*.sh
+src/local/run_slurm.conf
+src/local/*.err
+src/local/*.out

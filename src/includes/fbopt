@@ -121,7 +121,7 @@ main()
     local getopt_short_options='fm:M:s:r:ght:y:pS'
     local getopt_long_options='list-experiment-names,list-experiment-types,min:,max:,step:,runs:,help,\
 parallel,single-run-with-label:,experiment-name:,threads:,experiment-type:,graph,graph-only,\
-multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,slurm,memory:,print-flags'
+multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,slurm,memory:,partition:,print-flags'
 
     # Set the default values for the flags.
     local four_way_comparison='false'
@@ -139,9 +139,10 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,slurm,memory:
     local no_remove_csv_files='false'
     local experiment_type="${EXPERIMENT_TYPE}"
     local multi_switch='false'
-    local repetitions=0
+    local repetitions="${REPETITIONS}"
     local slurm='false'
-    local memory=8192
+    local memory="${MEMORY}"
+    local partition="${PARTITION}"
 
     local program_name="${0}"
     opts="$(getopt \
@@ -198,6 +199,9 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,slurm,memory:
             --single-run-with-label )   label="${2}";
                                         shift 1 ;;
 
+            --partition )               partition="${2}";
+                                        shift 1 ;;
+
             --repetitions )             repetitions="${2}"
                                         shift 1 ;;
 
@@ -231,7 +235,11 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,slurm,memory:
         || [ -z "${step}" ] \
         || [ -z "${runs}" ] \
         || [ -z "${label}" ] \
-        || [ -z "${experiment_name}" ]; } \
+        || [ -z "${experiment_name}" ] \
+        || [ -z "${repetitions}" ] \
+        || [ -z "${slurm}" ] \
+        || [ -z "${memory}" ] \
+        || [ -z "${partition}" ]; } \
         && getopt_error && return 1
 
     # For the xsb type experiments, override the default experiment name to avoid using the
@@ -258,6 +266,7 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,slurm,memory:
             'repetitions' \
             'slurm' \
             'memory' \
+            'partition' \
         && return 0
     [ "${help}" = 'true' ] && show_help && return 0
 
@@ -267,7 +276,7 @@ multi-switch:,no-remove-csv-files,four-way-comparison,repetitions:,slurm,memory:
     [ "${graph_only}" = 'true' ] && no_remove_csv_files='true' && graph='true'
     [ "${no_remove_csv_files}" = 'false' ] && remove_csv_files
     [ "${slurm}" = 'true' ] \
-        && run_experiments_with_slurm "${experiment_name}" ${min} ${max} ${step} ${memory} ${partition} \
+        && run_experiments_with_slurm "${experiment_name}" ${min} ${max} ${step} ${memory} "${partition}" \
         && return 0
     [ "${parallel}" = 'true' ] \
         && [ "${label}" != '-1' ] \
