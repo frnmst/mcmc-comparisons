@@ -133,7 +133,7 @@ Options:
     -r, --runs=RUNS, --threads=RUNS     the number of runs or computing threads.
                                         See the '--parallel' option for more
                                         information
-    --memory                            the amount om memory in MB assigned
+    --memory=MEMORYMB                   the amount om memory in MB assigned
                                         to the SLURM job
     --no-remove-csv-files               avoid removing all csv files before
                                         running a experiment. This option defaults
@@ -145,7 +145,7 @@ Options:
                                         results and appending new ones to the
                                         same file. Normally, you should not set
                                         this option
-    --partition                         the partition name used for the
+    --partition=PARTITIONNAME           the partition name used for the
                                         SLURM job
     --repetitions=REPETITIONS           repeat the same parallel experiments
                                         a selected number of times. This option

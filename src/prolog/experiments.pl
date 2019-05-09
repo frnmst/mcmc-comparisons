@@ -163,7 +163,7 @@ measure_arithm_mh_sample(Time, Samples, Prob):-
 
 measure_arithm_gibbs_sample(Time, Samples, Prob):-
     statistics(walltime, [_|[_]]),
-    mc_gibbs_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100),lag(3),successes(_),failures(_)]),
+    mc_gibbs_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100)]),
     statistics(walltime, [_|[Time]]).
 
 /* arithm rejection sample */
