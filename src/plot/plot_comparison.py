@@ -57,8 +57,6 @@ class Utils():
             for i in f['fields']:
                 self.data[i] = list()
 
-        print(self.data)
-
         for file in files:
             with open(file['name'], 'r') as f:
                 data = csv.reader(f, delimiter=file['delimiter'])
@@ -190,29 +188,47 @@ class Utils():
 
 
 class MhVsGibbs(Utils):
-    def __init__(self, filename, delimiter=',', fields_id=['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob']):
-        file={ 'name': filename, 'delimiter': delimiter, 'fields': fields_id }
-        files=[file]
+    def __init__(self, filename, delimiter=',', fields = ['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob']):
+        self.file={ 'name': filename, 'delimiter': delimiter, 'fields': fields }
+        files=[self.file]
         super().__init__(files)
-        self.running_time_ids=['mh_time','gibbs_time']
-        self.prob_ids = ['mh_prob','gibbs_prob']
-        self.running_time_stddev_ids=['stddev_mh_time','stddev_gibbs_time']
-        self.prob_stddev_ids=['stddev_mh_prob','stddev_gibbs_prob']
+        self.times_over_samples_x_id = 'samples'
+        self.times_over_samples_y_ids=['mh_time','gibbs_time']
+        self.probs_over_samples_x_id = 'samples'
+        self.probs_over_samples_y_ids = ['mh_prob','gibbs_prob']
+        self.times_over_samples_stddev_y_ids=['stddev_mh_time','stddev_gibbs_time']
+        self.probs_over_samples_stddev_y_ids=['stddev_mh_prob','stddev_gibbs_prob']
         self.times_over_samples_legend=['mh', 'gibbs']
         self.times_over_samples_x_label='samples'
         self.times_over_samples_y_label='running time (ms)'
         self.probs_over_samples_legend=['mh', 'gibbs']
         self.probs_over_samples_x_label='samples'
         self.probs_over_samples_y_label='probability [0,1]'
-        self.dim_id=fields_id[2:]
+        self.dim_id=self.file['fields'][2:]
 
-    def plot_mh_vs_gibbs_times(self, plot_title, plot_file):
-        self.plot_frontend(plot_title, plot_file, self.running_time_ids, self.running_time_stddev_ids, self.times_over_samples_legend, self.times_over_samples_x_label, self.times_over_samples_y_label, True)
+    def plot_times_over_samples(self, plot_title, plot_file):
+            self.plot_data_sets(self.times_over_samples_x_id,
+                            self.times_over_samples_y_ids,
+                            self.times_over_samples_stddev_y_ids,
+                            self.times_over_samples_legend,
+                            plot_title,
+                            self.times_over_samples_x_label,
+                            self.times_over_samples_y_label,
+                            plot_file,
+                            True)
 
-    def plot_mh_vs_gibbs_probs(self, plot_title, plot_file):
-        self.plot_frontend(plot_title, plot_file, self.prob_ids, self.prob_stddev_ids, self.probs_over_samples_legend, self.probs_over_samples_x_label, self.probs_over_samples_y_label, True)
+    def plot_probs_over_samples(self, plot_title, plot_file):
+            self.plot_data_sets(self.probs_over_samples_x_id,
+                            self.probs_over_samples_y_ids,
+                            self.probs_over_samples_stddev_y_ids,
+                            self.probs_over_samples_legend,
+                            plot_title,
+                            self.probs_over_samples_x_label,
+                            self.probs_over_samples_y_label,
+                            plot_file,
+                            True)
 
-    def mh_vs_gibbs_avg(self):
+    def replace_dataset_to_avg(self):
         avgs = self.compute_avg_and_stddev_data_sets(self.dim_id,'run_number','samples')
         avgs['run_number']=self.data['run_number']
         avgs['samples']=self.data['samples']
@@ -221,11 +237,9 @@ class MhVsGibbs(Utils):
 
 class ArithmSampleMhVsGibbs(MhVsGibbs):
     def arithm_sample_mh_vs_gibbs_avg(self):
-        self.mh_vs_gibbs_avg()
-        self.plot_mh_vs_gibbs_times('arithm_sample mh vs gibbs times avg',
-                              'plot_arithm_sample_mh_vs_gibbs_times.png')
-        self.plot_mh_vs_gibbs_probs('arithm_sample mh vs gibbs probs avg',
-                              'plot_arithm_sample_mh_vs_gibbs_probs.png')
+        self.replace_dataset_to_avg()
+        self.plot_times_over_samples('arithm_sample mh vs gibbs times avg','plot_arithm_sample_mh_vs_gibbs_times.png')
+        self.plot_probs_over_samples('arithm_sample mh vs gibbs probs avg','plot_arithm_sample_mh_vs_gibbs_probs.png')
 
 class ArithmRejectionSampleMhVsGibbs(MhVsGibbs):
     def arithm_rejection_sample_mh_vs_gibbs_avg(self):
@@ -342,27 +356,28 @@ class Test33FourWayComparison(FourWayComparison):
         self.plot_probs('test33 probs avg',
                         'plot_test33_probs.png')
 
+class MhVsGibbsVsRejection(MhVsGibbs):
+    def __init__(self, filename, delimiter=',', fields = ['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob', 'rejection_time', 'rejection_prob']):
+        super().__init__(filename,delimiter, fields)
+        self.times_over_samples_x_id = 'samples'
+        self.times_over_samples_y_ids=['mh_time','gibbs_time','rejection_time']
+        self.probs_over_samples_x_id = 'samples'
+        self.probs_over_samples_y_ids = ['mh_prob','gibbs_prob','rejection_prob']
+        self.times_over_samples_stddev_y_ids=['stddev_mh_time','stddev_gibbs_time', 'stddev_rejection_time']
+        self.probs_over_samples_stddev_y_ids=['stddev_mh_prob','stddev_gibbs_prob', 'stddev_rejection_prob']
+        self.times_over_samples_legend=['mh', 'gibbs', 'rejection']
+        self.times_over_samples_x_label='samples'
+        self.times_over_samples_y_label='running time (ms)'
+        self.probs_over_samples_legend=['mh', 'gibbs', 'rejection']
+        self.probs_over_samples_x_label='samples'
+        self.probs_over_samples_y_label='probability [0,1]'
+        self.dim_id=self.file['fields'][2:]
 
-class MhVsGibbsVsRejection(Utils):
-    def __init__(self, filename, delimiter=','):
-        fields_list=['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob']
-#        self.... = ...
-        super().__init__(filename, delimiter=',', fields_list=fields_list)
-
-    def plot_mh_vs_gibbs_times(self, plot_title, plot_file):
-        self.plot_frontend(plot_title, plot_file, ['mh_time','gibbs_time', 'rejection_time'], ['stddev_mh_time','stddev_gibbs_time'], ['mh', 'gibbs'], 'running time (ms)', True)
-
-    def plot_mh_vs_gibbs_probs(self, plot_title, plot_file):
-        self.plot_frontend(plot_title, plot_file, ['mh_prob','gibbs_prob'], ['stddev_mh_prob','stddev_gibbs_prob'], ['mh', 'gibbs'], 'probability [0,1]')
-
-    def mh_vs_gibbs_avg(self):
-        avgs = self.compute_avg_and_stddev_data_sets(['mh_time',
-            'gibbs_time', 'mh_prob', 'gibbs_prob'],
-            'run_number','samples')
-        avgs['run_number']=self.data['run_number']
-        avgs['samples']=self.data['samples']
-        self.overwrite_data_set_with_avg(avgs)
-
+class ArithmSampleMhVsGibbsVsRejection(MhVsGibbsVsRejection):
+    def arithm_sample_mh_vs_gibbs_vs_rejection_avg(self):
+        self.replace_dataset_to_avg()
+        self.plot_times_over_samples('arithm_sample mh vs gibbs vs rejection times avg','plot_arithm_sample_mh_vs_gibbs_vs_rejection_times.png')
+        self.plot_probs_over_samples('arithm_sample mh vs gibbs vs rejection probs avg','plot_arithm_sample_mh_vs_gibbs_vs_rejection_probs.png')
 
 def main():
     # This is necessary to save the plot to a file instead of displaying it directly.
@@ -404,7 +419,7 @@ def main():
         speeds = ArithmCondProbAdaptOnVsAdaptOff(file_name_a,delimiter)
         speeds.arithm_cond_prob_adapt_on_vs_adapt_off_avg()
     elif file_name_a == 'arithm_sample_three.csv':
-        speeds = ArithmSampleMhVsGibbs(file_name_a,delimiter)
+        speeds = ArithmSampleMhVsGibbsVsRejection(file_name_a,delimiter)
         speeds.arithm_sample_mh_vs_gibbs_vs_rejection_avg()
 
 if __name__ == '__main__':
