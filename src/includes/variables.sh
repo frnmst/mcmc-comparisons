@@ -32,10 +32,10 @@
 BINARIES='swipl xsb parallel python3 nice'
 EXPERIMENTS_DIRECTORY='../prolog'
 PLOT_DIRECTORY='../plot'
-LIST_OF_EXPRIMENT_NAMES='arithm_sample arithm_rejection_sample test33_sample test66_sample test33_cond_prob arithm_cond_prob'
+LIST_OF_EXPRIMENT_NAMES='arithm_sample arithm_sample_three arithm_rejection_sample test33_sample test66_sample test33_cond_prob arithm_cond_prob'
 LIST_OF_EXPERIMENT_TYPES='swi xsb'
 XSB_AMCMC_DIRECTORY='../prolog/amcmc/xsb'
-OUTPUTS='arithm_sample.csv arithm_rejection_sample.csv test33_sample.csv test66_sample.csv test33_cond_prob.csv arithm_cond_prob.csv'
+OUTPUTS='arithm_sample.csv arithm_sample_three.csv arithm_rejection_sample.csv test33_sample.csv test66_sample.csv test33_cond_prob.csv arithm_cond_prob.csv'
 # Relative to $XSB_AMCMC_DIRECTORY
 XSB_AMCMC_STARTUP_FILE='startup_experiments.P'
 

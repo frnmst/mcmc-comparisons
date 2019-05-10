@@ -57,6 +57,8 @@ class Utils():
             for i in f['fields']:
                 self.data[i] = list()
 
+        print(self.data)
+
         for file in files:
             with open(file['name'], 'r') as f:
                 data = csv.reader(f, delimiter=file['delimiter'])
@@ -66,10 +68,11 @@ class Utils():
                 for row in data:
                     self.data[file['fields'][0]].append(int(row[0]))
                     self.data[file['fields'][1]].append(int(row[1]))
-                    self.data[file['fields'][2]].append(int(round(float(row[2]))))
-                    self.data[file['fields'][3]].append(float(row[3]))
-                    self.data[file['fields'][4]].append(int(round(float(row[4]))))
-                    self.data[file['fields'][5]].append(float(row[5]))
+                    # Three way comparison uses 8 fileds instead of 6. That's why we need
+                    # these conditions.
+                    for i in range(2,len(file['fields']),2):
+                        self.data[file['fields'][i]].append(int(round(float(row[i]))))
+                        self.data[file['fields'][i+1]].append(float(row[i+1]))
 
     def plot_data_sets(self, x_id: str, y_ids: list, y_stddev_ids: list, legend: list=['set a', 'set b'],
                        title: str='Comparison', x_label: str='x', y_label: str='y', plot_file: str='plot.png', use_scientific_notation: bool = False):
@@ -156,7 +159,10 @@ class Utils():
 
         return dim
 
-    def plot_frontend(self, plot_title: str, plot_file: str, running_times: list, running_times_stddev: list, legend: list, y_label: str,  use_scientific_notation: bool = False):
+    def plot_frontend(self, plot_title: str, plot_file: str, running_times: list, running_times_stddev: list, legend: list, y_label: str, x_label: str, use_scientific_notation: bool = False):
+            # Do we really need this function?
+            # TODO
+            # FIXME
             for e in running_times:
                 assert isinstance(e, str)
             for e in running_times_stddev:
@@ -184,21 +190,30 @@ class Utils():
 
 
 class MhVsGibbs(Utils):
-    def __init__(self, filename, delimiter=','):
-        file={ 'name': filename, 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob'] }
+    def __init__(self, filename, delimiter=',', fields_id=['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob']):
+        file={ 'name': filename, 'delimiter': delimiter, 'fields': fields_id }
         files=[file]
         super().__init__(files)
+        self.running_time_ids=['mh_time','gibbs_time']
+        self.prob_ids = ['mh_prob','gibbs_prob']
+        self.running_time_stddev_ids=['stddev_mh_time','stddev_gibbs_time']
+        self.prob_stddev_ids=['stddev_mh_prob','stddev_gibbs_prob']
+        self.times_over_samples_legend=['mh', 'gibbs']
+        self.times_over_samples_x_label='samples'
+        self.times_over_samples_y_label='running time (ms)'
+        self.probs_over_samples_legend=['mh', 'gibbs']
+        self.probs_over_samples_x_label='samples'
+        self.probs_over_samples_y_label='probability [0,1]'
+        self.dim_id=fields_id[2:]
 
     def plot_mh_vs_gibbs_times(self, plot_title, plot_file):
-        self.plot_frontend(plot_title, plot_file, ['mh_time','gibbs_time'], ['stddev_mh_time','stddev_gibbs_time'], ['mh', 'gibbs'], 'running time (ms)', True)
+        self.plot_frontend(plot_title, plot_file, self.running_time_ids, self.running_time_stddev_ids, self.times_over_samples_legend, self.times_over_samples_x_label, self.times_over_samples_y_label, True)
 
     def plot_mh_vs_gibbs_probs(self, plot_title, plot_file):
-        self.plot_frontend(plot_title, plot_file, ['mh_prob','gibbs_prob'], ['stddev_mh_prob','stddev_gibbs_prob'], ['mh', 'gibbs'], 'probability [0,1]')
+        self.plot_frontend(plot_title, plot_file, self.prob_ids, self.prob_stddev_ids, self.probs_over_samples_legend, self.probs_over_samples_x_label, self.probs_over_samples_y_label, True)
 
     def mh_vs_gibbs_avg(self):
-        avgs = self.compute_avg_and_stddev_data_sets(['mh_time',
-            'gibbs_time', 'mh_prob', 'gibbs_prob'],
-            'run_number','samples')
+        avgs = self.compute_avg_and_stddev_data_sets(self.dim_id,'run_number','samples')
         avgs['run_number']=self.data['run_number']
         avgs['samples']=self.data['samples']
         self.overwrite_data_set_with_avg(avgs)
@@ -328,6 +343,27 @@ class Test33FourWayComparison(FourWayComparison):
                         'plot_test33_probs.png')
 
 
+class MhVsGibbsVsRejection(Utils):
+    def __init__(self, filename, delimiter=','):
+        fields_list=['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob']
+#        self.... = ...
+        super().__init__(filename, delimiter=',', fields_list=fields_list)
+
+    def plot_mh_vs_gibbs_times(self, plot_title, plot_file):
+        self.plot_frontend(plot_title, plot_file, ['mh_time','gibbs_time', 'rejection_time'], ['stddev_mh_time','stddev_gibbs_time'], ['mh', 'gibbs'], 'running time (ms)', True)
+
+    def plot_mh_vs_gibbs_probs(self, plot_title, plot_file):
+        self.plot_frontend(plot_title, plot_file, ['mh_prob','gibbs_prob'], ['stddev_mh_prob','stddev_gibbs_prob'], ['mh', 'gibbs'], 'probability [0,1]')
+
+    def mh_vs_gibbs_avg(self):
+        avgs = self.compute_avg_and_stddev_data_sets(['mh_time',
+            'gibbs_time', 'mh_prob', 'gibbs_prob'],
+            'run_number','samples')
+        avgs['run_number']=self.data['run_number']
+        avgs['samples']=self.data['samples']
+        self.overwrite_data_set_with_avg(avgs)
+
+
 def main():
     # This is necessary to save the plot to a file instead of displaying it directly.
     matplotlib.use('Agg')
@@ -367,6 +403,9 @@ def main():
     elif file_name_a == 'arithm_cond_prob.csv':
         speeds = ArithmCondProbAdaptOnVsAdaptOff(file_name_a,delimiter)
         speeds.arithm_cond_prob_adapt_on_vs_adapt_off_avg()
+    elif file_name_a == 'arithm_sample_three.csv':
+        speeds = ArithmSampleMhVsGibbs(file_name_a,delimiter)
+        speeds.arithm_sample_mh_vs_gibbs_vs_rejection_avg()
 
 if __name__ == '__main__':
     main()

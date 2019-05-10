@@ -49,22 +49,27 @@ select_experiment(Experiment_name,Min,Max,Step,Runs,Parallel):-
     Parallel == 1,
     !,
     atom_string("arithm_sample",A),
-    atom_string("arithm_rejection_sample",B),
-    atom_string("test33_sample",C),
-    atom_string("test66_sample",D),
+    atom_string("arithm_sample_three",B),
+    atom_string("arithm_rejection_sample",C),
+    atom_string("test33_sample",D),
+    atom_string("test66_sample",E),
     ( A = Experiment_name
       -> experiments_single_arithm(Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( B = Experiment_name
-      -> experiments_single_arithm_rejection_sample(Min,Max,Step,Runs)
+      -> experiments_single_arithm_three(Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( C = Experiment_name
-      -> experiments_single_test33(Min,Max,Step,Runs)
+      -> experiments_single_arithm_rejection_sample(Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( D = Experiment_name
+      -> experiments_single_test33(Min,Max,Step,Runs)
+      ; 1 = 1
+    ),
+    ( E = Experiment_name
       -> experiments_single_test66(Min,Max,Step,Runs)
     ).
 
@@ -73,6 +78,7 @@ select_experiment(Experiment_name,Min,Max,Step,Runs,_):-
     atom_string("arithm_rejection_sample",B),
     atom_string("test33_sample",C),
     atom_string("test66_sample",D),
+    atom_string("arithm_sample_three",E),
     ( A = Experiment_name
       -> experiments_sequential_arithm(Min,Max,Step,Runs)
       ; 1 = 1
@@ -87,6 +93,10 @@ select_experiment(Experiment_name,Min,Max,Step,Runs,_):-
     ),
     ( D = Experiment_name
       -> experiments_sequential_test66(Min,Max,Step,Runs)
+      ; 1 = 1
+    ),
+    ( E = Experiment_name
+      -> writeln('not implemented')
     ).
 
 /* Check that all the Argv values are integers with some conditions. */
@@ -158,7 +168,7 @@ loop_arithm_sample(Curr, Max, Step, Runs, Out):-
 
 measure_arithm_mh_sample(Time, Samples, Prob):-
     statistics(walltime, [_|[_]]),
-    mc_mh_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100),lag(3),successes(_),failures(_)]),
+    mc_mh_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100),lag(3)]),
     statistics(walltime, [_|[Time]]).
 
 measure_arithm_gibbs_sample(Time, Samples, Prob):-
@@ -290,3 +300,47 @@ measure_test66_gibbs_sample(Time, Samples, Prob):-
     statistics(walltime, [_|[_]]),
     mc_gibbs_sample(t(query),t(evidence),Samples,Prob,[]),
     statistics(walltime, [_|[Time]]).
+
+
+/* Three way comparisons */
+
+/* arithm_sample */
+experiments_single_arithm_three(Min,Max,Step,Run_label):-
+    format('performing arithm.pl on arithm_sample_three.csv\n'),
+    ['../prolog/swish/examples/inference/arithm'],
+    open('arithm_sample_three.csv',append,Out_a),
+    loop_arithm_sample_three(Min,Max,Step,Run_label,Out_a),
+    close(Out_a).
+
+loop_arithm_sample_three(Curr,Max,_,_,_):-
+    Curr>Max,
+    !.
+
+loop_arithm_sample_three(Curr, Max, Step, Runs, Out):-
+    Samples is Curr,
+    measure_arithm_mh_sample(Time_mh_sample,Samples,P_mh_sample),
+    measure_arithm_gibbs_sample(Time_gibbs_sample,Samples,P_gibbs_sample),
+    measure_arithm_mh_rejection_sample(Time_mh_rejection_sample,Samples,P_mh_rejection_sample),
+    format('run ~q, sample ~q of ~q\n', [Runs, Samples, Max]),
+    format(Out, '~q,~q,~q,~q,~q,~q,~q,~q\n', [Runs, Samples, Time_mh_sample, P_mh_sample, Time_gibbs_sample, P_gibbs_sample, Time_mh_rejection_sample, P_mh_rejection_sample]),
+    flush_output(Out),
+    flush_output,
+    N is Curr+Step,
+    loop_arithm_sample_three(N,Max,Step,Runs,Out).
+
+
+/*
+query_mh(Samples):-
+    statistics(walltime,[Start|_]),
+        mc_mh_sample(hmm([a,c]),letter(q1,a,1),Samples,P,[mix(100)]),
+    statistics(walltime,[Stop|_]),
+    Runtime is Stop - Start,
+    format('~w,~w - Runtime ~w',[Samples,P,Runtime]).
+
+query_gibbs(Samples):-
+    statistics(walltime,[Start|_]),
+    mc_gibbs_sample(hmm([a,c]),letter(q1,a,1),Samples,P,[mix(100)]),
+    statistics(walltime,[Stop|_]),
+    Runtime is Stop - Start,
+    format('~w,~w - Runtime ~w',[Samples,P,Runtime]).
+*/
