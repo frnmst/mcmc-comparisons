@@ -157,30 +157,18 @@ class Utils():
 
         return dim
 
-    def plot_frontend(self, plot_title: str, plot_file: str, running_times: list, running_times_stddev: list, legend: list, y_label: str, x_label: str, use_scientific_notation: bool = False):
-            # Do we really need this function?
-            # TODO
-            # FIXME
-            for e in running_times:
-                assert isinstance(e, str)
-            for e in running_times_stddev:
-                assert isinstance(e, str)
-            for e in legend:
-                assert isinstance(e, str)
-
-            self.plot_data_sets('samples',
-                            running_times,
-                            running_times_stddev,
-                            legend,
-                            plot_title,
-                            'samples',
-                            y_label,
-                            plot_file,
-                            use_scientific_notation)
-
     def overwrite_data_set_with_avg(self, dims_avg: dict):
         for key, value in dims_avg.items():
             if key == 'run_number' or key == 'samples':
+                # Remove duplicates from these two sets.
+                self.data[key]=sorted(list(set(self.data[key])))
+            else:
+                self.data[key]=value
+
+    def overwrite_data_set_with_first_experiment_only(self):
+        # TODO FIXME.
+        for key, value in self.data():
+            if key == 'run_number' and value == 1:
                 # Remove duplicates from these two sets.
                 self.data[key]=sorted(list(set(self.data[key])))
             else:
@@ -192,18 +180,28 @@ class MhVsGibbs(Utils):
         self.file={ 'name': filename, 'delimiter': delimiter, 'fields': fields }
         files=[self.file]
         super().__init__(files)
+
         self.times_over_samples_x_id = 'samples'
         self.times_over_samples_y_ids=['mh_time','gibbs_time']
-        self.probs_over_samples_x_id = 'samples'
-        self.probs_over_samples_y_ids = ['mh_prob','gibbs_prob']
         self.times_over_samples_stddev_y_ids=['stddev_mh_time','stddev_gibbs_time']
-        self.probs_over_samples_stddev_y_ids=['stddev_mh_prob','stddev_gibbs_prob']
         self.times_over_samples_legend=['mh', 'gibbs']
         self.times_over_samples_x_label='samples'
         self.times_over_samples_y_label='running time (ms)'
+
+        self.probs_over_samples_x_id = 'samples'
+        self.probs_over_samples_y_ids = ['mh_prob','gibbs_prob']
+        self.probs_over_samples_stddev_y_ids=['stddev_mh_prob','stddev_gibbs_prob']
         self.probs_over_samples_legend=['mh', 'gibbs']
         self.probs_over_samples_x_label='samples'
         self.probs_over_samples_y_label='probability [0,1]'
+
+        self.probs_over_times_x_id = 'time'
+        self.probs_over_times_y_ids = ['mh_prob','gibbs_prob']
+        self.probs_over_times_stddev_y_ids=['stddev_mh_prob','stddev_gibbs_prob']
+        self.probs_over_times_legend=['mh', 'gibbs']
+        self.probs_over_times_x_label='running time (ms)'
+        self.probs_over_times_y_label='probability [0,1]'
+
         self.dim_id=self.file['fields'][2:]
 
     def plot_times_over_samples(self, plot_title, plot_file):
@@ -226,7 +224,18 @@ class MhVsGibbs(Utils):
                             self.probs_over_samples_x_label,
                             self.probs_over_samples_y_label,
                             plot_file,
-                            True)
+                            False)
+
+    def plot_probs_over_times(self, plot_title, plot_file):
+            self.plot_data_sets(self.probs_over_times_x_id,
+                            self.probs_over_times_y_ids,
+                            self.probs_over_times_stddev_y_ids,
+                            self.probs_over_times_legend,
+                            plot_title,
+                            self.probs_over_times_x_label,
+                            self.probs_over_times_y_label,
+                            plot_file,
+                            False)
 
     def replace_dataset_to_avg(self):
         avgs = self.compute_avg_and_stddev_data_sets(self.dim_id,'run_number','samples')
@@ -236,82 +245,16 @@ class MhVsGibbs(Utils):
 
 
 class ArithmSampleMhVsGibbs(MhVsGibbs):
-    def arithm_sample_mh_vs_gibbs_avg(self):
-        self.replace_dataset_to_avg()
-        self.plot_times_over_samples('arithm_sample mh vs gibbs times avg','plot_arithm_sample_mh_vs_gibbs_times.png')
-        self.plot_probs_over_samples('arithm_sample mh vs gibbs probs avg','plot_arithm_sample_mh_vs_gibbs_probs.png')
-
-class ArithmRejectionSampleMhVsGibbs(MhVsGibbs):
-    def arithm_rejection_sample_mh_vs_gibbs_avg(self):
-        self.mh_vs_gibbs_avg()
-        self.plot_mh_vs_gibbs_times('arithm_rejection_sample mh vs gibbs times avg',
-                              'plot_arithm_rejection_sample_mh_vs_gibbs_times.png')
-        self.plot_mh_vs_gibbs_probs('arithm_rejection_sample mh vs gibbs probs avg',
-                              'plot_arithm_rejection_sample_mh_vs_gibbs_probs.png')
-
-
-class Test33SampleMhVsGibbs(MhVsGibbs):
-    def test33_sample_mh_vs_gibbs_avg(self):
-        self.mh_vs_gibbs_avg()
-        self.plot_mh_vs_gibbs_times('test33_sample mh vs gibbs times avg',
-                              'plot_test33_sample_mh_vs_gibbs_times.png')
-        self.plot_mh_vs_gibbs_probs('test33_sample mh vs gibbs probs avg',
-                              'plot_test33_sample_mh_vs_gibbs_probs.png')
-
-
-class Test66SampleMhVsGibbs(MhVsGibbs):
-    def test66_sample_mh_vs_gibbs_avg(self):
-        self.mh_vs_gibbs_avg()
-        self.plot_mh_vs_gibbs_times('test66_sample mh vs gibbs times avg',
-                              'plot_test66_sample_mh_vs_gibbs_times.png')
-        self.plot_mh_vs_gibbs_probs('test66_sample mh vs gibbs probs avg',
-                              'plot_test66_sample_mh_vs_gibbs_probs.png')
-
-
-class Amcmc(Utils):
-    def __init__(self, filename: str, delimiter: str=','):
-        file={ 'name': filename, 'delimiter': delimiter, 'fields': ['run_number', 'samples', 'adapt_on_time', 'adapt_on_prob', 'adapt_off_time', 'adapt_off_prob'] }
-        files=[file]
-        super().__init__(files)
-
-    def plot_adapt_on_vs_adapt_off_times(self, plot_title, plot_file):
-        self.plot_frontend(plot_title, plot_file, ['adapt_on_time','adapt_off_time'], ['stddev_adapt_on_time','stddev_adapt_off_time'], ['adapt_on', 'adapt_off'], 'running time (ms)', True)
-
-    def plot_adapt_on_vs_adapt_off_probs(self, plot_title, plot_file):
-        self.plot_frontend(plot_title, plot_file, ['adapt_on_prob','adapt_off_prob'], ['stddev_adapt_on_prob','stddev_adapt_off_prob'], ['adapt_on', 'adapt_off'], 'probability [0,1]')
-
-    def adapt_on_vs_adapt_off_avg(self):
-        avgs = self.compute_avg_and_stddev_data_sets(['adapt_on_time',
-            'adapt_off_time', 'adapt_on_prob', 'adapt_off_prob'],
-            'run_number','samples')
-        avgs['run_number']=self.data['run_number']
-        avgs['samples']=self.data['samples']
-        self.overwrite_data_set_with_avg(avgs)
-
-
-class Test33CondProbAdaptOnVsAdaptOff(Amcmc):
-    def test33_cond_prob_adapt_on_vs_adapt_off_avg(self):
-        self.adapt_on_vs_adapt_off_avg()
-        self.plot_adapt_on_vs_adapt_off_times('test33_cond_prob adapt_on vs adapt_off times avg',
-                              'plot_test33_cond_prob_adapt_on_vs_adapt_off_times.png')
-        self.plot_adapt_on_vs_adapt_off_probs('test33_cond_prob adapt_on vs adapt_off probs avg',
-                              'plot_test33_cond_prob_adapt_on_vs_adapt_off_probs.png')
-
-class Test66CondProbAdaptOnVsAdaptOff(Amcmc):
-    def test66_cond_prob_adapt_on_vs_adapt_off_avg(self):
-        self.adapt_on_vs_adapt_off_avg()
-        self.plot_adapt_on_vs_adapt_off_times('test66_cond_prob adapt_on vs adapt_off times avg',
-                              'plot_test66_cond_prob_adapt_on_vs_adapt_off_times.png')
-        self.plot_adapt_on_vs_adapt_off_probs('test66_cond_prob adapt_on vs adapt_off probs avg',
-                              'plot_test66_cond_prob_adapt_on_vs_adapt_off_probs.png')
-
-class ArithmCondProbAdaptOnVsAdaptOff(Amcmc):
-    def arithm_cond_prob_adapt_on_vs_adapt_off_avg(self):
-        self.adapt_on_vs_adapt_off_avg()
-        self.plot_adapt_on_vs_adapt_off_times('arithm_cond_prob adapt_on vs adapt_off times avg',
-                              'plot_arithm_cond_prob_adapt_on_vs_adapt_off_times.png')
-        self.plot_adapt_on_vs_adapt_off_probs('arithm_cond_prob adapt_on vs adapt_off probs avg',
-                              'plot_arithm_cond_prob_adapt_on_vs_adapt_off_probs.png')
+    def arithm_sample_mh_vs_gibbs(self, keep_first_experiment_only=False):
+        if keep_first_experiment_only:
+            self.plot_times_over_samples('arithm_sample mh vs gibbs times','plot_arithm_sample_mh_vs_gibbs_times.png')
+            self.plot_probs_over_samples('arithm_sample mh vs gibbs probs','plot_arithm_sample_mh_vs_gibbs_probs.png')
+            self.plot_probs_over_times('arithm_sample mh vs gibbs probs over time','plot_arithm_sample_mh_vs_gibbs_probs_over_time.png')
+        else:
+            self.replace_dataset_to_avg()
+            self.plot_times_over_samples('arithm_sample mh vs gibbs times avg','plot_arithm_sample_mh_vs_gibbs_times_avg.png')
+            self.plot_probs_over_samples('arithm_sample mh vs gibbs probs avg','plot_arithm_sample_mh_vs_gibbs_probs_avg.png')
+            self.plot_probs_over_times('arithm_sample mh vs gibbs probs over time avg','plot_arithm_sample_mh_vs_gibbs_probs_over_time_avg.png')
 
 
 class FourWayComparison(Utils):
@@ -348,33 +291,29 @@ class ArithmFourWayComparison(FourWayComparison):
         self.plot_probs('arithm probs avg',
                         'plot_arithm_probs.png')
 
-class Test33FourWayComparison(FourWayComparison):
-    def test33_four_way_comparison_avg(self):
-        self.compute_avg()
-        self.plot_times('test33 times avg',
-                        'plot_test33_times.png')
-        self.plot_probs('test33 probs avg',
-                        'plot_test33_probs.png')
 
 class MhVsGibbsVsRejection(MhVsGibbs):
     def __init__(self, filename, delimiter=',', fields = ['run_number', 'samples', 'mh_time', 'mh_prob', 'gibbs_time', 'gibbs_prob', 'rejection_time', 'rejection_prob']):
-        super().__init__(filename,delimiter, fields)
+        super().__init__(filename, delimiter, fields)
+
         self.times_over_samples_x_id = 'samples'
         self.times_over_samples_y_ids=['mh_time','gibbs_time','rejection_time']
-        self.probs_over_samples_x_id = 'samples'
-        self.probs_over_samples_y_ids = ['mh_prob','gibbs_prob','rejection_prob']
         self.times_over_samples_stddev_y_ids=['stddev_mh_time','stddev_gibbs_time', 'stddev_rejection_time']
-        self.probs_over_samples_stddev_y_ids=['stddev_mh_prob','stddev_gibbs_prob', 'stddev_rejection_prob']
         self.times_over_samples_legend=['mh', 'gibbs', 'rejection']
         self.times_over_samples_x_label='samples'
         self.times_over_samples_y_label='running time (ms)'
+
+        self.probs_over_samples_stddev_y_ids=['stddev_mh_prob','stddev_gibbs_prob', 'stddev_rejection_prob']
+        self.probs_over_samples_x_id = 'samples'
+        self.probs_over_samples_y_ids = ['mh_prob','gibbs_prob','rejection_prob']
         self.probs_over_samples_legend=['mh', 'gibbs', 'rejection']
         self.probs_over_samples_x_label='samples'
         self.probs_over_samples_y_label='probability [0,1]'
+
         self.dim_id=self.file['fields'][2:]
 
 class ArithmSampleMhVsGibbsVsRejection(MhVsGibbsVsRejection):
-    def arithm_sample_mh_vs_gibbs_vs_rejection_avg(self):
+    def arithm_sample_mh_vs_gibbs_vs_rejection(self, keep_first_experiment_only):
         self.replace_dataset_to_avg()
         self.plot_times_over_samples('arithm_sample mh vs gibbs vs rejection times avg','plot_arithm_sample_mh_vs_gibbs_vs_rejection_times.png')
         self.plot_probs_over_samples('arithm_sample mh vs gibbs vs rejection probs avg','plot_arithm_sample_mh_vs_gibbs_vs_rejection_probs.png')
@@ -384,9 +323,10 @@ def main():
     matplotlib.use('Agg')
     # Get the file names from argv. This decides the type of plot.
     file_name_a=sys.argv[1]
-    if len(sys.argv) == 3:
+    keep_first_experiment_only = bool(sys.argv[2])
+    if len(sys.argv) == 4:
         # Plot two tests.
-        file_name_b=sys.argv[2]
+        file_name_b=sys.argv[3]
     else:
         # Plot a single test.
         file_name_b=''
@@ -400,6 +340,12 @@ def main():
     elif file_name_a == 'arithm_sample.csv':
         speeds = ArithmSampleMhVsGibbs(file_name_a,delimiter)
         speeds.arithm_sample_mh_vs_gibbs_avg()
+    elif file_name_a == 'arithm_sample_three.csv':
+        speeds = ArithmSampleMhVsGibbsVsRejection(file_name_a,delimiter)
+        speeds.arithm_sample_mh_vs_gibbs_vs_rejection(keep_first_experiment_only)
+
+    # FIXME. Refactor functions.
+    """
     elif file_name_a == 'arithm_rejection_sample.csv':
         speeds = ArithmRejectionSampleMhVsGibbs(file_name_a,delimiter)
         speeds.arithm_rejection_sample_mh_vs_gibbs_avg()
@@ -418,9 +364,7 @@ def main():
     elif file_name_a == 'arithm_cond_prob.csv':
         speeds = ArithmCondProbAdaptOnVsAdaptOff(file_name_a,delimiter)
         speeds.arithm_cond_prob_adapt_on_vs_adapt_off_avg()
-    elif file_name_a == 'arithm_sample_three.csv':
-        speeds = ArithmSampleMhVsGibbsVsRejection(file_name_a,delimiter)
-        speeds.arithm_sample_mh_vs_gibbs_vs_rejection_avg()
+    """
 
 if __name__ == '__main__':
     main()
