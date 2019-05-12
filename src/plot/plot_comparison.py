@@ -73,6 +73,8 @@ class Utils():
         pass
 
     def load_time_over_sample_in_arrays(self):
+        # We need to extract only the relevant data without altering
+        # the main data structure.
         self.time_over_sample['x'] = self.data[1]
         self.time_over_sample['y'] = list()
         for i in range(TIME_FIELD_START_INDEX,self.number_of_rows,2):
@@ -97,6 +99,9 @@ class Utils():
         x = list()
         y = list()
         # we need to add 1 because of list slices in Python.
+        # Iterate through all the x and y lists and extract the first
+        # self.last_index_of_first_run values. These values
+        # correspond to the first experiment only.
         x = self.time_over_sample['x'][0:self.last_index_of_first_run + 1]
         for i in range(0, len(self.time_over_sample['y'])):
             y.append(list())
@@ -105,9 +110,11 @@ class Utils():
         self.time_over_sample['y'] = y
 
     def patch_prob_over_sample_array_with_first_experiment_only(self):
+        # FIXME
         self.prob_over_sample['y'] = self.prob_over_sample['y'][0]
 
     def patch_prob_over_time_array_with_first_experiment_only(self):
+        # FIXME
         self.prob_over_time['x'] = self.prob_over_time['x'][0]
         self.prob_over_time['y'] = self.prob_over_time['y'][0]
 
