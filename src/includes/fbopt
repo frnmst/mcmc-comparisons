@@ -30,6 +30,9 @@ Options:
                                         character and specifing the SWI then
                                         XSB the experiment name, like this:
                                         'experiment_name_swi:experiment_name_xsb'
+    --first-experiment-only             keep the first experiment and discard all
+                                        the others while plotting. The CSV file
+                                        will remain unaltered
     -g, --graph                         run the plot script after the experiments
     --graph-only                        run the plot script only
     -h, --help                          print this help
@@ -118,7 +121,7 @@ main()
     local getopt_short_options='fm:M:s:r:ght:y:pS'
     local getopt_long_options='list-experiment-names,list-experiment-types,min:,max:,step:,runs:,help,\
 parallel,single-run-with-label:,experiment-name:,threads:,experiment-type:,graph,graph-only,\
-multi-switch:,no-remove-csv-files,four-way-comparison,slurm,memory:,partition:,print-flags'
+multi-switch:,no-remove-csv-files,four-way-comparison,slurm,memory:,partition:,first-experiment-only,print-flags'
 
     # Set the default values for the flags.
     local four_way_comparison='false'
@@ -140,6 +143,7 @@ multi-switch:,no-remove-csv-files,four-way-comparison,slurm,memory:,partition:,p
     local slurm='false'
     local memory="${MEMORY}"
     local partition="${PARTITION}"
+    local first_experiment_only="${FIRST_EXPERIMENT_ONLY}"
 
     local program_name="${0}"
     opts="$(getopt \
@@ -161,6 +165,8 @@ multi-switch:,no-remove-csv-files,four-way-comparison,slurm,memory:,partition:,p
         case "${1}" in
 
             -f | --four-way-comparison )    four_way_comparison='true' ;;
+
+            --first-experiment-only )       first_experiment_only='true' ;;
 
             --list-experiment-names )       list_experiment_names='true' ;;
 
@@ -260,6 +266,7 @@ multi-switch:,no-remove-csv-files,four-way-comparison,slurm,memory:,partition:,p
             'slurm' \
             'memory' \
             'partition' \
+            'first_experiment_only' \
         && return 0
     [ "${help}" = 'true' ] && show_help && return 0
 
@@ -365,7 +372,7 @@ multi-switch:,no-remove-csv-files,four-way-comparison,slurm,memory:,partition:,p
         i=$((${i}+1))
     done
 
-    [ "${graph}" = 'true' ] && plot_comparison "${experiment_name_a}" "${experiment_name_b}"
+    [ "${graph}" = 'true' ] && plot_comparison "${experiment_name_a}" "${first_experiment_only}" "${experiment_name_b}"
 }
 
 # Test dependencies and versions.

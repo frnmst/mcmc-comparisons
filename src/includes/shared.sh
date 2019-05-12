@@ -53,14 +53,18 @@ list_available_experiment_types()
 
 plot_comparison()
 {
-    local experiment_name_a="${1}"
-    local experiment_name_b="${2}"
+    local experiment_name_a=""${1}".csv"
+    local first_experiment_only="${2}"
+    local experiment_name_b=""${3}".csv"
+
+    [ "${experiment_name_b}" = '.csv' ] && unset experiment_name_b
 
     export MPLBACKEND=Agg
     python3 "${PLOT_DIRECTORY}"/plot_comparison.py \
-        ""${experiment_name_a}".csv" \
-        ""${experiment_name_b}".csv" \
-        && printf "%s\n" "check the resulting plots"
+        "${experiment_name_a}" \
+        "${first_experiment_only}" \
+        "${experiment_name_b}" \
+        && printf "%s\n" 'check the resulting plots'
 }
 
 run_xsb_experiments()

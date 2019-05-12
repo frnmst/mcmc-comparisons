@@ -48,3 +48,5 @@ EXPERIMENT_NAME='arithm_sample'
 REPETITIONS=0
 MEMORY=8192
 PARTITION='normal'
+# empty means false
+FIRST_EXPERIMENT_ONLY=''
