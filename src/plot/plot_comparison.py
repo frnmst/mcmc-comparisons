@@ -110,13 +110,25 @@ class Utils():
         self.time_over_sample['y'] = y
 
     def patch_prob_over_sample_array_with_first_experiment_only(self):
-        # FIXME
-        self.prob_over_sample['y'] = self.prob_over_sample['y'][0]
+        x = list()
+        y = list()
+        x = self.prob_over_sample['x'][0:self.last_index_of_first_run + 1]
+        for i in range(0, len(self.prob_over_sample['y'])):
+            y.append(list())
+            y[i] = self.prob_over_sample['y'][i][0:self.last_index_of_first_run + 1]
+        self.prob_over_sample['x'] = x
+        self.prob_over_sample['y'] = y
 
     def patch_prob_over_time_array_with_first_experiment_only(self):
-        # FIXME
-        self.prob_over_time['x'] = self.prob_over_time['x'][0]
-        self.prob_over_time['y'] = self.prob_over_time['y'][0]
+        x = list()
+        y = list()
+        for i in range(0, len(self.prob_over_time['y'])):
+            x.append(list())
+            x[i] = self.prob_over_time['x'][i][0:self.last_index_of_first_run + 1]
+            y.append(list())
+            y[i] = self.prob_over_time['y'][i][0:self.last_index_of_first_run + 1]
+        self.prob_over_time['x'] = x
+        self.prob_over_time['y'] = y
 
     def populate_disposable_data_structure_for_time_over_sample_plot(self):
         self.x = self.time_over_sample['x']
@@ -124,30 +136,62 @@ class Utils():
         self.legend = self.time_over_sample['legend']
         self.x_label = self.time_over_sample['x label']
         self.y_label = self.time_over_sample['y label']
+        self.title = self.time_over_sample['plot title']
+        self.file_name = self.time_over_sample['file name']
+
+    def populate_disposable_data_structure_for_prob_over_sample_plot(self):
+        self.x = self.prob_over_sample['x']
+        self.y = self.prob_over_sample['y']
+        self.legend = self.prob_over_sample['legend']
+        self.x_label = self.prob_over_sample['x label']
+        self.y_label = self.prob_over_sample['y label']
+        self.title = self.prob_over_sample['plot title']
+        self.file_name = self.prob_over_sample['file name']
+
+    def populate_disposable_data_structure_for_prob_over_time_plot(self):
+        self.x = self.prob_over_time['x']
+        self.y = self.prob_over_time['y']
+        self.legend = self.prob_over_time['legend']
+        self.x_label = self.prob_over_time['x label']
+        self.y_label = self.prob_over_time['y label']
+        self.title = self.prob_over_time['plot title']
+        self.file_name = self.prob_over_time['file name']
 
     def compute_avg_and_stddev(self):
         pass
 
+    def patch_x_if_necessary(self):
+        # If x does not contain nested lists we need to replace its original content
+        # with nested lists.
+        if not any(isinstance(i, list) for i in self.x):
+            tmp = list()
+            for i in range(0, len(self.y)):
+                tmp.append(self.x)
+            self.x = tmp
+
     def plot(self, error_bars: bool = False, scientific_notation: bool = False):
+        self.patch_x_if_necessary()
         for i in range(0, len(self.y)):
             if error_bars:
                 pass
             else:
-                plt.plot(self.x, self.y[i],markersize=2.5,linestyle='-',marker='o')
+                plt.plot(self.x[i], self.y[i],markersize=2.5,linestyle='-',marker='o')
 
-        plt.title('FIXME')
+        plt.title(self.title)
         plt.legend(self.legend)
         plt.xlabel(self.x_label)
         plt.ylabel(self.y_label)
-        plt.savefig('FIXME.png')
+        plt.savefig(self.file_name)
         # Flush output. Without this consecutive plots overlap.
         # See: https://stackoverflow.com/questions/17106288/matplotlib-pyplot-will-not-forget-previous-plots-how-can-i-flush-refresh
         plt.gcf().clear()
 
 
 class MhVsGibbs(Utils):
-    def __init__(self, filename, delimiter=','):
+    def __init__(self, filename, delimiter=',', experiment_name='arithm_sample'):
         self.time_over_sample = dict()
+        self.prob_over_sample = dict()
+        self.prob_over_time = dict()
 
         self.time_over_sample['x id'] = 'samples'
         self.time_over_sample['y ids'] = ['mh time','gibbs time']
@@ -155,11 +199,28 @@ class MhVsGibbs(Utils):
         self.time_over_sample['legend'] = ['mh', 'gibbs']
         self.time_over_sample['x label'] = 'samples'
         self.time_over_sample['y label'] = 'running time (ms)'
+        self.time_over_sample['plot title'] = 'time over sample mh vs gibbs ' + experiment_name
+        self.time_over_sample['file name'] = 'plot_time_over_sample_mh_vs_gibbs.png'
+
+        self.prob_over_sample['x id'] = 'samples'
+        self.prob_over_sample['y ids'] = ['mh prob','gibbs prob']
+        self.prob_over_sample['stddev y ids'] = ['stddev mh prob','stddev gibbs prob']
+        self.prob_over_sample['legend'] = ['mh', 'gibbs']
+        self.prob_over_sample['x label'] = 'samples'
+        self.prob_over_sample['y label'] = 'probability (0,1)'
+        self.prob_over_sample['plot title'] = 'prob over sample mh vs gibbs ' + experiment_name
+        self.prob_over_sample['file name'] = 'plot_prob_over_sample_mh_vs_gibbs.png'
+
+        self.prob_over_time['x id'] = 'time'
+        self.prob_over_time['y ids'] = ['mh prob','gibbs prob']
+        self.prob_over_time['stddev y ids'] = ['stddev mh prob','stddev gibbs prob']
+        self.prob_over_time['legend'] = ['mh', 'gibbs']
+        self.prob_over_time['x label'] = 'running time (ms)'
+        self.prob_over_time['y label'] = 'probability (0,1)'
+        self.prob_over_time['plot title'] = 'prob over time mh vs gibbs ' + experiment_name
+        self.prob_over_time['file name'] = 'plot_prob_over_time_mh_vs_gibbs.png'
 
         super().__init__(filename, delimiter)
-
-    def plot_time_over_sample(self, use_scientific_notation, show_error_bars):
-        pass
 
 
 if __name__ == '__main__':
@@ -179,11 +240,21 @@ if __name__ == '__main__':
         file_name_b=''
     delimiter=','
     if file_name_a == 'arithm_sample.csv':
-        speeds = MhVsGibbs(file_name_a,delimiter)
+        speeds = MhVsGibbs(file_name_a,delimiter,'arithm_sample')
         speeds.load_time_over_sample_in_arrays()
         speeds.patch_time_over_sample_array_with_first_experiment_only()
         speeds.populate_disposable_data_structure_for_time_over_sample_plot()
         speeds.plot()
         print(speeds.time_over_sample)
+        speeds.load_prob_over_sample_in_arrays()
+        speeds.patch_prob_over_sample_array_with_first_experiment_only()
+        speeds.populate_disposable_data_structure_for_prob_over_sample_plot()
+        speeds.plot()
+        print(speeds.prob_over_sample)
+        speeds.load_prob_over_time_in_arrays()
+        speeds.patch_prob_over_time_array_with_first_experiment_only()
+        speeds.populate_disposable_data_structure_for_prob_over_time_plot()
+        speeds.plot()
+        print(speeds.prob_over_time)
     else:
         print('code needs to be re-implemented. refer to older git commits')
