@@ -79,7 +79,6 @@ class Utils():
         self.time_over_sample['y'] = list()
         for i in range(TIME_FIELD_START_INDEX,self.number_of_rows,2):
             self.time_over_sample['y'].append(self.data[i])
-        print(self.time_over_sample)
 
     def load_prob_over_sample_in_arrays(self):
         self.prob_over_sample['x'] = self.data[1]
@@ -157,10 +156,23 @@ class Utils():
         self.title = self.prob_over_time['plot title']
         self.file_name = self.prob_over_time['file name']
 
-    def compute_avg_and_stddev(self):
-        pass
+    def patch_sort_prob_over_time_x_and_y_by_ascending_x_values(self):
+        tmp_x = list()
+        tmp_y = list()
+        for i in range(0,len(self.x)):
+            tmp_x.append(0)
+            tmp_y.append(0)
+            tmp_x[i], tmp_y[i] = zip(*sorted(zip(self.x[i],self.y[i])))
+            tmp_x[i] = list(tmp_x[i])
+            tmp_y[i] = list(tmp_y[i])
+        self.x = tmp_x
+        self.y = tmp_y
 
-    def patch_x_if_necessary(self):
+        # Override to update.
+        self.prob_over_time['x'] = self.x
+        self.prob_over_time['y'] = self.y
+
+    def patch_x_as_nested_list(self):
         # If x does not contain nested lists we need to replace its original content
         # with nested lists.
         if not any(isinstance(i, list) for i in self.x):
@@ -169,8 +181,11 @@ class Utils():
                 tmp.append(self.x)
             self.x = tmp
 
+    def compute_avg_and_stddev(self):
+        pass
+
     def plot(self, error_bars: bool = False, scientific_notation: bool = False):
-        self.patch_x_if_necessary()
+        print(self.x)
         for i in range(0, len(self.y)):
             if error_bars:
                 pass
@@ -244,17 +259,22 @@ if __name__ == '__main__':
         speeds.load_time_over_sample_in_arrays()
         speeds.patch_time_over_sample_array_with_first_experiment_only()
         speeds.populate_disposable_data_structure_for_time_over_sample_plot()
+        speeds.patch_x_as_nested_list()
         speeds.plot()
-        print(speeds.time_over_sample)
+#        print(speeds.time_over_sample)
         speeds.load_prob_over_sample_in_arrays()
         speeds.patch_prob_over_sample_array_with_first_experiment_only()
         speeds.populate_disposable_data_structure_for_prob_over_sample_plot()
+        speeds.patch_x_as_nested_list()
         speeds.plot()
-        print(speeds.prob_over_sample)
+#        print(speeds.prob_over_sample)
         speeds.load_prob_over_time_in_arrays()
         speeds.patch_prob_over_time_array_with_first_experiment_only()
         speeds.populate_disposable_data_structure_for_prob_over_time_plot()
+        speeds.patch_sort_prob_over_time_x_and_y_by_ascending_x_values()
+        speeds.patch_x_as_nested_list()
         speeds.plot()
+        print(speeds.x)
         print(speeds.prob_over_time)
     else:
         print('code needs to be re-implemented. refer to older git commits')
