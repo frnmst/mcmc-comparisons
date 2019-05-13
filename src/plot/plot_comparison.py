@@ -242,24 +242,25 @@ class MhVsGibbs(Utils):
         self.time_over_sample = dict()
         self.prob_over_sample = dict()
         self.prob_over_time = dict()
+        experiment_filename = experiment_name.replace(' ','_')
 
         self.time_over_sample['legend'] = ['mh', 'gibbs']
         self.time_over_sample['x label'] = 'samples'
         self.time_over_sample['y label'] = 'running time (ms)'
         self.time_over_sample['plot title'] = 'time over sample mh vs gibbs ' + experiment_name
-        self.time_over_sample['file name'] = 'plot_time_over_sample_mh_vs_gibbs_' + experiment_name + '.png'
+        self.time_over_sample['file name'] = 'plot_time_over_sample_mh_vs_gibbs_' + experiment_filename + '.png'
 
         self.prob_over_sample['legend'] = ['mh', 'gibbs']
         self.prob_over_sample['x label'] = 'samples'
         self.prob_over_sample['y label'] = 'probability (0,1)'
         self.prob_over_sample['plot title'] = 'prob over sample mh vs gibbs ' + experiment_name
-        self.prob_over_sample['file name'] = 'plot_prob_over_sample_mh_vs_gibbs_' + experiment_name + '.png'
+        self.prob_over_sample['file name'] = 'plot_prob_over_sample_mh_vs_gibbs_' + experiment_filename + '.png'
 
         self.prob_over_time['legend'] = ['mh', 'gibbs']
         self.prob_over_time['x label'] = 'running time (ms)'
         self.prob_over_time['y label'] = 'probability (0,1)'
         self.prob_over_time['plot title'] = 'prob over time mh vs gibbs ' + experiment_name
-        self.prob_over_time['file name'] = 'plot_prob_over_time_mh_vs_gibbs_' + experiment_name + '.png'
+        self.prob_over_time['file name'] = 'plot_prob_over_time_mh_vs_gibbs_' + experiment_filename + '.png'
 
         super().__init__(filename, delimiter)
 
@@ -268,24 +269,25 @@ class MhVsGibbsVsRejection(Utils):
         self.time_over_sample = dict()
         self.prob_over_sample = dict()
         self.prob_over_time = dict()
+        experiment_filename = experiment_name.replace(' ','_')
 
         self.time_over_sample['legend'] = ['mh', 'gibbs', 'rejection']
         self.time_over_sample['x label'] = 'samples'
         self.time_over_sample['y label'] = 'running time (ms)'
         self.time_over_sample['plot title'] = 'time over sample mh vs gibbs vs rejection ' + experiment_name
-        self.time_over_sample['file name'] = 'plot_time_over_sample_mh_vs_gibbs_vs_rejection_' + experiment_name + '.png'
+        self.time_over_sample['file name'] = 'plot_time_over_sample_mh_vs_gibbs_vs_rejection_' + experiment_filename + '.png'
 
         self.prob_over_sample['legend'] = ['mh', 'gibbs', 'rejection']
         self.prob_over_sample['x label'] = 'samples'
         self.prob_over_sample['y label'] = 'probability (0,1)'
         self.prob_over_sample['plot title'] = 'prob over sample mh vs gibbs vs rejection ' + experiment_name
-        self.prob_over_sample['file name'] = 'plot_prob_over_sample_mh_vs_gibbs_vs_rejection_' + experiment_name + '.png'
+        self.prob_over_sample['file name'] = 'plot_prob_over_sample_mh_vs_gibbs_vs_rejection_' + experiment_filename + '.png'
 
         self.prob_over_time['legend'] = ['mh', 'gibbs', 'rejection']
         self.prob_over_time['x label'] = 'running time (ms)'
         self.prob_over_time['y label'] = 'probability (0,1)'
         self.prob_over_time['plot title'] = 'prob over time mh vs gibbs vs rejection ' + experiment_name
-        self.prob_over_time['file name'] = 'plot_prob_over_time_mh_vs_gibbs_vs_rejection_' + experiment_name + '.png'
+        self.prob_over_time['file name'] = 'plot_prob_over_time_mh_vs_gibbs_vs_rejection_' + experiment_filename + '.png'
 
         super().__init__(filename, delimiter)
 
@@ -305,8 +307,14 @@ if __name__ == '__main__':
         # Plot a single test.
         file_name_b=''
     delimiter=','
+    if keep_first_experiment_only:
+        error_bars = False
+        experiment_name_preamble=str()
+    else:
+        error_bars = True
+        experiment_name_preamble='avg of '
     if file_name_a == 'arithm_sample.csv':
-        speeds = MhVsGibbs(file_name_a,delimiter,'arithm_sample')
+        speeds = MhVsGibbs(file_name_a,delimiter,experiment_name_preamble + 'arithm_sample')
 
         speeds.load_time_over_sample_in_arrays()
         if keep_first_experiment_only:
@@ -315,9 +323,6 @@ if __name__ == '__main__':
         if not keep_first_experiment_only:
             speeds.compute_avg_and_stddev()
         speeds.patch_x_as_nested_list()
-        error_bars = False
-        if not keep_first_experiment_only:
-            error_bars = True
         speeds.plot(error_bars)
 
         speeds.load_prob_over_sample_in_arrays()
@@ -327,9 +332,6 @@ if __name__ == '__main__':
         if not keep_first_experiment_only:
             speeds.compute_avg_and_stddev()
         speeds.patch_x_as_nested_list()
-        error_bars = False
-        if not keep_first_experiment_only:
-            error_bars = True
         speeds.plot(error_bars)
 
         speeds.load_prob_over_time_in_arrays()
@@ -342,7 +344,7 @@ if __name__ == '__main__':
         speeds.patch_x_as_nested_list()
         speeds.plot()
     elif file_name_a == 'arithm_sample_three.csv':
-        speeds = MhVsGibbsVsRejection(file_name_a,delimiter,'arithm_sample_three')
+        speeds = MhVsGibbsVsRejection(file_name_a,delimiter,experiment_name_preamble + 'arithm_sample_three')
 
         speeds.load_time_over_sample_in_arrays()
         if keep_first_experiment_only:
