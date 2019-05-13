@@ -216,8 +216,12 @@ class Utils():
             self.y[i] = avg[i]
         self.x = cols
 
-    def plot(self, error_bars: bool = False, scientific_notation: bool = False):
+    def plot(self, error_bars: bool = False):
         for i in range(0, len(self.y)):
+            if max(self.x[i]) >= 10000:
+                plt.ticklabel_format(axis='x', style='sci', scilimits=(0, 3))
+            if max(self.y[i]) >= 10000:
+                plt.ticklabel_format(axis='y', style='sci', scilimits=(0, 3))
             if error_bars:
                 plt.errorbar(self.x[i],self.y[i],yerr=self.stddev[i],markersize=2.5,linestyle='-',marker='o', capsize=2.5)
             else:
