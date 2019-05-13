@@ -37,6 +37,8 @@ import csv
 import sys
 
 # See the CSV file structure on the readme file.
+RUN_NUMBER_INDEX = 0
+SAMPLE_INDEX = 1
 TIME_FIELD_START_INDEX = 2
 PROB_FIELD_START_INDEX = 3
 
@@ -66,22 +68,19 @@ class Utils():
             # Get the last index of the smallest number. This corresponds to the first run.
             self.last_index_of_first_run = len(self.data[0]) - 1 - self.data[0][::-1].index(min(self.data[0]))
 
-
-        print(self.data)
-
     def compute_avg(self):
         pass
 
     def load_time_over_sample_in_arrays(self):
         # We need to extract only the relevant data without altering
         # the main data structure.
-        self.time_over_sample['x'] = self.data[1]
+        self.time_over_sample['x'] = self.data[SAMPLE_INDEX]
         self.time_over_sample['y'] = list()
         for i in range(TIME_FIELD_START_INDEX,self.number_of_rows,2):
             self.time_over_sample['y'].append(self.data[i])
 
     def load_prob_over_sample_in_arrays(self):
-        self.prob_over_sample['x'] = self.data[1]
+        self.prob_over_sample['x'] = self.data[SAMPLE_INDEX]
         self.prob_over_sample['y'] = list()
         for i in range(PROB_FIELD_START_INDEX,self.number_of_rows,2):
             self.prob_over_sample['y'].append(self.data[i])
@@ -129,7 +128,7 @@ class Utils():
         self.prob_over_time['x'] = x
         self.prob_over_time['y'] = y
 
-    def populate_disposable_data_structure_for_time_over_sample_plot(self):
+    def populate_disposable_data_structure_for_time_over_sample(self):
         self.x = self.time_over_sample['x']
         self.y = self.time_over_sample['y']
         self.legend = self.time_over_sample['legend']
@@ -138,7 +137,7 @@ class Utils():
         self.title = self.time_over_sample['plot title']
         self.file_name = self.time_over_sample['file name']
 
-    def populate_disposable_data_structure_for_prob_over_sample_plot(self):
+    def populate_disposable_data_structure_for_prob_over_sample(self):
         self.x = self.prob_over_sample['x']
         self.y = self.prob_over_sample['y']
         self.legend = self.prob_over_sample['legend']
@@ -147,7 +146,7 @@ class Utils():
         self.title = self.prob_over_sample['plot title']
         self.file_name = self.prob_over_sample['file name']
 
-    def populate_disposable_data_structure_for_prob_over_time_plot(self):
+    def populate_disposable_data_structure_for_prob_over_time(self):
         self.x = self.prob_over_time['x']
         self.y = self.prob_over_time['y']
         self.legend = self.prob_over_time['legend']
@@ -182,13 +181,46 @@ class Utils():
             self.x = tmp
 
     def compute_avg_and_stddev(self):
-        pass
+        rows = sorted(list(set(self.data[RUN_NUMBER_INDEX])))
+        cols = sorted(list(set(self.data[SAMPLE_INDEX])))
+        number_of_rows = len(rows)
+        number_of_cols = len(cols)
+
+        # Define the standard deviation.
+        self.stddev = list()
+
+        matrix_it = list()
+        avg = list()
+        stddev = list()
+        for i in range(0,len(self.y)):
+            matrix_it.append(np.array(self.y[i]).reshape(number_of_rows, number_of_cols))
+            # average and stddev using the number of rows (axis=0):
+            avg.append(np.ndarray.tolist(np.average(matrix_it[i],axis=0)))
+            stddev.append(np.ndarray.tolist(np.std(matrix_it[i],axis=0)))
+
+            #   matrix_it[i]:
+            #
+            #    Samples ->  1000    2000    3000    ...
+            # Run           ---------------------------
+            #  |         1  | times or probs
+            #  ->        2  |
+            #            3  |
+            #            .. |
+            #            ------------------------------
+            #                 sum[0]   sum[1]   sum[i]
+            #
+            #        avg[i] = sum[i] / #(runs)
+
+            self.stddev.append(stddev)
+            # Override plot data.
+            self.y[i] = avg[i]
+        self.x = cols
+
 
     def plot(self, error_bars: bool = False, scientific_notation: bool = False):
-        print(self.x)
         for i in range(0, len(self.y)):
             if error_bars:
-                pass
+                plt.errorbar(self.x[i],self.y[i],yerr=self.stddev[i],markersize=2.5,linestyle='-',marker='o', capsize=2.5)
             else:
                 plt.plot(self.x[i], self.y[i],markersize=2.5,linestyle='-',marker='o')
 
@@ -256,25 +288,42 @@ if __name__ == '__main__':
     delimiter=','
     if file_name_a == 'arithm_sample.csv':
         speeds = MhVsGibbs(file_name_a,delimiter,'arithm_sample')
+
         speeds.load_time_over_sample_in_arrays()
-        speeds.patch_time_over_sample_array_with_first_experiment_only()
-        speeds.populate_disposable_data_structure_for_time_over_sample_plot()
+        if keep_first_experiment_only:
+            speeds.patch_time_over_sample_array_with_first_experiment_only()
+        speeds.populate_disposable_data_structure_for_time_over_sample()
+        if not keep_first_experiment_only:
+            speeds.compute_avg_and_stddev()
         speeds.patch_x_as_nested_list()
-        speeds.plot()
+        error_bars = False
+        if not keep_first_experiment_only:
+            error_bars = True
+        speeds.plot(error_bars)
 #        print(speeds.time_over_sample)
+
         speeds.load_prob_over_sample_in_arrays()
-        speeds.patch_prob_over_sample_array_with_first_experiment_only()
-        speeds.populate_disposable_data_structure_for_prob_over_sample_plot()
+        if keep_first_experiment_only:
+            speeds.patch_prob_over_sample_array_with_first_experiment_only()
+        speeds.populate_disposable_data_structure_for_prob_over_sample()
+        if not keep_first_experiment_only:
+            speeds.compute_avg_and_stddev()
         speeds.patch_x_as_nested_list()
-        speeds.plot()
+        error_bars = False
+        if not keep_first_experiment_only:
+            error_bars = True
+        speeds.plot(error_bars)
 #        print(speeds.prob_over_sample)
+
         speeds.load_prob_over_time_in_arrays()
+        # See the next comment.
         speeds.patch_prob_over_time_array_with_first_experiment_only()
-        speeds.populate_disposable_data_structure_for_prob_over_time_plot()
+        speeds.populate_disposable_data_structure_for_prob_over_time()
         speeds.patch_sort_prob_over_time_x_and_y_by_ascending_x_values()
+        # Average and stddev does not make sense for this type of plot
+        # because prob is not groupable by time.
         speeds.patch_x_as_nested_list()
         speeds.plot()
-        print(speeds.x)
-        print(speeds.prob_over_time)
+#        print(speeds.prob_over_time)
     else:
         print('code needs to be re-implemented. refer to older git commits')
