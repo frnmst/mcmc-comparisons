@@ -189,14 +189,15 @@ class Utils():
         # Define the standard deviation.
         self.stddev = list()
 
+        stddev = list()
         matrix_it = list()
         avg = list()
-        stddev = list()
         for i in range(0,len(self.y)):
             matrix_it.append(np.array(self.y[i]).reshape(number_of_rows, number_of_cols))
             # average and stddev using the number of rows (axis=0):
             avg.append(np.ndarray.tolist(np.average(matrix_it[i],axis=0)))
             stddev.append(np.ndarray.tolist(np.std(matrix_it[i],axis=0)))
+            self.stddev.append(stddev[i])
 
             #   matrix_it[i]:
             #
@@ -211,11 +212,9 @@ class Utils():
             #
             #        avg[i] = sum[i] / #(runs)
 
-            self.stddev.append(stddev)
             # Override plot data.
             self.y[i] = avg[i]
         self.x = cols
-
 
     def plot(self, error_bars: bool = False, scientific_notation: bool = False):
         for i in range(0, len(self.y)):
@@ -240,27 +239,18 @@ class MhVsGibbs(Utils):
         self.prob_over_sample = dict()
         self.prob_over_time = dict()
 
-        self.time_over_sample['x id'] = 'samples'
-        self.time_over_sample['y ids'] = ['mh time','gibbs time']
-        self.time_over_sample['stddev y ids'] = ['stddev mh time','stddev gibbs time']
         self.time_over_sample['legend'] = ['mh', 'gibbs']
         self.time_over_sample['x label'] = 'samples'
         self.time_over_sample['y label'] = 'running time (ms)'
         self.time_over_sample['plot title'] = 'time over sample mh vs gibbs ' + experiment_name
         self.time_over_sample['file name'] = 'plot_time_over_sample_mh_vs_gibbs.png'
 
-        self.prob_over_sample['x id'] = 'samples'
-        self.prob_over_sample['y ids'] = ['mh prob','gibbs prob']
-        self.prob_over_sample['stddev y ids'] = ['stddev mh prob','stddev gibbs prob']
         self.prob_over_sample['legend'] = ['mh', 'gibbs']
         self.prob_over_sample['x label'] = 'samples'
         self.prob_over_sample['y label'] = 'probability (0,1)'
         self.prob_over_sample['plot title'] = 'prob over sample mh vs gibbs ' + experiment_name
         self.prob_over_sample['file name'] = 'plot_prob_over_sample_mh_vs_gibbs.png'
 
-        self.prob_over_time['x id'] = 'time'
-        self.prob_over_time['y ids'] = ['mh prob','gibbs prob']
-        self.prob_over_time['stddev y ids'] = ['stddev mh prob','stddev gibbs prob']
         self.prob_over_time['legend'] = ['mh', 'gibbs']
         self.prob_over_time['x label'] = 'running time (ms)'
         self.prob_over_time['y label'] = 'probability (0,1)'
@@ -269,6 +259,31 @@ class MhVsGibbs(Utils):
 
         super().__init__(filename, delimiter)
 
+class MhVsGibbsVsRejection(Utils):
+    def __init__(self, filename, delimiter=',', experiment_name='arithm_sample_three'):
+        self.time_over_sample = dict()
+        self.prob_over_sample = dict()
+        self.prob_over_time = dict()
+
+        self.time_over_sample['legend'] = ['mh', 'gibbs', 'rejection']
+        self.time_over_sample['x label'] = 'samples'
+        self.time_over_sample['y label'] = 'running time (ms)'
+        self.time_over_sample['plot title'] = 'time over sample mh vs gibbs vs rejection ' + experiment_name
+        self.time_over_sample['file name'] = 'plot_time_over_sample_mh_vs_gibbs_vs_rejection.png'
+
+        self.prob_over_sample['legend'] = ['mh', 'gibbs', 'rejection']
+        self.prob_over_sample['x label'] = 'samples'
+        self.prob_over_sample['y label'] = 'probability (0,1)'
+        self.prob_over_sample['plot title'] = 'prob over sample mh vs gibbs vs rejection ' + experiment_name
+        self.prob_over_sample['file name'] = 'plot_prob_over_sample_mh_vs_gibbs_vs_rejection.png'
+
+        self.prob_over_time['legend'] = ['mh', 'gibbs', 'rejection']
+        self.prob_over_time['x label'] = 'running time (ms)'
+        self.prob_over_time['y label'] = 'probability (0,1)'
+        self.prob_over_time['plot title'] = 'prob over time mh vs gibbs vs rejection ' + experiment_name
+        self.prob_over_time['file name'] = 'plot_prob_over_time_mh_vs_gibbs_vs_rejection.png'
+
+        super().__init__(filename, delimiter)
 
 if __name__ == '__main__':
     # This is necessary to save the plot to a file instead of displaying it directly.
@@ -300,7 +315,6 @@ if __name__ == '__main__':
         if not keep_first_experiment_only:
             error_bars = True
         speeds.plot(error_bars)
-#        print(speeds.time_over_sample)
 
         speeds.load_prob_over_sample_in_arrays()
         if keep_first_experiment_only:
@@ -313,7 +327,6 @@ if __name__ == '__main__':
         if not keep_first_experiment_only:
             error_bars = True
         speeds.plot(error_bars)
-#        print(speeds.prob_over_sample)
 
         speeds.load_prob_over_time_in_arrays()
         # See the next comment.
@@ -324,6 +337,41 @@ if __name__ == '__main__':
         # because prob is not groupable by time.
         speeds.patch_x_as_nested_list()
         speeds.plot()
-#        print(speeds.prob_over_time)
+    elif file_name_a == 'arithm_sample_three.csv':
+        speeds = MhVsGibbsVsRejection(file_name_a,delimiter,'arithm_sample_three')
+
+        speeds.load_time_over_sample_in_arrays()
+        if keep_first_experiment_only:
+            speeds.patch_time_over_sample_array_with_first_experiment_only()
+        speeds.populate_disposable_data_structure_for_time_over_sample()
+        if not keep_first_experiment_only:
+            speeds.compute_avg_and_stddev()
+        speeds.patch_x_as_nested_list()
+        error_bars = False
+        if not keep_first_experiment_only:
+            error_bars = True
+        speeds.plot(error_bars)
+
+        speeds.load_prob_over_sample_in_arrays()
+        if keep_first_experiment_only:
+            speeds.patch_prob_over_sample_array_with_first_experiment_only()
+        speeds.populate_disposable_data_structure_for_prob_over_sample()
+        if not keep_first_experiment_only:
+            speeds.compute_avg_and_stddev()
+        speeds.patch_x_as_nested_list()
+        error_bars = False
+        if not keep_first_experiment_only:
+            error_bars = True
+        speeds.plot(error_bars)
+
+        speeds.load_prob_over_time_in_arrays()
+        # See the next comment.
+        speeds.patch_prob_over_time_array_with_first_experiment_only()
+        speeds.populate_disposable_data_structure_for_prob_over_time()
+        speeds.patch_sort_prob_over_time_x_and_y_by_ascending_x_values()
+        # Average and stddev does not make sense for this type of plot
+        # because prob is not groupable by time.
+        speeds.patch_x_as_nested_list()
+        speeds.plot()
     else:
         print('code needs to be re-implemented. refer to older git commits')
