@@ -297,9 +297,6 @@ if __name__ == '__main__':
     # Get the file names from argv. This decides the type of plot.
     file_name_a=sys.argv[1]
     keep_first_experiment_only = bool(sys.argv[2])
-    print(keep_first_experiment_only)
-    print(sys.argv[1])
-    print(sys.argv[2])
     if len(sys.argv) == 4:
         # Plot two tests.
         file_name_b=sys.argv[3]
