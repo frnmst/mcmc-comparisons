@@ -107,6 +107,9 @@ Options:
                                         character and specifing the SWI then
                                         XSB the experiment name, like this:
                                         'experiment_name_swi:experiment_name_xsb'
+    --first-experiment-only             keep the first experiment and discard all
+                                        the others while plotting. The CSV file
+                                        will remain unaltered
     -g, --graph                         run the plot script after the experiments
     --graph-only                        run the plot script only
     -h, --help                          print this help
@@ -147,9 +150,6 @@ Options:
                                         this option
     --partition=PARTITIONNAME           the partition name used for the
                                         SLURM job
-    --repetitions=REPETITIONS           repeat the same parallel experiments
-                                        a selected number of times. This option
-                                        is ignored by by non parallel experiments
     -s, --steps=STEPS                   the number of samples between
                                         consecutive iterations
     -S, --slurm                         run the experiments with the SLURM system.
@@ -229,16 +229,16 @@ milliseconds.
 The tools necessary to plot the results are Python 3 and Matplotlib.
 
 The plot script called `plot_comparison.py` can be found under the `./src/plot` 
-directory:
+directory and it plots:
 
-1. it reads one or more CSV files written according to the CSV file 
-   format rules in this readme. 
-2. it plots the average running times of multiple runs for each 
-   sample. The standard deviation of the running times for each sample is 
-   plotted as error bars.
+1. the running time over samples
+2. the probability over samples, to determine the accuracy of the calculations
+3. the probability over running time, to determine convergence
 
-The same type of plot is done for the probabilities and has the purpose of 
-determining the accuracy of the calculations.
+Normally, the average of multiple runs is done for plots 1 and 2. The error bars
+represent the standard deviation of the values. It is also possible to ignore
+the average and consider only the first run via the `--first-experiment-only`
+option.
 
 ## Notes on running the experiments
 
