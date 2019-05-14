@@ -221,7 +221,7 @@ loop_arithm_rejection_sample(Curr, Max, Step, Runs, Out):-
 
 measure_arithm_rejection_sample(Time, Samples, Prob):-
     statistics(walltime, [_|[_]]),
-    rejection_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100)]),
+    mc_rejection_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100)]),
     statistics(walltime, [_|[Time]]).
 
 /* test33 */
@@ -360,7 +360,7 @@ loop_hmm_sample_three(Curr, Max, Step, Runs, Out):-
     measure_hmm_gibbs_sample(Time_gibbs,Samples,P_gibbs),
     measure_hmm_rejection_sample(Time_mh,Samples,P_mh),
     format('run ~q, sample ~q of ~q\n', [Runs, Samples, Max]),
-    format(Out, '~q,~q,~q,~q,~q,~q\n', [Runs, Samples, Time_mh, P_mh, Time_gibbs, P_gibbs]),
+    format(Out, '~q,~q,~q,~q,~q,~q,~q,~q\n', [Runs, Samples, Time_mh, P_mh, Time_gibbs, P_gibbs, Time_rejection, P_rejection]),
     flush_output(Out),
     flush_output,
     N is Curr+Step,
@@ -368,7 +368,7 @@ loop_hmm_sample_three(Curr, Max, Step, Runs, Out):-
 
 measure_hmm_mh_sample(Time, Samples, Prob):-
     statistics(walltime, [_|[_]]),
-    mc_mh_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100)]),
+    mc_mh_sample(hmm([a,c]),letter(q1,a,1),Samples,Prob,[mix(100)]),
     statistics(walltime, [_|[Time]]).
 
 measure_hmm_gibbs_sample(Time, Samples, Prob):-
@@ -376,7 +376,7 @@ measure_hmm_gibbs_sample(Time, Samples, Prob):-
     mc_gibbs_sample(hmm([a,c]),letter(q1,a,1),Samples,Prob,[mix(100)]),
     statistics(walltime, [_|[Time]]).
 
-measure_hmm_mc_rejection_sample(Time, Samples, Prob):-
+measure_hmm_rejection_sample(Time, Samples, Prob):-
     statistics(walltime, [_|[_]]),
     mc_rejection_sample(hmm([a,c]),letter(q1,a,1),Samples,Prob,[mix(100)]),
     statistics(walltime, [_|[Time]]).
