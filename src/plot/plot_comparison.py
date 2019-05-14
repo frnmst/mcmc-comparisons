@@ -376,5 +376,41 @@ if __name__ == '__main__':
         # because prob is not groupable by time.
         speeds.patch_x_as_nested_list()
         speeds.plot()
+    elif file_name_a == 'hmm_sample_three.csv':
+        speeds = MhVsGibbsVsRejection(file_name_a,delimiter,experiment_name_preamble + 'hmm_sample_three')
+
+        speeds.load_time_over_sample_in_arrays()
+        if keep_first_experiment_only:
+            speeds.patch_time_over_sample_array_with_first_experiment_only()
+        speeds.populate_disposable_data_structure_for_time_over_sample()
+        if not keep_first_experiment_only:
+            speeds.compute_avg_and_stddev()
+        speeds.patch_x_as_nested_list()
+        error_bars = False
+        if not keep_first_experiment_only:
+            error_bars = True
+        speeds.plot(error_bars)
+
+        speeds.load_prob_over_sample_in_arrays()
+        if keep_first_experiment_only:
+            speeds.patch_prob_over_sample_array_with_first_experiment_only()
+        speeds.populate_disposable_data_structure_for_prob_over_sample()
+        if not keep_first_experiment_only:
+            speeds.compute_avg_and_stddev()
+        speeds.patch_x_as_nested_list()
+        error_bars = False
+        if not keep_first_experiment_only:
+            error_bars = True
+        speeds.plot(error_bars)
+
+        speeds.load_prob_over_time_in_arrays()
+        # See the next comment.
+        speeds.patch_prob_over_time_array_with_first_experiment_only()
+        speeds.populate_disposable_data_structure_for_prob_over_time()
+        speeds.patch_sort_prob_over_time_x_and_y_by_ascending_x_values()
+        # Average and stddev does not make sense for this type of plot
+        # because prob is not groupable by time.
+        speeds.patch_x_as_nested_list()
+        speeds.plot()
     else:
         print('code needs to be re-implemented. refer to older git commits')

@@ -1,4 +1,4 @@
-/* expriments   .pl
+/* expriments.pl
  *
  * BSD 2-Clause License
  *
@@ -53,12 +53,13 @@ select_experiment(Experiment_name,Min,Max,Step,Runs,Parallel):-
     atom_string("arithm_rejection_sample",C),
     atom_string("test33_sample",D),
     atom_string("test66_sample",E),
+    atom_string("hmm_sample_three",F),
     ( A = Experiment_name
       -> experiments_single_arithm(Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( B = Experiment_name
-      -> experiments_single_arithm_three(Min,Max,Step,Runs)
+      -> experiments_single_arithm_sample_three(Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( C = Experiment_name
@@ -71,6 +72,10 @@ select_experiment(Experiment_name,Min,Max,Step,Runs,Parallel):-
     ),
     ( E = Experiment_name
       -> experiments_single_test66(Min,Max,Step,Runs)
+      ; 1 = 1
+    ),
+    ( F = Experiment_name
+      -> experiments_single_hmm_sample_three(Min,Max,Step,Runs)
     ).
 
 select_experiment(Experiment_name,Min,Max,Step,Runs,_):-
@@ -79,6 +84,7 @@ select_experiment(Experiment_name,Min,Max,Step,Runs,_):-
     atom_string("test33_sample",C),
     atom_string("test66_sample",D),
     atom_string("arithm_sample_three",E),
+    atom_string("hmm_sample_three",F),
     ( A = Experiment_name
       -> experiments_sequential_arithm(Min,Max,Step,Runs)
       ; 1 = 1
@@ -96,6 +102,10 @@ select_experiment(Experiment_name,Min,Max,Step,Runs,_):-
       ; 1 = 1
     ),
     ( E = Experiment_name
+      -> writeln('not implemented')
+      ; 1 = 1
+    ),
+    ( F = Experiment_name
       -> writeln('not implemented')
     ).
 
@@ -200,7 +210,7 @@ loop_arithm_rejection_sample(Curr,Max,_,_,_):-
 
 loop_arithm_rejection_sample(Curr, Max, Step, Runs, Out):-
     Samples is Curr,
-    measure_arithm_mh_rejection_sample(Time_mh,Samples,P_mh),
+    measure_arithm_rejection_sample(Time_mh,Samples,P_mh),
     measure_arithm_gibbs_sample(Time_gibbs,Samples,P_gibbs),
     format('run ~q, sample ~q of ~q\n', [Runs, Samples, Max]),
     format(Out, '~q,~q,~q,~q,~q,~q\n', [Runs, Samples, Time_mh, P_mh, Time_gibbs, P_gibbs]),
@@ -209,9 +219,9 @@ loop_arithm_rejection_sample(Curr, Max, Step, Runs, Out):-
     N is Curr+Step,
     loop_arithm_rejection_sample(N,Max,Step,Runs,Out).
 
-measure_arithm_mh_rejection_sample(Time, Samples, Prob):-
+measure_arithm_rejection_sample(Time, Samples, Prob):-
     statistics(walltime, [_|[_]]),
-    mc_rejection_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100)]),
+    rejection_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100)]),
     statistics(walltime, [_|[Time]]).
 
 /* test33 */
@@ -302,10 +312,13 @@ measure_test66_gibbs_sample(Time, Samples, Prob):-
     statistics(walltime, [_|[Time]]).
 
 
-/* Three way comparisons */
+/*************************
+ * Three way comparisons *
+ *************************/
 
 /* arithm_sample */
-experiments_single_arithm_three(Min,Max,Step,Run_label):-
+
+experiments_single_arithm_sample_three(Min,Max,Step,Run_label):-
     format('performing arithm.pl on arithm_sample_three.csv\n'),
     ['../prolog/swish/examples/inference/arithm'],
     open('arithm_sample_three.csv',append,Out_a),
@@ -320,27 +333,50 @@ loop_arithm_sample_three(Curr, Max, Step, Runs, Out):-
     Samples is Curr,
     measure_arithm_mh_sample(Time_mh_sample,Samples,P_mh_sample),
     measure_arithm_gibbs_sample(Time_gibbs_sample,Samples,P_gibbs_sample),
-    measure_arithm_mh_rejection_sample(Time_mh_rejection_sample,Samples,P_mh_rejection_sample),
+    measure_arithm_rejection_sample(Time_rejection_sample,Samples,P_rejection_sample),
     format('run ~q, sample ~q of ~q\n', [Runs, Samples, Max]),
-    format(Out, '~q,~q,~q,~q,~q,~q,~q,~q\n', [Runs, Samples, Time_mh_sample, P_mh_sample, Time_gibbs_sample, P_gibbs_sample, Time_mh_rejection_sample, P_mh_rejection_sample]),
+    format(Out, '~q,~q,~q,~q,~q,~q,~q,~q\n', [Runs, Samples, Time_mh_sample, P_mh_sample, Time_gibbs_sample, P_gibbs_sample, Time_rejection_sample, P_rejection_sample]),
     flush_output(Out),
     flush_output,
     N is Curr+Step,
     loop_arithm_sample_three(N,Max,Step,Runs,Out).
 
+/* hmm */
 
-/*
-query_mh(Samples):-
-    statistics(walltime,[Start|_]),
-        mc_mh_sample(hmm([a,c]),letter(q1,a,1),Samples,P,[mix(100)]),
-    statistics(walltime,[Stop|_]),
-    Runtime is Stop - Start,
-    format('~w,~w - Runtime ~w',[Samples,P,Runtime]).
+experiments_single_hmm_sample_three(Min,Max,Step,Run_label):-
+    format('performing hmm.pl on hmm_sample.csv\n'),
+    ['../prolog/swish/examples/inference/hmm'],
+    open('hmm_sample_three.csv',append,Out_a),
+    loop_hmm_sample_three(Min,Max,Step,Run_label,Out_a),
+    close(Out_a).
 
-query_gibbs(Samples):-
-    statistics(walltime,[Start|_]),
-    mc_gibbs_sample(hmm([a,c]),letter(q1,a,1),Samples,P,[mix(100)]),
-    statistics(walltime,[Stop|_]),
-    Runtime is Stop - Start,
-    format('~w,~w - Runtime ~w',[Samples,P,Runtime]).
-*/
+loop_hmm_sample_three(Curr,Max,_,_,_):-
+    Curr>Max,
+    !.
+
+loop_hmm_sample_three(Curr, Max, Step, Runs, Out):-
+    Samples is Curr,
+    measure_hmm_mh_sample(Time_mh,Samples,P_mh),
+    measure_hmm_gibbs_sample(Time_gibbs,Samples,P_gibbs),
+    measure_hmm_rejection_sample(Time_mh,Samples,P_mh),
+    format('run ~q, sample ~q of ~q\n', [Runs, Samples, Max]),
+    format(Out, '~q,~q,~q,~q,~q,~q\n', [Runs, Samples, Time_mh, P_mh, Time_gibbs, P_gibbs]),
+    flush_output(Out),
+    flush_output,
+    N is Curr+Step,
+    loop_hmm_sample_three(N,Max,Step,Runs,Out).
+
+measure_hmm_mh_sample(Time, Samples, Prob):-
+    statistics(walltime, [_|[_]]),
+    mc_mh_sample(eval(2,4),eval(1,3),Samples,Prob,[mix(100)]),
+    statistics(walltime, [_|[Time]]).
+
+measure_hmm_gibbs_sample(Time, Samples, Prob):-
+    statistics(walltime, [_|[_]]),
+    mc_gibbs_sample(hmm([a,c]),letter(q1,a,1),Samples,Prob,[mix(100)]),
+    statistics(walltime, [_|[Time]]).
+
+measure_hmm_mc_rejection_sample(Time, Samples, Prob):-
+    statistics(walltime, [_|[_]]),
+    mc_rejection_sample(hmm([a,c]),letter(q1,a,1),Samples,Prob,[mix(100)]),
+    statistics(walltime, [_|[Time]]).
