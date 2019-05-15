@@ -358,7 +358,7 @@ loop_hmm_sample_three(Curr, Max, Step, Runs, Out):-
     Samples is Curr,
     measure_hmm_mh_sample(Time_mh,Samples,P_mh),
     measure_hmm_gibbs_sample(Time_gibbs,Samples,P_gibbs),
-    measure_hmm_rejection_sample(Time_mh,Samples,P_mh),
+    measure_hmm_rejection_sample(Time_rejection,Samples,P_rejection),
     format('run ~q, sample ~q of ~q\n', [Runs, Samples, Max]),
     format(Out, '~q,~q,~q,~q,~q,~q,~q,~q\n', [Runs, Samples, Time_mh, P_mh, Time_gibbs, P_gibbs, Time_rejection, P_rejection]),
     flush_output(Out),

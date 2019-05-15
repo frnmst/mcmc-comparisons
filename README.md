@@ -26,6 +26,7 @@ comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/
       - [Sequential version](#sequential-version)
       - [Output files](#output-files)
       - [An alternative to GNU Parallel](#an-alternative-to-gnu-parallel)
+      - [The hmm experiment](#the-hmm-experiment)
     - [References](#references)
       - [Algorithms](#algorithms)
       - [SLURM](#slurm)
@@ -287,6 +288,16 @@ for i in $(seq 1 ${5}); do
 done
 wait ${job_id[@]}
 ```
+
+### The hmm experiment
+
+Before running this experiment you need to patch the file with git:
+
+    $ pushd ./src/prolog && git -C swish/ am --signoff ../fix_hmm.patch && popd
+
+This patch has been optained using a modified version of `hmm.pl` and this command:
+
+    $ git format-patch HEAD~1..HEAD  --stdout > fix_hmm.patch
 
 ## References
 
