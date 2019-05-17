@@ -1,12 +1,8 @@
+/* Apache License 2.0: https://github.com/frnmst/Adaptive-MCMC/blob/master/LICENSE */
+
 :- use_module(library(mcintyre)).
 :- mc.
 :- begin_lpad.
-
-/* WARNING: NO LICENSE EXISTS FOR THIS FILE.
- *
- * SEE http://www3.cs.stonybrook.edu/~anampally/
- *     http://www3.cs.stonybrook.edu/~anampally/amcmc.tar.gz
- */
 
 % dim(3,3)
 % query([(2  ','  2)],[t])

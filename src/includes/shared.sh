@@ -72,24 +72,24 @@ plot_comparison()
 run_xsb_experiments()
 {
     local experiment_name="${1}"
-    local min=${2}
-    local max=${3}
-    local step=${4}
-    local run_label=${5}
-    local resampling_style="${6}"
-    local resampling_probability="${7}"
-    local single_or_parallel="${8}"
+    local output_file="${2}"
+    local min=${3}
+    local max=${4}
+    local step=${5}
+    local run_label=${6}
+    local resampling_style="${7}"
+    local resampling_probability="${8}"
+    local single_or_parallel="${9}"
     local startup_file_path=""${XSB_AMCMC_STARTUP_FILE}"_${run_label}.P"
 
     pushd "${XSB_AMCMC_DIRECTORY}"
 
     # Build the file.
     cat <<EOF > "${startup_file_path}"
-
 :- go.
 go :-
     consult('experiments.P'),
-    experiments_${single_or_parallel}_${experiment_name}(${min},${max},${step},${run_label},'${resampling_style}',${resampling_probability}).
+    experiments_${single_or_parallel}_${experiment_name}('${output_file}',${min},${max},${step},${run_label},'${resampling_style}',${resampling_probability}).
 
 EOF
 
