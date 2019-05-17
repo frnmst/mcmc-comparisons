@@ -283,6 +283,7 @@ multi-switch:,no-remove-csv-files,swi-vs-xsb,slurm,memory:,partition:,first-expe
     # using the values of the flag variables.
     check_binaries
     [ "${graph_only}" = 'true' ] && no_remove_csv_files='true' && graph='true'
+    [ "${slurm}" = 'true' ] && no_remove_csv_files='true'
     [ "${no_remove_csv_files}" = 'false' ] && remove_csv_files
     [ "${slurm}" = 'true' ] \
         && run_experiments_with_slurm "${experiment_name}" "${output_file}" ${min} ${max} ${step} ${memory} "${partition}" \
