@@ -143,7 +143,7 @@ EOF
 . ../includes/fbopt --experiment-name ${experiment_name} --min ${min} --max ${max} --step ${step} \\
 EOF
     cat <<-"EOF" >> "${slurm_frontend_file}"
-    --single-run-with-label=$((${1}+1)) --output-file=""${2}".csv"
+    --single-run-with-label=$((${1}+1)) --output-file="job-"${2}".csv"
 EOF
 
     cat <<-EOF > "${slurm_run_file}"

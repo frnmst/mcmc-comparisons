@@ -86,7 +86,7 @@ select_experiment(Experiment_name,Output_file,Min,Max,Step,Runs,_):-
     atom_string("arithm_sample_three",E),
     atom_string("hmm_sample_three",F),
     ( A = Experiment_name
-      -> experiments_sequential_arithm(Output_file,Min,Max,Step,Runs)
+      -> experiments_sequential_arithm_sample(Output_file,Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( B = Experiment_name
