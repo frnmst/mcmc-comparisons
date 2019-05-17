@@ -102,12 +102,6 @@ Run MCMC experiments
 
 Mandatory arguments to long options are mandatory for short options too.
 Options:
-    -f, --four-way-comparison           compare SWI and XSB experiments. In
-                                        this case you need to specify the experiment
-                                        names separating them with a colon
-                                        character and specifing the SWI then
-                                        XSB the experiment name, like this:
-                                        'experiment_name_swi:experiment_name_xsb'
     --first-experiment-only             keep the first experiment and discard all
                                         the others while plotting. The CSV file
                                         will remain unaltered
@@ -149,10 +143,20 @@ Options:
                                         results and appending new ones to the
                                         same file. Normally, you should not set
                                         this option
+    --output-file                       use custom output filename.
+                                        Defaults to ""${experiment_name}".csv"
+                                        where "${experiment_name}" is given
+                                        by the '--experiment-name' option
     --partition=PARTITIONNAME           the partition name used for the
                                         SLURM job
     -s, --steps=STEPS                   the number of samples between
                                         consecutive iterations
+    --swi-vs-xsb                        compare SWI and XSB experiments. In
+                                        this case you need to specify the experiment
+                                        names separating them with a colon
+                                        character and specifing the SWI then
+                                        XSB the experiment name, like this:
+                                        'experiment_name_swi:experiment_name_xsb'
     -S, --slurm                         run the experiments with the SLURM system.
                                         This disables the '--graph', '--parallel'
                                         options and implies the

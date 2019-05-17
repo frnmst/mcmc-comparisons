@@ -33,9 +33,9 @@
 
 main :-
     current_prolog_flag(argv, Argv),
-    parse_cli_args(Argv,Experiment_name,Min,Max,Step,Runs,Parallel),
-    format('Called with: Experiment_name=~q, Min=~q, Max=~q, Step=~q, Runs=~q, Parallel=~q\n', [Experiment_name, Min, Max, Step, Runs, Parallel]),
-    select_experiment(Experiment_name,Min,Max,Step,Runs,Parallel),
+    parse_cli_args(Argv,Experiment_name,Output_file,Min,Max,Step,Runs,Parallel),
+    format('Called with: Experiment_name=~q, Output_file=~q, Min=~q, Max=~q, Step=~q, Runs=~q, Parallel=~q\n', [Experiment_name, Output_file, Min, Max, Step, Runs, Parallel]),
+    select_experiment(Experiment_name,Output_file,Min,Max,Step,Runs,Parallel),
     halt.
 
 main :-
@@ -45,7 +45,7 @@ main :-
  * See http://cs.union.edu/~striegnk/learn-prolog-now/html/node89.html
  * for the if-then-else clauses.
  */
-select_experiment(Experiment_name,Min,Max,Step,Runs,Parallel):-
+select_experiment(Experiment_name,Output_file,Min,Max,Step,Runs,Parallel):-
     Parallel == 1,
     !,
     atom_string("arithm_sample",A),
@@ -55,30 +55,30 @@ select_experiment(Experiment_name,Min,Max,Step,Runs,Parallel):-
     atom_string("test66_sample",E),
     atom_string("hmm_sample_three",F),
     ( A = Experiment_name
-      -> experiments_single_arithm(Min,Max,Step,Runs)
+      -> experiments_single_arithm_sample(Output_file,Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( B = Experiment_name
-      -> experiments_single_arithm_sample_three(Min,Max,Step,Runs)
+      -> experiments_single_arithm_sample_three(Output_file,Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( C = Experiment_name
-      -> experiments_single_arithm_rejection_sample(Min,Max,Step,Runs)
+      -> experiments_single_arithm_rejection_sample(Output_file,Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( D = Experiment_name
-      -> experiments_single_test33(Min,Max,Step,Runs)
+      -> experiments_single_test33(Output_file,Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( E = Experiment_name
-      -> experiments_single_test66(Min,Max,Step,Runs)
+      -> experiments_single_test66(Output_file,Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( F = Experiment_name
-      -> experiments_single_hmm_sample_three(Min,Max,Step,Runs)
+      -> experiments_single_hmm_sample_three(Output_file,Min,Max,Step,Runs)
     ).
 
-select_experiment(Experiment_name,Min,Max,Step,Runs,_):-
+select_experiment(Experiment_name,Output_file,Min,Max,Step,Runs,_):-
     atom_string("arithm_sample",A),
     atom_string("arithm_rejection_sample",B),
     atom_string("test33_sample",C),
@@ -86,19 +86,19 @@ select_experiment(Experiment_name,Min,Max,Step,Runs,_):-
     atom_string("arithm_sample_three",E),
     atom_string("hmm_sample_three",F),
     ( A = Experiment_name
-      -> experiments_sequential_arithm(Min,Max,Step,Runs)
+      -> experiments_sequential_arithm(Output_file,Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( B = Experiment_name
-      -> experiments_sequential_arithm_rejection_sample(Min,Max,Step,Runs)
+      -> experiments_sequential_arithm_rejection_sample(Output_file,Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( C = Experiment_name
-      -> experiments_sequential_test33(Min,Max,Step,Runs)
+      -> experiments_sequential_test33(Output_file,Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( D = Experiment_name
-      -> experiments_sequential_test66(Min,Max,Step,Runs)
+      -> experiments_sequential_test66(Output_file,Min,Max,Step,Runs)
       ; 1 = 1
     ),
     ( E = Experiment_name
@@ -116,14 +116,17 @@ is_parallel(Parallel):-
 is_parallel(Parallel):-
     Parallel == 0.
 
-parse_cli_args(Argv,Experiment_name,Min,Max,Step,Runs,Parallel):-
+parse_cli_args(Argv,Experiment_name,Output_file,Min,Max,Step,Runs,Parallel):-
     [Experiment_name_a|S] = Argv,
-    [Min_a|T] = S,
-    [Max_a|U] = T,
-    [Step_a|V] = U,
-    [Runs_a|W] = V,
-    [Parallel_a|_] = W,
+    [Output_file_a|T] = S,
+    [Min_a|U] = T,
+    [Max_a|V] = U,
+    [Step_a|W] = V,
+    [Runs_a|X] = W,
+    [Parallel_a|_] = X,
+
     atom_string(Experiment_name_a, Experiment_name),
+    atom_string(Output_file_a, Output_file),
     atom_number(Min_a, Min),
     atom_number(Max_a, Max),
     atom_number(Step_a, Step),
@@ -131,6 +134,7 @@ parse_cli_args(Argv,Experiment_name,Min,Max,Step,Runs,Parallel):-
     atom_number(Parallel_a, Parallel),
 
     string(Experiment_name),
+    string(Output_file),
     integer(Min),
     integer(Max),
     integer(Step),
@@ -145,21 +149,21 @@ parse_cli_args(Argv,Experiment_name,Min,Max,Step,Runs,Parallel):-
 
 /* arithm sample */
 
-experiments_single_arithm(Min,Max,Step,Run_label):-
-    format('performing arithm.pl on arithm_sample.csv\n'),
+experiments_single_arithm_sample(Output_file,Min,Max,Step,Run_label):-
+    format('performing arithm.pl on ~q\n', Output_file),
     ['../prolog/swish/examples/inference/arithm'],
-    open('arithm_sample.csv',append,Out_a),
+    open(Output_file,append,Out_a),
     loop_arithm_sample(Min,Max,Step,Run_label,Out_a),
     close(Out_a).
 
-experiments_sequential_arithm(_,_,_,Runs):-
+experiments_sequential_arithm_sample(_,_,_,_,Runs):-
     Runs=<0,
     !.
 
-experiments_sequential_arithm(Min,Max,Step,Runs):-
-    experiments_single_arithm(Min,Max,Step,Runs),
+experiments_sequential_arithm_sample(Output_file,Min,Max,Step,Runs):-
+    experiments_single_arithm_sample(Output_file,Min,Max,Step,Runs),
     N is Runs-1,
-    experiments_sequential_arithm(Min,Max,Step,N).
+    experiments_sequential_arithm_sample(Output_file,Min,Max,Step,N).
 
 loop_arithm_sample(Curr,Max,_,_,_):-
     Curr>Max,
@@ -188,14 +192,14 @@ measure_arithm_gibbs_sample(Time, Samples, Prob):-
 
 /* arithm rejection sample */
 
-experiments_single_arithm_rejection_sample(Min,Max,Step,Run_label):-
-    format('performing arithm.pl on arithm_rejection_sample.csv\n'),
+experiments_single_arithm_rejection_sample(Output_file,Min,Max,Step,Run_label):-
+    format('performing arithm.pl on ~q\n', Output_file),
     ['../prolog/swish/examples/inference/arithm'],
-    open('arithm_rejection_sample.csv',append,Out_a),
+    open(Output_file,append,Out_a),
     loop_arithm_rejection_sample(Min,Max,Step,Run_label,Out_a),
     close(Out_a).
 
-experiments_sequential_arithm_rejection_sample(_,_,_,Runs):-
+experiments_sequential_arithm_rejection_sample(_,_,_,_,Runs):-
     Runs=<0,
     !.
 
@@ -226,10 +230,10 @@ measure_arithm_rejection_sample(Time, Samples, Prob):-
 
 /* test33 */
 
-experiments_single_test33(Min,Max,Step,Run_label):-
-    format('performing test33.pl on test33_sample.csv\n'),
+experiments_single_test33(Output_file,Min,Max,Step,Run_label):-
+    format('performing test33.pl on ~q\n', Output_file),
     ['../prolog/amcmc/swi/test33'],
-    open('test33_sample.csv',append,Out_a),
+    open(Output_file,append,Out_a),
     loop_test33_sample(Min,Max,Step,Run_label,Out_a),
     close(Out_a).
 
@@ -269,10 +273,10 @@ measure_test33_gibbs_sample(Time, Samples, Prob):-
 
 /* test66 */
 
-experiments_single_test66(Min,Max,Step,Run_label):-
-    format('performing test66.pl on test66_sample.csv\n'),
+experiments_single_test66(Output_file,Min,Max,Step,Run_label):-
+    format('performing test66.pl on ~q\n', Output_file),
     ['../prolog/amcmc/swi/test66'],
-    open('test66_sample.csv',append,Out_a),
+    open(Output_file,append,Out_a),
     loop_test66_sample(Min,Max,Step,Run_label,Out_a),
     close(Out_a).
 
@@ -318,10 +322,10 @@ measure_test66_gibbs_sample(Time, Samples, Prob):-
 
 /* arithm_sample */
 
-experiments_single_arithm_sample_three(Min,Max,Step,Run_label):-
-    format('performing arithm.pl on arithm_sample_three.csv\n'),
-    ['../prolog/swish/examples/inference/arithm'],
-    open('arithm_sample_three.csv',append,Out_a),
+experiments_single_arithm_sample_three(Output_file,Min,Max,Step,Run_label):-
+    format('performing arithm_sample_three.pl on ~q\n', Output_file),
+    ['../prolog/swish/examples/inference/arithm.pl'],
+    open(Output_file,append,Out_a),
     loop_arithm_sample_three(Min,Max,Step,Run_label,Out_a),
     close(Out_a).
 
@@ -343,12 +347,13 @@ loop_arithm_sample_three(Curr, Max, Step, Runs, Out):-
 
 /* hmm */
 
-experiments_single_hmm_sample_three(Min,Max,Step,Run_label):-
-    format('performing hmm.pl on hmm_sample.csv\n'),
-    ['../prolog/swish/examples/inference/hmm'],
-    open('hmm_sample_three.csv',append,Out_a),
+experiments_single_hmm_sample_three(Output_file,Min,Max,Step,Run_label):-
+    format('performing hmm_sample_three.pl on ~q\n', Output_file),
+    ['../prolog/swish/examples/inference/hmm.pl'],
+    open(Output_file,append,Out_a),
     loop_hmm_sample_three(Min,Max,Step,Run_label,Out_a),
     close(Out_a).
+
 
 loop_hmm_sample_three(Curr,Max,_,_,_):-
     Curr>Max,

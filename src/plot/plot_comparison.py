@@ -295,14 +295,18 @@ if __name__ == '__main__':
     # This is necessary to save the plot to a file instead of displaying it directly.
     matplotlib.use('Agg')
     # Get the file names from argv. This decides the type of plot.
-    file_name_a=sys.argv[1]
-    keep_first_experiment_only = bool(sys.argv[2])
-    if len(sys.argv) == 4:
-        # Plot two tests.
-        file_name_b=sys.argv[3]
+    experiment_name_a=sys.argv[1]
+    file_name_a=sys.argv[2]
+    keep_first_experiment_only = bool(sys.argv[3])
+
+    if len(sys.argv) == 6:
+        experiment_name_b=sys.argv[4]
+        file_name_b=sys.argv[5]
     else:
         # Plot a single test.
+        experiment_name_b=''
         file_name_b=''
+
     delimiter=','
     if keep_first_experiment_only:
         error_bars = False
@@ -310,7 +314,7 @@ if __name__ == '__main__':
     else:
         error_bars = True
         experiment_name_preamble='avg of '
-    if file_name_a == 'arithm_sample.csv':
+    if experiment_name_a == 'arithm_sample':
         speeds = MhVsGibbs(file_name_a,delimiter,experiment_name_preamble + 'arithm_sample')
 
         speeds.load_time_over_sample_in_arrays()
@@ -331,16 +335,17 @@ if __name__ == '__main__':
         speeds.patch_x_as_nested_list()
         speeds.plot(error_bars)
 
-        speeds.load_prob_over_time_in_arrays()
-        # See the next comment.
-        speeds.patch_prob_over_time_array_with_first_experiment_only()
-        speeds.populate_disposable_data_structure_for_prob_over_time()
-        speeds.patch_sort_prob_over_time_x_and_y_by_ascending_x_values()
-        # Average and stddev does not make sense for this type of plot
-        # because prob is not groupable by time.
-        speeds.patch_x_as_nested_list()
-        speeds.plot()
-    elif file_name_a == 'arithm_sample_three.csv':
+        if keep_first_experiment_only:
+            speeds.load_prob_over_time_in_arrays()
+            # See the next comment.
+            speeds.patch_prob_over_time_array_with_first_experiment_only()
+            speeds.populate_disposable_data_structure_for_prob_over_time()
+            speeds.patch_sort_prob_over_time_x_and_y_by_ascending_x_values()
+            # Average and stddev does not make sense for this type of plot
+            # because prob is not groupable by time.
+            speeds.patch_x_as_nested_list()
+            speeds.plot()
+    elif experiment_name_a == 'arithm_sample_three':
         speeds = MhVsGibbsVsRejection(file_name_a,delimiter,experiment_name_preamble + 'arithm_sample_three')
 
         speeds.load_time_over_sample_in_arrays()
@@ -367,16 +372,17 @@ if __name__ == '__main__':
             error_bars = True
         speeds.plot(error_bars)
 
-        speeds.load_prob_over_time_in_arrays()
-        # See the next comment.
-        speeds.patch_prob_over_time_array_with_first_experiment_only()
-        speeds.populate_disposable_data_structure_for_prob_over_time()
-        speeds.patch_sort_prob_over_time_x_and_y_by_ascending_x_values()
-        # Average and stddev does not make sense for this type of plot
-        # because prob is not groupable by time.
-        speeds.patch_x_as_nested_list()
-        speeds.plot()
-    elif file_name_a == 'hmm_sample_three.csv':
+        if keep_first_experiment_only:
+            speeds.load_prob_over_time_in_arrays()
+            # See the next comment.
+            speeds.patch_prob_over_time_array_with_first_experiment_only()
+            speeds.populate_disposable_data_structure_for_prob_over_time()
+            speeds.patch_sort_prob_over_time_x_and_y_by_ascending_x_values()
+            # Average and stddev does not make sense for this type of plot
+            # because prob is not groupable by time.
+            speeds.patch_x_as_nested_list()
+            speeds.plot()
+    elif experiment_name_a == 'hmm_sample_three':
         speeds = MhVsGibbsVsRejection(file_name_a,delimiter,experiment_name_preamble + 'hmm_sample_three')
 
         speeds.load_time_over_sample_in_arrays()
@@ -403,14 +409,15 @@ if __name__ == '__main__':
             error_bars = True
         speeds.plot(error_bars)
 
-        speeds.load_prob_over_time_in_arrays()
-        # See the next comment.
-        speeds.patch_prob_over_time_array_with_first_experiment_only()
-        speeds.populate_disposable_data_structure_for_prob_over_time()
-        speeds.patch_sort_prob_over_time_x_and_y_by_ascending_x_values()
-        # Average and stddev does not make sense for this type of plot
-        # because prob is not groupable by time.
-        speeds.patch_x_as_nested_list()
-        speeds.plot()
+        if keep_first_experiment_only:
+            speeds.load_prob_over_time_in_arrays()
+            # See the next comment.
+            speeds.patch_prob_over_time_array_with_first_experiment_only()
+            speeds.populate_disposable_data_structure_for_prob_over_time()
+            speeds.patch_sort_prob_over_time_x_and_y_by_ascending_x_values()
+            # Average and stddev does not make sense for this type of plot
+            # because prob is not groupable by time.
+            speeds.patch_x_as_nested_list()
+            speeds.plot()
     else:
         print('code needs to be re-implemented. refer to older git commits')

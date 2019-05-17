@@ -31,9 +31,7 @@
 
 remove_csv_files()
 {
-    for output in ${OUTPUTS}; do
-        rm -rf "${output}"
-    done
+    rm -rf *.csv
 }
 
 check_binaries()
@@ -53,17 +51,21 @@ list_available_experiment_types()
 
 plot_comparison()
 {
-    local experiment_name_a=""${1}".csv"
-    local first_experiment_only="${2}"
-    local experiment_name_b=""${3}".csv"
+    local experiment_name_a="${1}"
+    local output_file_a="${2}"
+    local first_experiment_only="${3}"
+    local experiment_name_b="${4}"
+    local output_file_b="${5}"
 
-    [ "${experiment_name_b}" = '.csv' ] && unset experiment_name_b
+    [ -z "${experiment_name_b}" ] && unset experiment_name_b
 
     export MPLBACKEND=Agg
     python3 "${PLOT_DIRECTORY}"/plot_comparison.py \
         "${experiment_name_a}" \
+        "${output_file_a}" \
         "${first_experiment_only}" \
         "${experiment_name_b}" \
+        "${output_file_b}" \
         && printf "%s\n" 'check the resulting plots'
 }
 
@@ -121,11 +123,12 @@ EOF
 run_experiments_with_slurm()
 {
     local experiment_name="${1}"
-    local min=${2}
-    local max=${3}
-    local step=${4}
-    local memory_mb=${5}
-    local partition="${6}"
+    local output_file="${2}"
+    local min=${3}
+    local max=${4}
+    local step=${5}
+    local memory_mb=${6}
+    local partition="${7}"
     local slurm_conf_file='run_slurm.conf'
     local slurm_run_file='run_slurm.sh'
     local slurm_frontend_file='frontend.sh'
@@ -140,7 +143,7 @@ EOF
 . ../includes/fbopt --experiment-name ${experiment_name} --min ${min} --max ${max} --step ${step} \\
 EOF
     cat <<-"EOF" >> "${slurm_frontend_file}"
-    --single-run-with-label=$((${1}+1))
+    --single-run-with-label=$((${1}+1)) --output-file=""${2}".csv"
 EOF
 
     cat <<-EOF > "${slurm_run_file}"
@@ -152,13 +155,16 @@ EOF
 #SBATCH --mem-per-cpu=${memory_mb}
 #SBATCH -o ${experiment_name}-%j.out # STDOUT
 #SBATCH -e ${experiment_name}-%j.err # STDERR
+EOF
 
-export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+    cat <<-"EOF" >> "${slurm_run_file}"
+
+export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 
 . ../includes/variables.sh
 . ../includes/shared.sh
 
-srun --multi-prog run_slurm.conf
+srun --multi-prog run_slurm.conf ${SLURM_JOB_ID}
 EOF
 
 chmod +x "${slurm_frontend_file}" "${slurm_run_file}"
