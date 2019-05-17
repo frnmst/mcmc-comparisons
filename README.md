@@ -155,7 +155,8 @@ Options:
                                         this case you need to specify the experiment
                                         names separating them with a colon
                                         character and specifing the SWI then
-                                        XSB the experiment name, like this:
+                                        XSB the experiment name, as the argument
+                                        of the '--experiment-name' option:
                                         'experiment_name_swi:experiment_name_xsb'
     -S, --slurm                         run the experiments with the SLURM system.
                                         This disables the '--graph', '--parallel'
