@@ -32,7 +32,7 @@
 BINARIES='swipl xsb parallel python3 nice'
 EXPERIMENTS_DIRECTORY='../prolog'
 PLOT_DIRECTORY='../plot'
-LIST_OF_EXPRIMENT_NAMES='arithm_sample arithm_sample_three arithm_rejection_sample test33_sample test66_sample test33_cond_prob arithm_cond_prob hmm_sample_three'
+LIST_OF_EXPERIMENT_NAMES='arithm_sample arithm_sample_three arithm_rejection_sample test33_sample test66_sample test33_cond_prob arithm_cond_prob hmm_sample_three'
 LIST_OF_EXPERIMENT_TYPES='swi xsb'
 XSB_AMCMC_DIRECTORY='../prolog/amcmc/xsb'
 # Relative to $XSB_AMCMC_DIRECTORY
@@ -49,3 +49,4 @@ MEMORY=8192
 PARTITION='normal'
 # Empty means False.
 FIRST_EXPERIMENT_ONLY=''
+EXPERIMENT_TYPE='swi'

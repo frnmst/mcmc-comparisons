@@ -251,7 +251,7 @@ multi-switch:,no-remove-csv-files,swi-vs-xsb,slurm,memory:,partition:,first-expe
 
     # For the xsb type experiments, override the default experiment name to avoid using the
     # one used for swi. This code is here because of the print_flags option.
-    [ "${experiment_type}" = 'xsb' ] && [ "${experiment_name}" = "${experiment_NAME}" ] && experiment_name='experiment33_cond_prob'
+    [ "${experiment_type}" = 'xsb' ] && [ "${experiment_name}" = "${experiment_NAME}" ] && experiment_name='test33_cond_prob'
 
     [ "${print_flags}" = 'true' ] \
         && show_flags \
