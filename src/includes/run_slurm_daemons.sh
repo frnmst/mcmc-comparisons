@@ -31,5 +31,5 @@
 #
 
 # Run the node controller and client daemons.
-slurmctld -D -f /etc/slurm-llnl/slurm.conf &
-slurmd -D -f /etc/slurm-llnl/slurm.conf
+slurmctld -D -f slurm.conf &
+slurmd -D -f slurm.conf
