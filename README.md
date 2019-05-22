@@ -190,8 +190,6 @@ The purpose of using SLURM is to run the experiments is a multi node setup.
 Before continuing you must start the daemons
 
     $ cd ./includes
-    # systemctl start slurmd
-    # systemctl start slurmctld
     # ./run_slurm_daemons.sh
 
 To run an experiment you must simply use the slurm option, like this
@@ -216,7 +214,7 @@ https://slurm.schedmd.com/sbatch.html*
 ## CSV file format
 
 The results of each test will be logged to a corresponding CSV file with the 
-following line format, depending on the type of test:
+following line format, depending on the type of experiment:
 
     run_number,current_samples,mh_time,mh_probability,gibbs_time,gibbs_probability\n
 
@@ -224,6 +222,9 @@ or
 
     run_number,current_samples,adapt_on_time,adapt_on_probability,adapt_off_time,adapt_off_probability\n
 
+or
+
+    run_number,current_samples,mh_time,mh_probability,gibbs_time,gibbs_probability,rejection_time,rejection_probability\n
 
 where `\n` is the newline character (ASCII code 10).
 
