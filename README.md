@@ -9,8 +9,9 @@ comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/
 - [mcmc-comparisons](#mcmc-comparisons)
   - [Table of contents](#table-of-contents)
   - [Purpose](#purpose)
+    - [Method](#method)
   - [Dependencies for the installation phase](#dependencies-for-the-installation-phase)
-  - [Dependencies](#dependencies)
+  - [Runtime dependencies](#runtime-dependencies)
   - [Installation](#installation)
     - [Arch Linux based distros](#arch-linux-based-distros)
   - [Repository cloning](#repository-cloning)
@@ -39,6 +40,17 @@ comparision of various [Markov chain Monte Carlo](https://en.wikipedia.org/wiki/
 Compare different kinds of MCMC and AMCMC sampling algorithms to find out which
 ones are faster.
 
+### Method
+
+The independent variable is the number of *samples*, i.e. the number of steps
+to approximate the distribution. What we want to measure are the dependent
+variables: time and probability.
+
+Experiments are repeated on a different processor thread using the same input
+parameters. The results of these experiments are grouped by sample size so it is
+possible to compute average running times, average probabilities and their
+standard deviations. Plotting is carried out after these statistical computations.
+
 ## Dependencies for the installation phase
 
 The following packages are needed only during the installation phase. You may 
@@ -52,7 +64,7 @@ remove them after the installation if not needed.
 | [GNU Tar](https://www.gnu.org/software/tar/) | `/bin/tar` | `$ tar --version` | `tar (GNU tar) 1.30` |
 | [curl](https://curl.haxx.se) | `/bin/curl` | `$ curl --version` | `curl 7.63.0 (x86_64-pc-linux-gnu) libcurl/7.63.0 OpenSSL/1.1.1a zlib/1.2.11 libidn2/2.0.5 libpsl/0.20.2 (+libidn2/2.0.4) libssh2/1.8.0 nghttp2/1.35.1` |
 
-## Dependencies
+## Runtime dependencies
 
 You need to install the following packages and the ones listed for
 [fbopt](https://github.com/frnmst/fbopt#dependencies):
@@ -242,7 +254,7 @@ directory and it plots:
 2. the probability over samples, to determine the accuracy of the calculations
 3. the probability over running time, to determine convergence
 
-Normally, the average of multiple runs is done for plots 1 and 2. The error bars
+Normally, the average of multiple runs is done for plots 1 and 2. Error bars
 represent the standard deviation of the values. It is also possible to ignore
 the average and consider only the first run via the `--first-experiment-only`
 option.
