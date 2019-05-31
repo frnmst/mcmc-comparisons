@@ -68,9 +68,6 @@ class Utils():
             # Get the last index of the smallest number. This corresponds to the first run.
             self.last_index_of_first_run = len(self.data[0]) - 1 - self.data[0][::-1].index(min(self.data[0]))
 
-    def compute_avg(self):
-        pass
-
     def load_time_over_sample_in_arrays(self):
         # We need to extract only the relevant data without altering
         # the main data structure.
